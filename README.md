@@ -1,0 +1,136 @@
+# MBT — MT5 Backtest Toolkit
+
+**Backtest any MetaTrader 5 indicator by talking to Claude.**
+
+Drop one include into your indicator, and MBT lets you fetch live data, read
+your indicator's signals, and run a full backtest with an HTML report — all
+through Claude, no scripting.
+
+The core principle: **MBT never recalculates your indicator in Python.** Your
+indicator logs the signals *it* generated; MBT reads those real signals and
+replays real broker price bars forward to see whether each trade hit its stop
+or its target. What you backtest is exactly what your indicator drew.
+
+---
+
+## How it works
+
+```
+  Your MT5 indicator                MBT (this toolkit)
+  ┌──────────────────┐              ┌────────────────────────────┐
+  │ #include          │   writes     │ reads signals.csv          │
+  │  <SignalLogger>   ├─ signals.csv ┤                            │
+  │ LogSignal(...)    │              │ replays real MT5 bars      │
+  └──────────────────┘              │ forward → WIN / LOSS / OPEN │
+                                     │                            │
+                                     │ tools exposed to Claude:   │
+                                     │  get_ohlcv                 │
+                                     │  get_signals               │
+                                     │  backtest  (+ HTML report) │
+                                     │  validate_signals          │
+                                     └────────────────────────────┘
+```
+
+---
+
+## Install
+
+```bash
+cd MBT
+python install.py
+```
+
+This installs dependencies, creates `config.yaml`, copies `SignalLogger.mqh`
+into your MT5 `Include` folder, and prints the command to register the MCP
+server with Claude Code.
+
+Then edit **config.yaml**:
+
+```yaml
+mt5_path: "C:/.../terminal64.exe"   # the terminal your indicator runs on
+signal_file: "signals.csv"           # must match SignalLogFile in your indicator
+default_symbol: "EURUSD"
+default_timeframe: "1h"
+ambiguous_bar: "loss"                # conservative
+```
+
+Register the server (printed by the installer):
+
+```bash
+claude mcp add mbt python "/abs/path/to/MBT/mcp_server.py"
+```
+
+---
+
+## Add logging to your indicator
+
+```mql5
+#include <SignalLogger.mqh>
+
+// In OnInit (or on full recalculation) so the log matches the chart:
+ResetSignalLog();
+
+// When your buy/sell condition is true on bar `shift`:
+LogSignal(shift, true,  entry, sl, tp, "TRENDING");  // BUY
+LogSignal(shift, false, entry, sl, tp, "TRENDING");  // SELL
+```
+
+`regime` is optional — pass `""` if you don't use it. When present, the backtest
+report breaks results down per regime.
+
+Compile, attach to the chart. The indicator writes `signals.csv` to
+`<terminal>\MQL5\Files\`.
+
+---
+
+## Use it
+
+In Claude Code, inside this project:
+
+> "backtest my signals"
+> "fetch the last 300 EURUSD 1h bars"
+> "validate my signal file"
+> "backtest signals since 2026-01-01 and give me the report"
+
+The `backtest` tool returns full metrics and writes an HTML report (with an
+equity curve) to `reports/`.
+
+---
+
+## What the report contains
+
+- Total trades · wins · losses · open
+- Win rate · profit factor · expectancy (avg R)
+- Net result · max drawdown (in R)
+- Average win / loss · max win/loss streaks
+- Per-regime breakdown
+- Equity curve (cumulative R)
+
+Everything is in **R units** (1R = the risk on each trade, entry→SL), so
+results compare cleanly across symbols, timeframes, and account sizes.
+
+---
+
+## Signal CSV format
+
+`SignalLogger.mqh` writes this standard header:
+
+```
+time,symbol,timeframe,direction,entry,sl,tp,regime
+```
+
+Any file matching this format works — MBT is indicator-agnostic. Extra columns
+are ignored, and a header-less legacy file is still read if its first column is
+a timestamp.
+
+---
+
+## Tools (MCP)
+
+| Tool | Purpose |
+|------|---------|
+| `get_ohlcv` | live OHLCV bars for any symbol/timeframe |
+| `get_signals` | read your indicator's logged signals |
+| `backtest` | replay + full metrics + HTML report |
+| `validate_signals` | check SL/TP geometry of every signal |
+| `get_config` | show the active terminal + signal file |

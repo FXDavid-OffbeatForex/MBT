@@ -1,0 +1,11 @@
+# user-specific config (each user sets their own paths)
+config.yaml
+
+# generated reports
+reports/*.html
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/

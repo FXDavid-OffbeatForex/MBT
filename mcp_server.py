@@ -1,0 +1,136 @@
+"""
+MBT MCP server — exposes the MT5 Backtest Toolkit to Claude.
+
+Generic and config-driven: works for ANY indicator that logs signals with
+SignalLogger.mqh. No strategy-specific logic lives here.
+
+Register (run once, inside the MBT folder):
+    claude mcp add mbt python "<abs path>/MBT/mcp_server.py"
+"""
+
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from mcp.server.fastmcp import FastMCP
+
+from core.connection import load_config, signal_file_path
+from core.ohlcv      import fetch_recent
+from core.signals    import load_signals
+from core.backtest   import run_backtest, report_to_dict
+from core.report_html import render as render_html
+
+mcp = FastMCP("MBT — MT5 Backtest Toolkit")
+
+
+@mcp.tool()
+def get_ohlcv(symbol: str, timeframe: str, count: int = 100) -> dict:
+    """
+    Fetch live OHLCV bars from the configured MT5 terminal (newest first).
+    timeframe: 1m 5m 15m 30m 1h 4h 1d 1w.  Generic — works for any symbol.
+    """
+    try:
+        bars = fetch_recent(symbol, timeframe, count)
+        return {"symbol": symbol, "timeframe": timeframe, "count": len(bars), "bars": bars}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def get_signals(since_date: str = None) -> dict:
+    """
+    Read the signals your indicator logged (the file named in config.yaml).
+    These are the indicator's own decisions — not recalculated in Python.
+    since_date: optional 'YYYY-MM-DD' filter.
+    """
+    try:
+        sigs = load_signals()
+        if since_date:
+            cutoff = since_date
+            sigs = [s for s in sigs if s.time.strftime("%Y-%m-%d") >= cutoff]
+        return {
+            "count": len(sigs),
+            "file":  signal_file_path(),
+            "signals": [
+                {
+                    "time": s.time.strftime("%Y-%m-%d %H:%M"),
+                    "symbol": s.symbol, "timeframe": s.timeframe,
+                    "direction": s.direction,
+                    "entry": s.entry, "sl": s.sl, "tp": s.tp,
+                    "regime": s.regime,
+                }
+                for s in sigs
+            ],
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def backtest(since_date: str = None, html_report: bool = True) -> dict:
+    """
+    Backtest the logged signals: replay real MT5 bars forward from each entry
+    to see whether SL or TP was hit first. Returns full metrics (win rate,
+    profit factor, expectancy, drawdown, per-regime breakdown) in R units.
+
+    since_date:   optional 'YYYY-MM-DD' filter on signals.
+    html_report:  also write a standalone HTML report with an equity curve.
+    """
+    try:
+        sigs = load_signals()
+        if since_date:
+            sigs = [s for s in sigs if s.time.strftime("%Y-%m-%d") >= since_date]
+        if not sigs:
+            return {"error": "No signals to backtest (check config.yaml signal_file / since_date)."}
+
+        rep = run_backtest(signals=sigs)
+        out = report_to_dict(rep)
+
+        if html_report:
+            out["report_html"] = render_html(rep)
+
+        return out
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def validate_signals() -> dict:
+    """
+    Sanity-check the signal file: count rows, flag any with bad SL/TP geometry
+    (e.g. a LONG whose TP is below entry, or SL above entry). Strategy-agnostic.
+    """
+    try:
+        sigs = load_signals()
+        problems = []
+        for s in sigs:
+            if s.direction == "LONG" and not (s.sl < s.entry < s.tp):
+                problems.append({"time": s.time.strftime("%Y-%m-%d %H:%M"),
+                                 "issue": "LONG geometry: expected sl < entry < tp",
+                                 "entry": s.entry, "sl": s.sl, "tp": s.tp})
+            if s.direction == "SHORT" and not (s.tp < s.entry < s.sl):
+                problems.append({"time": s.time.strftime("%Y-%m-%d %H:%M"),
+                                 "issue": "SHORT geometry: expected tp < entry < sl",
+                                 "entry": s.entry, "sl": s.sl, "tp": s.tp})
+        return {
+            "total": len(sigs),
+            "valid": len(sigs) - len(problems),
+            "problems": problems,
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def get_config() -> dict:
+    """Show the active MBT configuration (which terminal and signal file are in use)."""
+    try:
+        cfg = load_config()
+        return {"config": cfg, "resolved_signal_file": signal_file_path()}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")

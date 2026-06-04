@@ -1,0 +1,4 @@
+MetaTrader5>=5.0.45
+numpy>=1.24.0
+PyYAML>=6.0
+mcp>=1.0.0

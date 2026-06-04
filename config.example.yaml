@@ -1,0 +1,24 @@
+# MBT — MT5 Backtest Toolkit configuration
+# Copy this file to config.yaml and edit the values for your setup.
+
+# Full path to the terminal64.exe of the MT5 instance your indicator runs on.
+# Right-click your MT5 shortcut -> Properties -> Target to find it.
+mt5_path: "C:/Users/Administrator/Desktop/Ava Trade MT5 Terminal/terminal64.exe"
+
+# The signal file your indicator writes (via SignalLogger.mqh).
+# Either a bare filename (looked up inside the MT5 .../MQL5/Files folder)
+# or an absolute path to the CSV.
+signal_file: "signals.csv"
+
+# Defaults used when the signal CSV rows don't carry their own symbol/timeframe.
+default_symbol: "EURUSD"
+default_timeframe: "1h"
+
+# How to resolve a bar whose high-low range contains BOTH the SL and the TP
+# (you cannot tell from OHLC which was touched first):
+#   loss  -> count it as a stop-out  (conservative, recommended)
+#   win   -> count it as a target hit (optimistic)
+ambiguous_bar: "loss"
+
+# Where generated HTML reports are written (relative to the MBT folder).
+reports_dir: "reports"
