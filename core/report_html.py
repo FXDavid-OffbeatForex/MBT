@@ -36,12 +36,17 @@ def render(rep: BacktestReport, filename: str = None) -> str:
     pf_str = "∞" if rep.profit_factor == float("inf") else f"{rep.profit_factor:.2f}"
 
     cards = "".join([
-        _metric_card("Total Trades", str(rep.total)),
+        _metric_card("Trades Taken", str(rep.total)),
+        _metric_card("Signals Skipped", str(rep.signals_skipped)),
         _metric_card("Win Rate", f"{rep.win_rate:.1f}%", rep.win_rate >= 50),
         _metric_card("Profit Factor", pf_str, rep.profit_factor >= 1.5),
         _metric_card("Expectancy", f"{rep.expectancy:+.2f}R", rep.expectancy > 0),
         _metric_card("Net Result", f"{rep.net_r:+.1f}R", rep.net_r > 0),
+        _metric_card(f"Return / Year @ {rep.risk_per_trade*100:.0f}% risk",
+                     f"{rep.annual_return_pct:+.1f}%", rep.annual_return_pct > 0),
+        _metric_card("Return / Month", f"{rep.monthly_return_pct:+.2f}%", rep.monthly_return_pct > 0),
         _metric_card("Max Drawdown", f"-{rep.max_drawdown_r:.1f}R", False),
+        _metric_card("Max Drawdown %", f"-{rep.max_drawdown_pct:.1f}%", False),
         _metric_card("Avg Win", f"+{rep.avg_win:.2f}R", True),
         _metric_card("Avg Loss", f"-{rep.avg_loss:.2f}R", False),
         _metric_card("Max Win Streak", str(rep.max_win_streak)),
@@ -98,7 +103,8 @@ def render(rep: BacktestReport, filename: str = None) -> str:
 </head>
 <body>
   <h1>Backtest Report — {rep.symbol} {rep.timeframe}</h1>
-  <div class="sub">{rep.total} signals · generated {datetime.now().strftime('%Y-%m-%d %H:%M')}
+  <div class="sub">{rep.total} trades taken · {rep.signals_skipped} signals skipped (trade already open)
+      · generated {datetime.now().strftime('%Y-%m-%d %H:%M')}
       · ambiguous bars counted as losses (conservative)</div>
 
   <div class="grid">{cards}</div>
