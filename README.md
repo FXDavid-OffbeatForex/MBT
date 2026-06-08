@@ -1,6 +1,6 @@
 # MBT — MT5 Backtest Toolkit
 
-**Backtest any MetaTrader 5 indicator by talking to Claude.**
+**Backtest any MetaTrader 5 indicator by talking to Claude AI — no scripting, no Python reimplementation, just real signals replayed on real broker data.**
 
 **Requirements:** Python 3.9+ · MetaTrader 5 (Windows) · Claude Code
 
@@ -173,3 +173,9 @@ signal_file: "C:/abs/path/to/MBT/examples/test_signals.csv"
 `scripts/` contains one-off analysis scripts used during strategy development.
 They are not part of the core toolkit and have no documentation — treat them as
 reference material, not user tools.
+
+---
+
+## Built on YouTube
+
+This toolkit was built live on [FX David](https://www.youtube.com/@fxdavid9392) — a series on building, verifying, and backtesting MT5 indicators with Claude AI.
