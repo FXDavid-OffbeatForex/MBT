@@ -15,6 +15,16 @@ or its target. What you backtest is exactly what your indicator drew.
 
 ---
 
+## The problem we were solving
+
+I use Claude to code my MQL5 indicators. To verify an indicator was calculating correctly, the natural next step was to have Claude write a Python script that checks the logic. The problem: if Claude made a mistake in the MQL5 code, there's a good chance it made the same mistake in the Python version it wrote to verify it. You're not getting an independent check — you're just confirming Claude was consistent with itself. Any bug in the original MQL5 code would still be invisible.
+
+The solution was to make the indicator log its own decisions — every signal it fires, the exact entry, SL, TP, and context it calculated at that moment. Now you're not testing a copy. You're testing the real thing.
+
+That's what MBT is built on. The indicator logs what it actually did. MBT reads those logs, fetches real broker price bars, and replays each trade forward — verifying the signals are generated correctly and whether the stop or the target was hit first. **What you backtest is exactly what your indicator drew — not a Python approximation of it.**
+
+---
+
 ## How it works
 
 ```
@@ -36,6 +46,10 @@ or its target. What you backtest is exactly what your indicator drew.
 ---
 
 ## Install
+
+> **New to this?** Paste the MBT repo URL into Claude Code and say:
+> `"Clone this repo and set up the MBT MCP server for me"`
+> Claude will clone it, run the installer, and register the server — just edit `config.yaml` when it's done.
 
 ```bash
 cd MBT
