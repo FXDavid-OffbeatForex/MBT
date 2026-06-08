@@ -2,6 +2,8 @@
 
 **Backtest any MetaTrader 5 indicator by talking to Claude.**
 
+**Requirements:** Python 3.9+ · MetaTrader 5 (Windows) · Claude Code
+
 Drop one include into your indicator, and MBT lets you fetch live data, read
 your indicator's signals, and run a full backtest with an HTML report — all
 through Claude, no scripting.
@@ -129,8 +131,31 @@ a timestamp.
 
 | Tool | Purpose |
 |------|---------|
-| `get_ohlcv` | live OHLCV bars for any symbol/timeframe |
+| `ping` | check MT5 is running and reachable |
+| `get_ohlcv` | live OHLCV bars for any symbol/timeframe (max 2000) |
 | `get_signals` | read your indicator's logged signals |
-| `backtest` | replay + full metrics + HTML report |
+| `backtest` | replay + full metrics + HTML report (requires internet for chart) |
 | `validate_signals` | check SL/TP geometry of every signal |
 | `get_config` | show the active terminal + signal file |
+
+> **Note:** the HTML report is written to `reports/` on your machine and opened in a
+> browser. Claude cannot open it directly — it will give you the file path.
+
+---
+
+## Examples
+
+`examples/` contains sample signal CSVs you can use to try MBT without attaching
+an indicator. Point `signal_file` in `config.yaml` to any of them:
+
+```yaml
+signal_file: "C:/abs/path/to/MBT/examples/test_signals.csv"
+```
+
+---
+
+## Research scripts
+
+`scripts/` contains one-off analysis scripts used during strategy development.
+They are not part of the core toolkit and have no documentation — treat them as
+reference material, not user tools.

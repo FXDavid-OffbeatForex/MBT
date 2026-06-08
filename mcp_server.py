@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from mcp.server.fastmcp import FastMCP
 
-from core.connection import load_config, signal_file_path
+from core.connection import load_config, connect, signal_file_path
 from core.ohlcv      import fetch_recent
 from core.signals    import load_signals
 from core.backtest   import run_backtest, report_to_dict
@@ -29,7 +29,9 @@ def get_ohlcv(symbol: str, timeframe: str, count: int = 100) -> dict:
     """
     Fetch live OHLCV bars from the configured MT5 terminal (newest first).
     timeframe: 1m 5m 15m 30m 1h 4h 1d 1w.  Generic — works for any symbol.
+    count: max 2000 bars.
     """
+    count = min(count, 2000)
     try:
         bars = fetch_recent(symbol, timeframe, count)
         return {"symbol": symbol, "timeframe": timeframe, "count": len(bars), "bars": bars}
@@ -75,7 +77,9 @@ def backtest(since_date: str = None, html_report: bool = True) -> dict:
     profit factor, expectancy, drawdown, per-regime breakdown) in R units.
 
     since_date:   optional 'YYYY-MM-DD' filter on signals.
-    html_report:  also write a standalone HTML report with an equity curve.
+    html_report:  write a standalone HTML report to reports/ and return its path.
+                  The report requires an internet connection (loads Chart.js from CDN).
+                  Claude cannot open the file — share the path with the user to open in a browser.
     """
     try:
         sigs = load_signals()
@@ -124,12 +128,33 @@ def validate_signals() -> dict:
 
 @mcp.tool()
 def get_config() -> dict:
-    """Show the active MBT configuration (which terminal and signal file are in use)."""
+    """Show the active MBT configuration (which terminal and signal file are in use).
+    Note: the output includes local file paths — do not share it publicly."""
     try:
         cfg = load_config()
         return {"config": cfg, "resolved_signal_file": signal_file_path()}
     except Exception as e:
         return {"error": str(e)}
+
+
+@mcp.tool()
+def ping() -> dict:
+    """Check whether the MT5 terminal is running and reachable. Use this first
+    if any other tool returns an error, to confirm the connection is alive."""
+    try:
+        connect()
+        import MetaTrader5 as mt5
+        info = mt5.terminal_info()
+        if info is None:
+            return {"connected": False, "error": "terminal_info() returned None"}
+        return {
+            "connected": True,
+            "terminal": info.name,
+            "build": info.build,
+            "trade_allowed": info.trade_allowed,
+        }
+    except Exception as e:
+        return {"connected": False, "error": str(e)}
 
 
 if __name__ == "__main__":

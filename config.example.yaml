@@ -3,7 +3,7 @@
 
 # Full path to the terminal64.exe of the MT5 instance your indicator runs on.
 # Right-click your MT5 shortcut -> Properties -> Target to find it.
-mt5_path: "C:/Users/Administrator/Desktop/Ava Trade MT5 Terminal/terminal64.exe"
+mt5_path: "C:/Path/To/Your/terminal64.exe"
 
 # The signal file your indicator writes (via SignalLogger.mqh).
 # Either a bare filename (looked up inside the MT5 .../MQL5/Files folder)
@@ -22,3 +22,11 @@ ambiguous_bar: "loss"
 
 # Where generated HTML reports are written (relative to the MBT folder).
 reports_dir: "reports"
+
+# Spread + slippage allowance in points, used to estimate transaction cost per trade.
+# 5 is a reasonable default for most forex pairs; increase for gold/indices.
+slippage_points: 5.0
+
+# Risk per trade as a decimal (0.01 = 1%) — used only to translate R units into
+# account-percentage returns in the backtest report. Does not affect WIN/LOSS outcomes.
+risk_per_trade: 0.01

@@ -62,7 +62,7 @@ def load_signals(path: Optional[str] = None) -> List[Signal]:
     cfg  = load_config()
     path = path or signal_file_path()
 
-    with open(path, encoding="ansi", newline="") as f:
+    with open(path, encoding="cp1252", errors="replace", newline="") as f:
         rows = list(csv.reader(f))
 
     if not rows:

@@ -5,6 +5,7 @@ Uses Chart.js from a CDN so the output is a single self-contained .html the
 user can open in any browser or screenshot for content.
 """
 
+import html as _html
 import os
 from datetime import datetime
 
@@ -33,6 +34,8 @@ def render(rep: BacktestReport, filename: str = None) -> str:
 
     path = os.path.join(reports_dir(), filename)
 
+    sym = _html.escape(rep.symbol)
+    tf  = _html.escape(rep.timeframe)
     pf_str = "∞" if rep.profit_factor == float("inf") else f"{rep.profit_factor:.2f}"
 
     cards = "".join([
@@ -79,7 +82,7 @@ def render(rep: BacktestReport, filename: str = None) -> str:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>MBT Backtest — {rep.symbol} {rep.timeframe}</title>
+<title>MBT Backtest — {sym} {tf}</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   body {{ background:#0d1117; color:#e6edf3; font-family:-apple-system,Segoe UI,Roboto,sans-serif;
@@ -102,7 +105,7 @@ def render(rep: BacktestReport, filename: str = None) -> str:
 </style>
 </head>
 <body>
-  <h1>Backtest Report — {rep.symbol} {rep.timeframe}</h1>
+  <h1>Backtest Report — {sym} {tf}</h1>
   <div class="sub">{rep.total} trades taken · {rep.signals_skipped} signals skipped (trade already open)
       · generated {datetime.now().strftime('%Y-%m-%d %H:%M')}
       · ambiguous bars counted as losses (conservative)</div>

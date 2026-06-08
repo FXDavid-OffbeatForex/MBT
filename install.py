@@ -25,8 +25,10 @@ def step(msg):
 
 def install_deps():
     step("Installing Python dependencies")
-    subprocess.run([sys.executable, "-m", "pip", "install", "-r",
-                    os.path.join(ROOT, "requirements.txt")], check=False)
+    result = subprocess.run([sys.executable, "-m", "pip", "install", "-r",
+                             os.path.join(ROOT, "requirements.txt")])
+    if result.returncode != 0:
+        print("WARNING: pip install failed. Check the error above before continuing.")
 
 
 def make_config():

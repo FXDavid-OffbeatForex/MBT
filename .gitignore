@@ -9,3 +9,8 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# signal CSVs — example files in examples/ are tracked; any CSV dropped in
+# the root or scripts/ is personal data and should not be committed
+/*.csv
+/scripts/*.csv
