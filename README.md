@@ -2,7 +2,7 @@
 
 **Backtest any MetaTrader 5 indicator by talking to Claude AI — no scripting, no Python reimplementation, just real signals replayed on real broker data.**
 
-**Requirements:** Python 3.9+ · MetaTrader 5 (Windows) · Claude Code
+**Requirements:** Python 3.9+ · MetaTrader 5 (Windows, or Linux/macOS via Wine) · Claude Code
 
 Drop one include into your indicator, and MBT lets you fetch live data, read
 your indicator's signals, and run a full backtest with an HTML report — all
@@ -75,6 +75,49 @@ Register the server (printed by the installer):
 ```bash
 claude mcp add mbt python "/abs/path/to/MBT/mcp_server.py"
 ```
+
+---
+
+## Running on Linux / macOS (via Wine)
+
+MetaTrader 5 and its Python package are Windows-only — but MBT runs fine on
+Linux and macOS through [Wine](https://www.winehq.org/). The backtest results are
+identical to Windows; only the setup differs.
+
+**The one rule:** the `MetaTrader5` Python package talks to the terminal through a
+Windows DLL, so it must run under the **same Wine prefix's Python** as MT5 — not
+your system Python. System `python3` will always fail with
+`ModuleNotFoundError: No module named 'MetaTrader5'`.
+
+1. **Install MT5 under Wine** — download the installer from your broker (or
+   MetaQuotes) and run it with Wine. It lands in a Wine prefix, e.g.
+   `~/.wine/drive_c/Program Files/MetaTrader 5/terminal64.exe`.
+
+2. **Install a Windows Python *into the same Wine prefix*** and add the deps:
+
+   ```bash
+   wine /path/to/wine/python.exe -m pip install MetaTrader5 numpy PyYAML mcp
+   ```
+
+3. **Point `config.yaml` at the Wine paths.** Use the Windows-style terminal path,
+   and a `Z:`-mapped absolute path for the signal file (Wine maps `Z:` to `/`):
+
+   ```yaml
+   mt5_path: "C:/Program Files/MetaTrader 5/terminal64.exe"
+   signal_file: "Z:/home/you/path/to/signals.csv"
+   ```
+
+4. **Run everything through the Wine Python**, not system Python:
+
+   ```bash
+   wine /path/to/wine/python.exe mcp_server.py        # the MCP server
+   wine /path/to/wine/python.exe run_report.py        # a one-off backtest
+   ```
+
+> **Tip:** `SignalLogger.mqh` lives inside the Wine prefix's
+> `MQL5/Include` folder — copy it there manually if `install.py` can't find it.
+> Everything else (the Python core, the backtest engine, the HTML report) runs
+> unmodified.
 
 ---
 
