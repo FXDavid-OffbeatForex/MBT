@@ -13,6 +13,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from banner import banner
 from mcp.server.fastmcp import FastMCP
 
 from core.connection import load_config, connect, signal_file_path
@@ -158,4 +159,5 @@ def ping() -> dict:
 
 
 if __name__ == "__main__":
+    print(banner(stream=sys.stderr), file=sys.stderr)
     mcp.run(transport="stdio")

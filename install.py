@@ -75,6 +75,8 @@ def print_mcp_cmd():
 
 
 if __name__ == "__main__":
+    from banner import banner
+    sys.stdout.write(banner(stream=sys.stdout))
     install_deps()
     make_config()
     copy_include()
