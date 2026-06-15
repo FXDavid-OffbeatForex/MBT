@@ -1,4 +1,4 @@
-# MBT — MT5 Backtest Toolkit
+# MBT — MT5 Backtest Toolkit (MCP for Claude Code)
 
 **Backtest any MetaTrader 5 indicator by talking to Claude AI — no scripting, no Python reimplementation, just real signals replayed on real broker data.**
 
