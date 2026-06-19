@@ -102,6 +102,19 @@ def run_indicator(indicator, symbol, timeframe="h1", from_date=None, to_date=Non
         return {"error": "indicator name is empty."}
 
     host_name = host_ea if host_ea.lower().endswith(".ex5") else host_ea + ".ex5"
+
+    # The host EA is what loads the indicator; if it isn't compiled the tester runs
+    # a non-existent Expert and logs nothing, which would look like an indicator
+    # problem. Check up front and say precisely what to do, so a plain "backtest my
+    # indicator" can self-recover (compile the host, then retry) without the user
+    # needing to know the host EA exists.
+    host_ex5 = os.path.join(_data_dir(), "MQL5", "Experts", host_name)
+    if not os.path.isfile(host_ex5):
+        return {"error": "The MBT host EA '%s' is not compiled (looked for %s). It's "
+                        "what run_indicator uses to load your indicator headlessly — "
+                        "compile it first (e.g. compile_ea '%s'); install.py puts its "
+                        "source in MQL5/Experts." % (host_ea, host_ex5, host_ea)}
+
     stamp = time.strftime("%Y%m%d_%H%M%S")
     run_name = "%s_%s" % (os.path.splitext(os.path.basename(indicator))[0], stamp)
 

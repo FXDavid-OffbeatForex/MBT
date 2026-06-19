@@ -189,10 +189,8 @@ Just describe what you want in Claude Code — Claude picks the right tool autom
 
 Claude runs the indicator headlessly (it computes over the whole range and logs
 its own signals), then replays those signals on real bars and hands you the
-metrics + an HTML report. You never open a chart.
-
-> *First time only: say "set up the MBT headless runner" and Claude handles the
-> one-time setup, telling you if anything's missing.*
+metrics + an HTML report. You never open a chart. (First time, Claude will sort
+out any one-time setup for you.)
 
 **Or backtest signals you already have** (from a previous run, or an indicator
 running live on a chart):
