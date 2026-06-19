@@ -144,36 +144,50 @@ Compile, attach to the chart. The indicator writes `signals.csv` to
 
 ## Use it
 
-In Claude Code, inside this project:
+Just describe what you want in Claude Code — Claude picks the right tool automatically.
+
+**Backtest your indicator's signals:**
 
 > "backtest my signals"
-> "fetch the last 300 EURUSD 1h bars"
+> "backtest signals since 2026-01-01 and give me the HTML report"
 > "validate my signal file"
-> "backtest signals since 2026-01-01 and give me the report"
+> "fetch the last 300 EURUSD 1h bars"
 
 The `backtest` tool returns full metrics and writes an HTML report (with an
 equity curve) to `reports/`.
 
 ### Build, test & verify an Expert Advisor
 
-MBT also drives MT5's own toolchain, so you can take a strategy from indicator to
-executable EA — compile it, backtest its **real** code, and prove it still matches
-the strategy:
+Once you have an EA (or ask Claude to build one from your indicator), MBT lets
+you compile it, run it through MT5's real tester, and confirm it trades exactly
+the same way your indicator does — all by talking to Claude:
 
-> "compile my EA"
-> "run a strategy tester backtest of my EA on XAUUSD H1 since 2018"
-> "check my EA's logged signals match the indicator's"
+**Step 1 — compile and fix:**
+> "check my EA for errors"
+> "fix the errors and compile again"
 
-- `compile_ea` returns structured errors/warnings straight from MetaEditor.
-- `run_strategy_tester` runs MT5's own headless Strategy Tester (real
-  spread/swaps/execution) and returns the metrics plus the EA's `OnTester()`
-  summary as a cross-check.
-- `signal_parity` mechanically diffs two signal sets and pinpoints the first
-  divergence — the deterministic "did the port drift?" check.
+Claude will compile with MetaEditor, read the structured errors back, fix the
+code, and recompile until it's clean — without you needing to open MetaEditor.
 
-These need the `tester:` block filled in (see `config.example.yaml`). On
+**Step 2 — backtest the real EA code:**
+> "run a strategy tester backtest of my EA on XAUUSD H1 from 2018 to now"
+
+This runs MT5's own headless Strategy Tester — real spread, swaps and execution
+— not a Python simulation. Returns the same metrics you'd see in MT5's Strategy
+Tester report.
+
+**Step 3 — cross-check EA results against your indicator:**
+> "compare my EA's results with my indicator backtest — do they match?"
+
+If you already ran a signal-replay backtest of your indicator, this checks
+whether the EA produces the same trades on the same bars. The first bar where
+they diverge is pinpointed so you know exactly where the port drifted.
+
+---
+
+*These three steps need the `tester:` block filled in (see `config.example.yaml`). On
 Linux/macOS they run through Wine automatically; set `portable: true` if your
-install keeps its data beside the exe.
+install keeps its data beside the exe.*
 
 ---
 
