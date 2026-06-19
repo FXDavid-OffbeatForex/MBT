@@ -1,5 +1,16 @@
 # MBT — MT5 Backtest Toolkit (MCP for Claude Code)
 
+```
+  ███╗   ███╗██████╗ ████████╗
+  ████╗ ████║██╔══██╗╚══██╔══╝
+  ██╔████╔██║██████╔╝   ██║
+  ██║╚██╔╝██║██╔══██╗   ██║
+  ██║ ╚═╝ ██║██████╔╝   ██║
+  ╚═╝     ╚═╝╚═════╝    ╚═╝
+   MT5 Backtest Toolkit · replay real signals on real bars
+   ╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴
+```
+
 **Backtest, build and verify MetaTrader 5 strategies by talking to Claude AI — no scripting, no Python reimplementation, just real signals on real broker data.**
 
 **Requirements:** Python 3.9+ · MetaTrader 5 (Windows, or Linux/macOS via Wine) · Claude Code
@@ -180,12 +191,8 @@ Claude runs the indicator headlessly (it computes over the whole range and logs
 its own signals), then replays those signals on real bars and hands you the
 metrics + an HTML report. You never open a chart.
 
-> **One-time setup for the headless run:** it needs the `tester:` block filled in
-> (see `config.example.yaml`) and the bundled host EA `MBT_IndicatorHost.mq5`
-> (in `mql5/`) compiled into `MQL5/Experts` — just ask Claude to "compile the MBT
-> indicator host" once. The indicator must log via `SignalLogger.mqh` (a bespoke
-> logger that writes only to the local Files folder won't be found under the
-> tester), and it runs with its **default** inputs.
+> *First time only: say "set up the MBT headless runner" and Claude handles the
+> one-time setup, telling you if anything's missing.*
 
 **Or backtest signals you already have** (from a previous run, or an indicator
 running live on a chart):
@@ -225,11 +232,23 @@ If you already ran a signal-replay backtest of your indicator, this checks
 whether the EA produces the same trades on the same bars. The first bar where
 they diverge is pinpointed so you know exactly where the port drifted.
 
----
+### Setup for the headless run & EA tools
 
-*These three steps need the `tester:` block filled in (see `config.example.yaml`). On
-Linux/macOS they run through Wine automatically; set `portable: true` if your
-install keeps its data beside the exe.*
+The plain-English prompts above are all you need day to day — this is the one-time
+plumbing behind them (Claude can do all of it for you).
+
+- **`tester:` block** — both the headless `run_indicator` and the EA tools
+  (`compile_ea`, `run_strategy_tester`, `signal_parity`) need it filled in; copy it
+  from `config.example.yaml`. The plain indicator-replay `backtest` does not.
+- **Host EA** — `run_indicator` loads your indicator through a bundled helper EA,
+  `MBT_IndicatorHost.mq5`. `install.py` copies it into `MQL5/Experts`; it must be
+  compiled once (just ask Claude to "compile the MBT indicator host").
+- **Indicator logging** — the indicator must log via `SignalLogger.mqh` (a custom
+  logger that writes only to the terminal's local `Files` folder isn't visible to
+  the headless runner). Headless runs use the indicator's **default** inputs.
+- **Linux/macOS** — these tools launch the terminal directly through Wine; set
+  `launcher: "wine"` (the installer defaults it) and `portable: true` if the install
+  keeps its data beside the exe.
 
 ---
 
