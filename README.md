@@ -38,6 +38,7 @@ That's what MBT is built on. The indicator logs what it actually did. MBT reads 
                                      │ tools exposed to Claude:   │
                                      │  get_ohlcv                 │
                                      │  get_signals               │
+                                     │  run_indicator (headless)  │
                                      │  backtest  (+ HTML report) │
                                      │  validate_signals          │
                                      └────────────────────────────┘
@@ -137,8 +138,16 @@ LogSignal(shift, false, entry, sl, tp, "TRENDING");  // SELL
 `regime` is optional — pass `""` if you don't use it. When present, the backtest
 report breaks results down per regime.
 
-Compile, attach to the chart. The indicator writes `signals.csv` to
-`<terminal>\MQL5\Files\`.
+Compile it — that's all. From here you have two ways to make the indicator log
+its signals:
+
+- **Headless (recommended):** ask Claude to run it — `run_indicator` computes the
+  indicator over your chosen date range with no chart and writes the signals
+  automatically. Nothing to attach.
+- **On a chart:** attach the compiled indicator to a chart as usual; it writes
+  `signals.csv` live as it runs.
+
+Either way you end up with the same signal file, which the `backtest` tool reads.
 
 ---
 
@@ -146,7 +155,23 @@ Compile, attach to the chart. The indicator writes `signals.csv` to
 
 Just describe what you want in Claude Code — Claude picks the right tool automatically.
 
-**Backtest your indicator's signals:**
+**Run your indicator and backtest it — no chart needed:**
+
+> "run my RegimePlusePro indicator on XAUUSD H1 for the last 3 years, then backtest it"
+
+Claude runs the indicator headlessly (it computes over the whole range and logs
+its own signals), then replays those signals on real bars and hands you the
+metrics + an HTML report. You never open a chart.
+
+> **One-time setup for the headless run:** it needs the `tester:` block filled in
+> (see `config.example.yaml`) and the bundled host EA `MBT_IndicatorHost.mq5`
+> (in `mql5/`) compiled into `MQL5/Experts` — just ask Claude to "compile the MBT
+> indicator host" once. The indicator must log via `SignalLogger.mqh` (a bespoke
+> logger that writes only to the local Files folder won't be found under the
+> tester), and it runs with its **default** inputs.
+
+**Or backtest signals you already have** (from a previous run, or an indicator
+running live on a chart):
 
 > "backtest my signals"
 > "backtest signals since 2026-01-01 and give me the HTML report"
@@ -230,6 +255,7 @@ a timestamp.
 | `validate_signals` | check SL/TP geometry of every signal |
 | `get_config` | show the active terminal + signal file |
 | `compile_ea` | compile an EA/indicator with MetaEditor → structured errors/warnings |
+| `run_indicator` | run an indicator headlessly so it logs its signals — no chart attach |
 | `run_strategy_tester` | run MT5's real headless Strategy Tester on an EA → metrics + report |
 | `signal_parity` | diff two signal sets and report the first divergence |
 

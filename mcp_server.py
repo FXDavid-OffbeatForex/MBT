@@ -24,6 +24,7 @@ from core.report_html import render as render_html
 from core.tester      import run_strategy_tester as _run_tester
 from core.compiler    import compile_mql5 as _compile_mql5
 from core.parity      import signal_parity as _signal_parity
+from core.indicator_runner import run_indicator as _run_indicator
 
 mcp = FastMCP("MBT — MT5 Backtest Toolkit")
 
@@ -184,6 +185,36 @@ def compile_ea(source: str) -> dict:
     """
     try:
         return _compile_mql5(source)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def run_indicator(indicator: str, symbol: str, timeframe: str = "1h",
+                  from_date: str = None, to_date: str = None,
+                  signal_file: str = "signals.csv") -> dict:
+    """
+    Run an indicator headlessly so it logs its own signals — no chart attach.
+
+    MT5 can't attach an indicator to a chart programmatically, so this loads the
+    indicator inside MT5's Strategy Tester (via a generic host EA) and lets it
+    compute bar-by-bar over the date range. The indicator's own SignalLogger.mqh
+    writes the signals, which this reads back. After it returns, run `backtest`
+    to evaluate those signals.
+
+    indicator:  name under MQL5/Indicators (e.g. 'RegimePlusePro'), .ex5 optional.
+    symbol:     broker symbol (e.g. 'XAUUSD').
+    timeframe:  1m 5m 15m 30m 1h 4h 1d 1w.
+    from_date / to_date: 'YYYY-MM-DD' (omit for the broker's full history).
+    signal_file: the indicator's SignalLogFile name (default 'signals.csv').
+
+    Requires tester.* in config.yaml, the host EA + the indicator compiled, and
+    the indicator to log via SignalLogger.mqh. The indicator runs with its DEFAULT
+    inputs. Returns the signal CSV path and how many signals were logged.
+    """
+    try:
+        return _run_indicator(indicator, symbol, timeframe, from_date, to_date,
+                              signal_file=signal_file)
     except Exception as e:
         return {"error": str(e)}
 

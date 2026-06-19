@@ -20,12 +20,29 @@
 input string SignalLogFile = "signals.csv";
 
 //+------------------------------------------------------------------+
+//| Where the log is written.                                        |
+//|                                                                  |
+//| On a chart the file goes to the local  <terminal>\MQL5\Files\ .  |
+//| Under the Strategy Tester that folder is a per-agent sandbox the |
+//| toolkit can't find, so when running in the tester we transparently|
+//| switch to the shared  Common\Files\  folder instead — which is   |
+//| exactly where MBT's headless `run_indicator` tool reads from.    |
+//| Every file call below ORs in this flag, so the two modes stay in |
+//| lockstep (a chart write that local-deletes won't fight a tester  |
+//| write that common-deletes).                                      |
+//+------------------------------------------------------------------+
+int _SigCommonFlag()
+{
+   return MQLInfoInteger(MQL_TESTER) ? FILE_COMMON : 0;
+}
+
+//+------------------------------------------------------------------+
 //| Reset the log (call once in OnInit, or on full recalculation,    |
 //| so the file always reflects the currently drawn signals).        |
 //+------------------------------------------------------------------+
 void ResetSignalLog()
 {
-   FileDelete(SignalLogFile);
+   FileDelete(SignalLogFile, _SigCommonFlag());
 }
 
 //+------------------------------------------------------------------+
@@ -33,8 +50,9 @@ void ResetSignalLog()
 //+------------------------------------------------------------------+
 int _OpenSignalLog()
 {
-   bool isNew = !FileIsExist(SignalLogFile);
-   int  h     = FileOpen(SignalLogFile, FILE_READ|FILE_WRITE|FILE_TXT|FILE_ANSI);
+   int  common = _SigCommonFlag();
+   bool isNew  = !FileIsExist(SignalLogFile, common);
+   int  h      = FileOpen(SignalLogFile, FILE_READ|FILE_WRITE|FILE_TXT|FILE_ANSI|common);
    if(h == INVALID_HANDLE)
       return INVALID_HANDLE;
 
@@ -60,11 +78,12 @@ void LogSignal(int shift, bool isLong, double entry, double sl, double tp,
                string regime = "")
 {
    datetime barTime = iTime(_Symbol, _Period, shift);
+   int      common  = _SigCommonFlag();
 
    // --- dedup: skip if this bar's time is already the last logged row ---
-   if(FileIsExist(SignalLogFile))
+   if(FileIsExist(SignalLogFile, common))
    {
-      int rh = FileOpen(SignalLogFile, FILE_READ|FILE_TXT|FILE_ANSI);
+      int rh = FileOpen(SignalLogFile, FILE_READ|FILE_TXT|FILE_ANSI|common);
       if(rh != INVALID_HANDLE)
       {
          string lastLine = "";
