@@ -30,3 +30,19 @@ slippage_points: 5.0
 # Risk per trade as a decimal (0.01 = 1%) — used only to translate R units into
 # account-percentage returns in the backtest report. Does not affect WIN/LOSS outcomes.
 risk_per_trade: 0.01
+
+# --- Real MT5 Strategy Tester runner (run_strategy_tester tool) ---------------
+# Optional. Drives MT5's own Strategy Tester headlessly to backtest an Expert
+# Advisor's real code (real spread/swaps/execution), complementing the signal
+# replay above. Off-Windows a launcher such as "wine" is prepended automatically.
+tester:
+  terminal_path: ""     # full path to terminal64.exe; blank -> falls back to mt5_path
+  metaeditor_path: ""   # blank -> MetaEditor64.exe next to terminal64.exe
+  data_dir: ""          # MT5 data/install dir; blank -> derived from terminal_path folder
+  common_files: ""      # MetaQuotes Common/Files dir (where EA OnTester summaries land); blank -> auto
+  launcher: ""          # blank on Windows; "wine" off-Windows (auto-defaulted)
+  portable: false       # set true if the install keeps its data beside the exe -> launch terminal /portable
+  default_deposit: 10000
+  default_leverage: 100
+  default_model: "open_prices"   # every_tick | 1min_ohlc | open_prices | math | real_ticks
+  timeout_sec: 1800

@@ -154,6 +154,27 @@ In Claude Code, inside this project:
 The `backtest` tool returns full metrics and writes an HTML report (with an
 equity curve) to `reports/`.
 
+### Build, test & verify an Expert Advisor
+
+MBT also drives MT5's own toolchain, so you can take a strategy from indicator to
+executable EA — compile it, backtest its **real** code, and prove it still matches
+the strategy:
+
+> "compile my EA"
+> "run a strategy tester backtest of my EA on XAUUSD H1 since 2018"
+> "check my EA's logged signals match the indicator's"
+
+- `compile_ea` returns structured errors/warnings straight from MetaEditor.
+- `run_strategy_tester` runs MT5's own headless Strategy Tester (real
+  spread/swaps/execution) and returns the metrics plus the EA's `OnTester()`
+  summary as a cross-check.
+- `signal_parity` mechanically diffs two signal sets and pinpoints the first
+  divergence — the deterministic "did the port drift?" check.
+
+These need the `tester:` block filled in (see `config.example.yaml`). On
+Linux/macOS they run through Wine automatically; set `portable: true` if your
+install keeps its data beside the exe.
+
 ---
 
 ## What the report contains
@@ -194,6 +215,9 @@ a timestamp.
 | `backtest` | replay + full metrics + HTML report (requires internet for chart) |
 | `validate_signals` | check SL/TP geometry of every signal |
 | `get_config` | show the active terminal + signal file |
+| `compile_ea` | compile an EA/indicator with MetaEditor → structured errors/warnings |
+| `run_strategy_tester` | run MT5's real headless Strategy Tester on an EA → metrics + report |
+| `signal_parity` | diff two signal sets and report the first divergence |
 
 > **Note:** the HTML report is written to `reports/` on your machine and opened in a
 > browser. Claude cannot open it directly — it will give you the file path.

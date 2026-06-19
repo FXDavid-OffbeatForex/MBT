@@ -21,6 +21,9 @@ from core.ohlcv      import fetch_recent
 from core.signals    import load_signals
 from core.backtest   import run_backtest, report_to_dict
 from core.report_html import render as render_html
+from core.tester      import run_strategy_tester as _run_tester
+from core.compiler    import compile_mql5 as _compile_mql5
+from core.parity      import signal_parity as _signal_parity
 
 mcp = FastMCP("MBT — MT5 Backtest Toolkit")
 
@@ -134,6 +137,73 @@ def get_config() -> dict:
     try:
         cfg = load_config()
         return {"config": cfg, "resolved_signal_file": signal_file_path()}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def run_strategy_tester(expert: str, symbol: str, timeframe: str = "1h",
+                        from_date: str = None, to_date: str = None,
+                        model: str = "open_prices", deposit: float = None) -> dict:
+    """
+    Run a REAL MT5 Strategy Tester backtest of an Expert Advisor and return the
+    parsed metrics. Unlike `backtest` (which replays logged signals in Python),
+    this drives MT5's own tester headlessly so the EA's real code runs bar-by-bar
+    with real spread, swaps and execution.
+
+    expert:     EA name in MQL5/Experts (e.g. 'RegimePlusPro_Gold_EA'), .ex5 optional.
+    symbol:     broker symbol (e.g. 'XAUUSD').
+    timeframe:  1m 5m 15m 30m 1h 4h 1d 1w.
+    from_date / to_date: 'YYYY-MM-DD' (omit to use the broker's full history).
+    model:      every_tick | 1min_ohlc | open_prices | math | real_ticks.
+                'open_prices' is faithful and fast for bar-close EAs; use
+                'every_tick'/'real_ticks' for spread/slippage-accurate numbers.
+
+    Requires tester.* configured in config.yaml (terminal path etc.). Returns the
+    report path plus metrics; may take minutes for long ranges / tick models.
+    """
+    try:
+        return _run_tester(expert, symbol, timeframe, from_date, to_date,
+                           model=model, deposit=deposit)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def compile_ea(source: str) -> dict:
+    """
+    Compile an EA or indicator with MetaEditor and return structured results:
+    {ok, errors, warnings, messages[{severity,file,line,col,code,text}], ex5}.
+    The first feedback step when building/fixing an EA — works whether or not the
+    terminal is running.
+
+    source: name (e.g. 'RegimePlusPro_Gold_EA'), a path under the MQL5 tree, or an
+            absolute path. '.mq5' is assumed if no extension is given.
+    Requires tester.* in config.yaml (MetaEditor is found next to terminal64.exe).
+    """
+    try:
+        return _compile_mql5(source)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def signal_parity(reference: str, candidate: str = None,
+                  price_tol: float = 0.0) -> dict:
+    """
+    Mechanically diff two signal sets (same MBT CSV format) bar-by-bar and report
+    the first divergence — the deterministic "does the EA match the strategy"
+    check. Typical use: reference = the source indicator's (or a prototype's)
+    signals, candidate = the EA's logged signals.
+
+    reference: path to the trusted reference signal CSV.
+    candidate: path to the candidate CSV; defaults to the configured signal_file.
+    price_tol: max abs difference on entry/sl/tp still counted as a match.
+
+    Returns counts (matched / mismatched / only-in-each) and the first divergence.
+    """
+    try:
+        return _signal_parity(reference, candidate, price_tol=price_tol)
     except Exception as e:
         return {"error": str(e)}
 
