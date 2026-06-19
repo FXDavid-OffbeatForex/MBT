@@ -1,12 +1,14 @@
 # MBT — MT5 Backtest Toolkit (MCP for Claude Code)
 
-**Backtest any MetaTrader 5 indicator by talking to Claude AI — no scripting, no Python reimplementation, just real signals replayed on real broker data.**
+**Backtest, build and verify MetaTrader 5 strategies by talking to Claude AI — no scripting, no Python reimplementation, just real signals on real broker data.**
 
 **Requirements:** Python 3.9+ · MetaTrader 5 (Windows, or Linux/macOS via Wine) · Claude Code
 
-Drop one include into your indicator, and MBT lets you fetch live data, read
-your indicator's signals, and run a full backtest with an HTML report — all
-through Claude, no scripting.
+Drop one include into your indicator and MBT lets you, all through Claude:
+
+- **Backtest your indicator's real signals** — replayed on real broker bars, with an HTML report.
+- **Run your indicator headlessly** — no chart attach; Claude computes it over any date range and logs its signals for you.
+- **Build, test & verify an Expert Advisor** — compile it, run MT5's real Strategy Tester on it, and prove it still matches the strategy.
 
 The core principle: **MBT never recalculates your indicator in Python.** Your
 indicator logs the signals *it* generated; MBT reads those real signals and
@@ -44,6 +46,10 @@ That's what MBT is built on. The indicator logs what it actually did. MBT reads 
                                      └────────────────────────────┘
 ```
 
+That's the indicator-backtest loop above. MBT also drives MT5's own toolchain to
+**build, test and verify an Expert Advisor** (`compile_ea`, `run_strategy_tester`,
+`signal_parity`) — see [Build, test & verify an Expert Advisor](#build-test--verify-an-expert-advisor).
+
 ---
 
 ## Install
@@ -58,8 +64,8 @@ python install.py
 ```
 
 This installs dependencies, creates `config.yaml`, copies `SignalLogger.mqh`
-into your MT5 `Include` folder, and prints the command to register the MCP
-server with Claude Code.
+into your MT5 `Include` folder and the headless host EA `MBT_IndicatorHost.mq5`
+into `Experts`, and prints the command to register the MCP server with Claude Code.
 
 Then edit **config.yaml**:
 
@@ -70,6 +76,10 @@ default_symbol: "EURUSD"
 default_timeframe: "1h"
 ambiguous_bar: "loss"                # conservative
 ```
+
+> Running an indicator headlessly or testing an EA also needs the **`tester:`**
+> block (terminal path, etc.) — copy it from `config.example.yaml` and fill it in.
+> The plain indicator-replay backtest doesn't require it.
 
 Register the server (printed by the installer):
 
@@ -89,6 +99,13 @@ identical to Windows; only the setup differs.
 Windows DLL, so it must run under the **same Wine prefix's Python** as MT5 — not
 your system Python. System `python3` will always fail with
 `ModuleNotFoundError: No module named 'MetaTrader5'`.
+
+> This rule is only for the **replay engine** (`backtest`, `get_ohlcv`,
+> `get_signals` — they read live data via the `MetaTrader5` package). The
+> tester-based tools (`run_indicator`, `run_strategy_tester`, `compile_ea`) don't
+> use that package at all — they launch the terminal/MetaEditor directly. On
+> Linux/macOS they just need `launcher: "wine"` in the `tester:` block (the
+> installer defaults it for you), and they run fine under system Python.
 
 1. **Install MT5 under Wine** — download the installer from your broker (or
    MetaQuotes) and run it with Wine. It lands in a Wine prefix, e.g.
