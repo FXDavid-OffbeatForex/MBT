@@ -62,13 +62,20 @@ def _terminal_path() -> str:
 
 
 def _read_text_any(path: str) -> str:
-    """Decode a small text file that may be utf-16 / utf-8 / cp1252. Strict
-    per-encoding decode so a wrong guess falls through (cp1252 maps all bytes)."""
+    """Decode a small text file that may be utf-16 / utf-8 / cp1252. utf-16 is
+    trusted only with a BOM — Python's BOM-less utf-16 codec silently decodes any
+    even-length stream, so a utf-8/cp1252 file would become garbage rather than
+    falling through. Otherwise decode utf-8 then cp1252 (cp1252 maps all bytes)."""
     try:
         data = open(path, "rb").read()
     except OSError:
         return ""
-    for enc in ("utf-16", "utf-8", "cp1252"):
+    if data[:2] in (b"\xff\xfe", b"\xfe\xff"):       # utf-16 LE/BE BOM
+        try:
+            return data.decode("utf-16")
+        except (UnicodeDecodeError, UnicodeError):
+            pass
+    for enc in ("utf-8", "cp1252"):
         try:
             return data.decode(enc)
         except (UnicodeDecodeError, UnicodeError):
@@ -115,19 +122,25 @@ def _find_appdata_data_dir(install_dir: str) -> str:
 
 
 def _data_dir() -> str:
-    """MT5 data dir (holds MQL5/, and where reports land). Config
-    tester.data_dir wins. Otherwise: portable installs keep MQL5 next to the
-    exe; non-portable installs keep it under %APPDATA%/MetaQuotes/Terminal/<hash>
-    — auto-detected so the user doesn't have to set it by hand."""
+    """MT5 data dir (holds MQL5/, and where reports land). Config tester.data_dir
+    wins. Otherwise this MUST mirror _launch_cmd's portability decision, or MT5
+    writes the report where we don't look: an explicit tester.portable flag is
+    authoritative (portable -> data beside the exe; non-portable -> under
+    %APPDATA%/MetaQuotes/Terminal/<hash>). When the flag is unset we fall back to
+    the filesystem heuristic (MQL5 next to the exe == portable)."""
     t = _tester_cfg()
     d = (t.get("data_dir") or "").strip()
     if d:
         return d
     exe_dir = os.path.dirname(_terminal_path())
-    if os.path.isdir(os.path.join(exe_dir, "MQL5")):
-        return exe_dir                    # portable
+    portable = t.get("portable")
+    if portable:                          # explicit portable: mirror /portable launch
+        return exe_dir
+    if portable is None and os.path.isdir(os.path.join(exe_dir, "MQL5")):
+        return exe_dir                    # flag unset: heuristic — MQL5 beside exe
+    # explicit non-portable, or no MQL5 beside the exe: data is under %APPDATA%
     found = _find_appdata_data_dir(exe_dir)
-    return found or exe_dir               # non-portable (fallback to exe dir)
+    return found or exe_dir               # fallback to exe dir if not located
 
 
 def _fmt_date(d) -> str:
@@ -362,6 +375,15 @@ def run_strategy_tester(expert, symbol, timeframe="h1", from_date=None, to_date=
     if os.path.isfile(stale):
         try: os.remove(stale)
         except OSError: pass
+        if os.path.isfile(stale):
+            # Could not clear it (file lock, perms). If we proceeded and the run
+            # then produced no fresh output, read_ea_summary would hand back this
+            # stale CSV as the result with no error — exactly what this guard
+            # exists to prevent. Fail loudly instead.
+            return {"error": f"Could not clear the stale EA summary at {stale} "
+                             f"(file locked?). Close any running MT5 terminal and "
+                             f"retry — leaving it risks reporting the previous "
+                             f"run's metrics as this run's."}
 
     cmd = _launch_cmd(ini_path)
     t0 = time.time()

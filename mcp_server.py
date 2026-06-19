@@ -144,7 +144,7 @@ def get_config() -> dict:
 @mcp.tool()
 def run_strategy_tester(expert: str, symbol: str, timeframe: str = "1h",
                         from_date: str = None, to_date: str = None,
-                        model: str = "open_prices", deposit: float = None) -> dict:
+                        model: str = None, deposit: float = None) -> dict:
     """
     Run a REAL MT5 Strategy Tester backtest of an Expert Advisor and return the
     parsed metrics. Unlike `backtest` (which replays logged signals in Python),
@@ -158,6 +158,7 @@ def run_strategy_tester(expert: str, symbol: str, timeframe: str = "1h",
     model:      every_tick | 1min_ohlc | open_prices | math | real_ticks.
                 'open_prices' is faithful and fast for bar-close EAs; use
                 'every_tick'/'real_ticks' for spread/slippage-accurate numbers.
+                Omit to use tester.default_model from config (ships open_prices).
 
     Requires tester.* configured in config.yaml (terminal path etc.). Returns the
     report path plus metrics; may take minutes for long ranges / tick models.

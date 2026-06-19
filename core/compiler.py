@@ -54,13 +54,21 @@ def _resolve_source(source: str, data: str) -> str:
 
 def _read_text(path: str) -> str:
     """Read a log that may be utf-16 (MetaEditor default), utf-8 or cp1252.
-    Decode the raw bytes STRICTLY per encoding so a wrong guess actually raises
-    and we fall through (errors='ignore' on the first try would mask that)."""
+    utf-16 is trusted ONLY when a BOM is present: Python's BOM-less utf-16 codec
+    silently decodes any even-length byte stream, so a utf-8/cp1252 log would turn
+    into garbage that still looks non-empty — which would let a failed compile read
+    back ok=True against a stale .ex5. With a BOM we honour utf-16; otherwise we
+    decode as utf-8 then cp1252 (cp1252 maps every byte, so it never fails)."""
     try:
         data = open(path, "rb").read()
     except OSError:
         return ""
-    for enc in ("utf-16", "utf-8", "cp1252"):
+    if data[:2] in (b"\xff\xfe", b"\xfe\xff"):       # utf-16 LE/BE BOM
+        try:
+            return data.decode("utf-16")
+        except (UnicodeDecodeError, UnicodeError):
+            pass
+    for enc in ("utf-8", "cp1252"):
         try:
             return data.decode(enc)
         except (UnicodeDecodeError, UnicodeError):
@@ -124,9 +132,15 @@ def compile_mql5(source: str, timeout: int = 180) -> dict:
                          f"put the .mq5 in MQL5/Experts (or Indicators/Scripts)."}
     logrel = os.path.splitext(rel)[0] + "_compile.log"
     loghost = os.path.join(data, logrel)
+    # Clear the previous log so a stale one (from an earlier successful build)
+    # can't be read back as this compile's result if MetaEditor fails to launch.
     if os.path.exists(loghost):
         try: os.remove(loghost)
         except OSError: pass
+        if os.path.exists(loghost):
+            return {"error": f"Could not clear the previous compile log at {loghost} "
+                             f"(file locked?). Close anything holding it and retry — "
+                             f"leaving it risks reporting a stale build as this one."}
 
     cmd = _with_launcher([me, "/compile:" + rel, "/log:" + logrel])
     timed_out = False
