@@ -204,14 +204,53 @@ void OnBarBBFade(const datetime bar, const double close, const double atr)
    Core_Open(longSig ? POSITION_TYPE_BUY : POSITION_TYPE_SELL, InpSLATR * atr, mid);
   }
 
-//--- replaced in Task 6
 bool RSI2Ready()
   {
-   Print("RSI2_PULLBACK mode is not implemented in this build");
-   return(false);
+   if(InpRSI2Period <= 0 || InpRSI2Entry <= 0.0 || InpRSI2Entry >= 50.0 ||
+      InpRSI2Exit <= 50.0 || InpRSI2Exit >= 100.0 || InpTrendPeriod <= 1)
+     {
+      Print("Invalid RSI2_PULLBACK inputs (entry 0-50, exit 50-100, trend period > 1)");
+      return(false);
+     }
+   return(true);
   }
 
-void OnBarRSI2(const datetime bar, const double close, const double atr) { }
+void OnBarRSI2(const datetime bar, const double close, const double atr)
+  {
+   double rsi2 = 0.0, ema = 0.0;
+   if(!ReadValue(g_rsi2, 0, rsi2) || !ReadValue(g_ema, 0, ema))
+      return;
+   Core_MarkBar(bar);
+   const string ctx = StringFormat("close %.2f EMA%d %.2f RSI%d %.1f", close, InpTrendPeriod, ema, InpRSI2Period, rsi2);
+
+   ulong ticket = 0;
+   if(Core_SelectOwnPosition(ticket))
+     {
+      const bool isBuy = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY);
+      if((isBuy && rsi2 > InpRSI2Exit) || (!isBuy && rsi2 < 100.0 - InpRSI2Exit))
+        {
+         Core_LogBar(bar, ctx + " | RSI2 exit");
+         Core_ClosePosition(ticket, "rsi_exit");
+        }
+      else
+        {
+         Core_LogBar(bar, ctx + " | in position");
+         return;
+        }
+      if(CountOwnPositions() > 0)
+         return;                               // close failed: retried on the next new bar
+     }
+
+   const bool longSig  = close > ema && rsi2 < InpRSI2Entry;
+   const bool shortSig = close < ema && rsi2 > 100.0 - InpRSI2Entry;
+   if(!longSig && !shortSig)
+     {
+      Core_LogBar(bar, ctx + " | no signal");
+      return;
+     }
+   Core_LogBar(bar, ctx + (longSig ? " | BUY signal" : " | SELL signal"));
+   Core_Open(longSig ? POSITION_TYPE_BUY : POSITION_TYPE_SELL, InpSLATR * atr, 0.0);
+  }
 
 void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest &request, const MqlTradeResult &result)
   {
