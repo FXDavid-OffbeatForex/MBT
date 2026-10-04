@@ -1,0 +1,171 @@
+{
+ "macd_alone": {
+  "net_return_pct": 410.90184000000045,
+  "max_dd_pct": 17.042593135163877,
+  "ret_dd": 24.110288659780842,
+  "worst_day_pct": -3.0165752250224664,
+  "worst_month_pct": -9.262315166001844,
+  "calib_median_days": 101.0,
+  "trades": 753
+ },
+ "A_saved": {
+  "2022": {
+   "net_profit": -3161.99,
+   "profit_factor": 0.97,
+   "trades": 139.0,
+   "win_rate_pct": 20.86,
+   "equity_dd_rel_pct": 41.53,
+   "recovery_factor": -0.07
+  },
+  "2023": {
+   "net_profit": 52968.37,
+   "profit_factor": 1.4,
+   "trades": 171.0,
+   "win_rate_pct": 26.9,
+   "equity_dd_rel_pct": 13.36,
+   "recovery_factor": 3.14
+  },
+  "2024": {
+   "net_profit": 11600.65,
+   "profit_factor": 1.12,
+   "trades": 125.0,
+   "win_rate_pct": 22.4,
+   "equity_dd_rel_pct": 21.01,
+   "recovery_factor": 0.42
+  },
+  "2025": {
+   "net_profit": 3114.02,
+   "profit_factor": 1.03,
+   "trades": 118.0,
+   "win_rate_pct": 21.19,
+   "equity_dd_rel_pct": 25.65,
+   "recovery_factor": 0.11
+  },
+  "2026": {
+   "net_profit": 25998.33,
+   "profit_factor": 1.4,
+   "trades": 87.0,
+   "win_rate_pct": 26.44,
+   "equity_dd_rel_pct": 11.31,
+   "recovery_factor": 2.03
+  },
+  "2022-2026": {
+   "net_profit": 90519.38,
+   "profit_factor": 1.18,
+   "trades": 640.0,
+   "win_rate_pct": 23.59,
+   "equity_dd_rel_pct": 41.53,
+   "recovery_factor": 2.13
+  },
+  "_analysis": {
+   "trades_rebuilt": 640,
+   "net_rebuilt": 90519.38,
+   "max_open_positions": 5,
+   "calib_median_days": 127.5,
+   "calib_range": [
+    62,
+    196
+   ],
+   "monthly_corr_with_macd": 0.20310000569922507,
+   "alone": {
+    "net_return_pct": 90.52994336820379,
+    "max_dd_pct": 40.49429774883514,
+    "ret_dd": 2.2356220110227243,
+    "worst_day_pct": -5.484603454807624,
+    "worst_month_pct": -16.50112086204819,
+    "calib_median_days": 127.5,
+    "trades": 640
+   },
+   "with_macd": {
+    "net_return_pct": 873.4209864191124,
+    "max_dd_pct": 40.998090875804216,
+    "ret_dd": 21.30394288516927,
+    "worst_day_pct": -6.4446935161871615,
+    "worst_month_pct": -16.11695603660036,
+    "calib_median_days": 59,
+    "trades": 1393
+   },
+   "median_hold_hours": 19.355
+  }
+ },
+ "B_macd_aligned": {
+  "2022": {
+   "net_profit": -11239.76,
+   "profit_factor": 0.74,
+   "trades": 68.0,
+   "win_rate_pct": 36.76,
+   "equity_dd_rel_pct": 27.48,
+   "recovery_factor": -0.39
+  },
+  "2023": {
+   "net_profit": -5888.36,
+   "profit_factor": 0.91,
+   "trades": 99.0,
+   "win_rate_pct": 32.32,
+   "equity_dd_rel_pct": 24.58,
+   "recovery_factor": -0.24
+  },
+  "2024": {
+   "net_profit": 46238.13,
+   "profit_factor": 2.22,
+   "trades": 66.0,
+   "win_rate_pct": 40.91,
+   "equity_dd_rel_pct": 11.65,
+   "recovery_factor": 2.4
+  },
+  "2025": {
+   "net_profit": 15641.5,
+   "profit_factor": 1.48,
+   "trades": 53.0,
+   "win_rate_pct": 39.62,
+   "equity_dd_rel_pct": 15.87,
+   "recovery_factor": 0.85
+  },
+  "2026": {
+   "net_profit": 17699.44,
+   "profit_factor": 1.51,
+   "trades": 50.0,
+   "win_rate_pct": 32.0,
+   "equity_dd_rel_pct": 8.27,
+   "recovery_factor": 1.67
+  },
+  "2022-2026": {
+   "net_profit": 62450.95,
+   "profit_factor": 1.29,
+   "trades": 336.0,
+   "win_rate_pct": 36.01,
+   "equity_dd_rel_pct": 37.63,
+   "recovery_factor": 1.59
+  },
+  "_analysis": {
+   "trades_rebuilt": 336,
+   "net_rebuilt": 62450.95,
+   "max_open_positions": 9,
+   "calib_median_days": 235,
+   "calib_range": [
+    114,
+    396
+   ],
+   "monthly_corr_with_macd": 0.2621774752159872,
+   "alone": {
+    "net_return_pct": 62.483387306442076,
+    "max_dd_pct": 35.187767316726756,
+    "ret_dd": 1.7757133251458144,
+    "worst_day_pct": -3.066076872079948,
+    "worst_month_pct": -9.528910606765939,
+    "calib_median_days": 235,
+    "trades": 336
+   },
+   "with_macd": {
+    "net_return_pct": 730.1306154429398,
+    "max_dd_pct": 27.47684646675482,
+    "ret_dd": 26.572576890377498,
+    "worst_day_pct": -4.2629941519016,
+    "worst_month_pct": -16.975447640808795,
+    "calib_median_days": 72,
+    "trades": 1089
+   },
+   "median_hold_hours": 17.80527777777778
+  }
+ }
+}

@@ -178,8 +178,9 @@ def main():
         result["error"] = ("no report written (elapsed %.1fs): another terminal running? EA not compiled? "
                            "check Tester/logs" % elapsed)
     common = (load_config().get("tester") or {}).get("common_files", "")
-    src = os.path.join(common, ea_profiles.tester_log_name(args.expert, args.symbol, inputs["InpMagic"]))
-    fresh = ea_profiles.pick_fresh_log(src, t0) if common else None
+    log_name = ea_profiles.trade_log_name_for(args.expert, args.symbol, inputs)
+    src = os.path.join(common, log_name) if (common and log_name) else ""
+    fresh = ea_profiles.pick_fresh_log(src, t0) if src else None
     result["trade_log"] = None
     if fresh:
         dst_name = name + "_trades.csv"

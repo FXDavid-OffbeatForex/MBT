@@ -37,6 +37,21 @@ PROFILES = {
         "InpADXPeriod": "14", "InpADXMax": "20",
         "InpRSI2Period": "2", "InpRSI2Entry": "10", "InpRSI2Exit": "70", "InpTrendPeriod": "200",
     }),
+    # ATR Candle Breakout EA (third-party .ex5, no source): defaults as saved by MT5 on 2026-10-01.
+    # Risk is a fixed money amount per trade (InpRiskAmount); no CSV trade log, magic input is InpMagicNumber.
+    "ATR Candle Breakout EA": {
+        "InpTimeframe": "16385", "InpATRPeriod": "200", "InpATRMultiplier": "2.5", "InpCloseProximity": "25.0",
+        "InpMinBodyRatio": "0.0",
+        "InpUseTrendFilter": "false", "InpTrendTF": "16408", "InpTrendMAPeriod": "200", "InpTrendMAMethod": "1",
+        "InpUseMTFATR": "false", "InpHTFTimeframe": "16388", "InpHTFATRPeriod": "14", "InpHTFATRMultiplier": "1.0",
+        "InpUseTimeFilter": "false", "InpStartHour": "8", "InpEndHour": "20", "InpSkipFriday": "true",
+        "InpSkipMonday": "false",
+        "InpUseSRFilter": "false", "InpSRTimeframe": "16408", "InpSRLookback": "50", "InpSRZoneATRMult": "0.5",
+        "InpSRMinTouches": "2",
+        "InpSLPercent": "0.5", "InpTPPercent": "2.0", "InpRiskAmount": "100.0",
+        "InpUseTrailing": "false", "InpTrailStartPct": "0.5", "InpTrailStepPct": "0.3",
+        "InpMagicNumber": "14", "InpSlippage": "100",
+    },
 }
 
 
@@ -87,6 +102,13 @@ def tester_input_lines(inputs, ranges):
 
 def tester_log_name(expert, symbol, magic):
     return f"{expert}_{symbol}_{magic}_tester_trades.csv"
+
+
+def trade_log_name_for(expert, symbol, inputs):
+    """Tester trade-log file name for EAs built on EACore / v1.42 (they have InpMagic); None otherwise."""
+    if "InpMagic" not in inputs:
+        return None
+    return tester_log_name(expert, symbol, inputs["InpMagic"])
 
 
 def pick_fresh_log(path, started_at):

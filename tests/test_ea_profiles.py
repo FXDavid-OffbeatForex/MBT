@@ -73,3 +73,15 @@ def test_pick_fresh_log_rejects_stale_or_missing(tmp_path):
     os.utime(f, (old, old))
     assert P.pick_fresh_log(str(f), time.time()) is None
     assert P.pick_fresh_log(str(tmp_path / "missing.csv"), 0) is None
+
+
+def test_atr_candle_breakout_profile():
+    prof = P.PROFILES["ATR Candle Breakout EA"]
+    assert prof["InpMagicNumber"] == "14" and "InpMagic" not in prof
+    assert P.expert_path("ATR Candle Breakout EA") == "Advisors\\ATR Candle Breakout EA.ex5"
+
+
+def test_trade_log_name_for_needs_inpmagic():
+    assert P.trade_log_name_for("MeanRev_EA", "XAUUSD", P.PROFILES["MeanRev_EA"]) == \
+        "MeanRev_EA_XAUUSD_240819_tester_trades.csv"
+    assert P.trade_log_name_for("ATR Candle Breakout EA", "XAUUSD", P.PROFILES["ATR Candle Breakout EA"]) is None
