@@ -48,6 +48,12 @@ def plan_launches(grid):
     return launches
 
 
+def drop_failed_passes(passes):
+    """Remove passes whose OnInit failed (MT5 still emits a row: Trades 0, empty Profit Factor)."""
+    kept = [p for p in passes if not (float(p.get("Trades") or 0) == 0 and p.get("Profit Factor") in ("", None))]
+    return kept, len(passes) - len(kept)
+
+
 def score(p):
     return float(p.get("Profit Factor") or 0.0) * float(p.get("Recovery Factor") or 0.0)
 

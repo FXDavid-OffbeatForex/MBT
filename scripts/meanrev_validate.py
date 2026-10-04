@@ -69,9 +69,12 @@ def stage_a(mode):
     want = 1
     for vals in GRIDS[mode].values():
         want *= len(vals)
+    passes, failed = S.drop_failed_passes(passes)
     pick = S.pick_plateau(passes, GRIDS[mode])
-    M.log(f"[stage-a {mode}] {len(passes)}/{want} passes, pick: {pick}")
-    save(f"stage_a_{mode}", {"passes": passes, "expected": want, "pick": pick})
+    M.log(f"[stage-a {mode}] {len(passes)}/{want} passes ran, {failed} failed OnInit (excluded), pick: {pick}")
+    save(f"stage_a_{mode}", {"passes": passes, "expected": want, "init_failed": failed, "pick": pick})
+    if failed:
+        sys.exit(f"stage-a {mode}: {failed} grid points failed OnInit -- fix the EA's input validation and rerun")
 
 
 def stage_b(mode):

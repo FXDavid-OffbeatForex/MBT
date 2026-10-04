@@ -118,3 +118,10 @@ def test_choose_winner():
     assert S.choose_winner(res) == "rsi2"
     res["rsi2"]["gates"] = failing
     assert S.choose_winner(res) is None
+
+
+def test_drop_failed_passes_removes_init_failed_rows():
+    ok = {"Profit Factor": 1.05, "Trades": 300.0, "Equity DD %": 8.0, "Profit": 10.0}
+    ghost = {"Profit Factor": "", "Trades": 0.0, "Equity DD %": 0.0, "Profit": 0.0}
+    kept, dropped = S.drop_failed_passes([ok, ghost, dict(ghost)])
+    assert kept == [ok] and dropped == 2

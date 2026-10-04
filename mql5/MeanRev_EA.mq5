@@ -207,9 +207,9 @@ void OnBarBBFade(const datetime bar, const double close, const double atr)
 bool RSI2Ready()
   {
    if(InpRSI2Period <= 0 || InpRSI2Entry <= 0.0 || InpRSI2Entry >= 50.0 ||
-      InpRSI2Exit <= 50.0 || InpRSI2Exit >= 100.0 || InpTrendPeriod <= 1)
+      InpRSI2Exit < 50.0 || InpRSI2Exit >= 100.0 || InpRSI2Exit <= InpRSI2Entry || InpTrendPeriod <= 1)
      {
-      Print("Invalid RSI2_PULLBACK inputs (entry 0-50, exit 50-100, trend period > 1)");
+      Print("Invalid RSI2_PULLBACK inputs (entry 0-50, exit 50-100 and above entry, trend period > 1)");
       return(false);
      }
    return(true);

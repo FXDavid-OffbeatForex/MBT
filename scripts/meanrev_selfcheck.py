@@ -10,6 +10,9 @@ import os
 import subprocess
 import sys
 
+import glob
+import time
+
 import macd_sweep as M
 import tradelog_checks as K
 
@@ -20,6 +23,19 @@ OFF = {"InpMaxSpreadPoints": "0", "InpDailyLossPct": "0", "InpMonthlyLossPct": "
 MODES = {"bb": {"InpEntryMode": "0", "InpSLATR": "1.5", "InpMaxBars": "12", "InpRSILow": "30", "InpADXMax": "100"},
          "rsi2": {"InpEntryMode": "1", "InpSLATR": "3.0", "InpMaxBars": "24", "InpRSI2Entry": "10",
                   "InpRSI2Exit": "70", "InpTrendPeriod": "200"}}
+
+
+AGENT_LOGS = os.path.expanduser("~/Library/Application Support/net.metaquotes.wine.metatrader5/drive_c/"
+                                  "Program Files/MetaTrader 5/Tester/Agent-*/logs/")
+
+
+def agent_log_count(text):
+    """Occurrences of text in today's MT5 tester agent logs (UTF-16)."""
+    n = 0
+    for f in glob.glob(AGENT_LOGS + time.strftime("%Y%m%d") + ".log"):
+        with open(f, encoding="utf-16", errors="ignore") as h:
+            n += h.read().count(text)
+    return n
 
 
 def mt5_running():
@@ -66,8 +82,17 @@ def main():
     if mode == "bb":
         check("BB take-profit on profit side", not K.tp_side_violations(rows_a),
               f"{len(K.tp_side_violations(rows_a))} violations")
+        # tiny bands: the next candle often opens beyond the middle band -> the entry must be skipped
+        before = agent_log_count("is not beyond entry price")
+        _, rows = run(f"sc_{mode}_tpskip", dict(base, InpBBDev="0.01", InpRSILow="50"))
+        skipped = agent_log_count("is not beyond entry price") - before
+        check("forced wrong-side target is skipped", skipped >= 1 and not K.tp_side_violations(rows),
+              f"skips {skipped}, violations {len(K.tp_side_violations(rows))}")
     else:
         check("RSI2 exits happen", K.count_reason(rows_a, "rsi_exit") >= 1, f"{K.count_reason(rows_a, 'rsi_exit')}")
+        # spec 3.3 grid includes exit level 50: the EA must accept it and trade
+        d50, rows50 = run(f"sc_{mode}_exit50", dict(base, InpRSI2Exit="50"))
+        check("RSI2 exit level 50 accepted", d50["metrics"]["trades"] >= 20, f"{d50['metrics']['trades']}")
 
     _, rows = run(f"sc_{mode}_bars1", dict(base, InpMaxBars="1"))
     check("forced time limit fires", K.count_reason(rows, "time_limit") >= 1, f"{K.count_reason(rows, 'time_limit')}")

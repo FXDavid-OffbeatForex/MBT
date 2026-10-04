@@ -115,8 +115,9 @@ void Core_PrintReady()
 
 void Core_Deinit(const int reason)
   {
-//--- catch up closing deals that raised no trade event (the tester's end-of-test close)
-   if(g_logFile != "" && HistorySelect(0, TimeCurrent() + 86400))
+//--- tester only: catch up closing deals that raised no trade event (the end-of-test close).
+//--- Never live: a VPS re-sync or restart would re-append the whole account history to the log.
+   if(g_logFile != "" && MQLInfoInteger(MQL_TESTER) && HistorySelect(0, TimeCurrent() + 86400))
      {
       ulong pending[];
       for(int i = 0; i < HistoryDealsTotal(); i++)
