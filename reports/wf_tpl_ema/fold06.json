@@ -1,0 +1,93 @@
+{
+ "config": {
+  "ea": "StrategyTemplate",
+  "expert": "Advisors\\StrategyTemplate.ex5",
+  "symbol": "XAUUSD",
+  "period": "H1",
+  "is_months": 24,
+  "oos_months": 6,
+  "anchored": false,
+  "model": "1min_ohlc",
+  "oos_model": "1min_ohlc",
+  "deposit": 100000,
+  "leverage": "20",
+  "select": "plateau",
+  "min_trades": 30,
+  "max_dd": 20.0,
+  "date_from": "2022-01-01",
+  "inputs": {
+   "InpMagic": "260101",
+   "InpTimeframe": "16385",
+   "InpComment": "TPL",
+   "InpFastEMA": "20",
+   "InpSlowEMA": "50",
+   "InpATRPeriod": "14",
+   "InpSLATR": "2.0",
+   "InpRewardRisk": "2.0",
+   "InpLogEveryBar": "false",
+   "RG_RiskPct": "0.5",
+   "RG_InitialBalance": "0.0",
+   "RG_DailyStopPct": "4.0",
+   "RG_TotalStopPct": "8.0",
+   "RG_TargetPct": "0.0",
+   "RG_DayResetHour": "0",
+   "RG_MaxTradesPerDay": "3",
+   "RG_MaxPositions": "1",
+   "RG_MaxSpreadPoints": "0",
+   "RG_FridayCutoff": "0",
+   "RG_CloseAllOnStop": "false",
+   "RG_DeviationPoints": "30",
+   "RG_TradeLog": "true"
+  },
+  "ranges": {
+   "InpFastEMA": [
+    "10",
+    "10",
+    "30"
+   ],
+   "InpSlowEMA": [
+    "40",
+    "20",
+    "80"
+   ],
+   "InpSLATR": [
+    "1.5",
+    "0.5",
+    "2.5"
+   ]
+  }
+ },
+ "result": {
+  "fold": 6,
+  "is_from": "2024-07-01",
+  "is_to": "2026-07-01",
+  "oos_to": "2026-10-01",
+  "passes": 27,
+  "params": {
+   "InpFastEMA": "20",
+   "InpSlowEMA": "60",
+   "InpSLATR": "2"
+  },
+  "note": "",
+  "is": {
+   "profit": 3512.58,
+   "pf": 1.07772,
+   "rf": 0.388019,
+   "dd_pct": 8.3543,
+   "trades": 143.0,
+   "ann_pct": 1.7574929383561644,
+   "plateau": 0.5382856060979999,
+   "score": 0.41817583668
+  },
+  "oos": {
+   "profit": 954.52,
+   "pf": 1.14,
+   "trades": 22.0,
+   "dd_pct": 2.45,
+   "ann_pct": 3.7895481521739134
+  },
+  "wfe": 2.1562238285397557,
+  "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_tpl_ema\\wf_tpl_ema_f06_oos.htm",
+  "seconds": 30
+ }
+}

@@ -1,0 +1,254 @@
+{
+  "summary": {
+    "source": [
+      "reports/wf_macdprop_exits/oos_trades.csv"
+    ],
+    "trades": 562,
+    "first": "2023-01-04T21:04:02",
+    "last": "2026-09-30T23:58:57",
+    "bt_risk_pct": 1.0,
+    "expectancy_r": 0.24860628113879002,
+    "pf": 1.5099240804107636,
+    "win_pct": 51.245551601423486,
+    "trades_per_month": 12.523631039531478,
+    "active_day_pct": 35.35871156661786,
+    "positive_month_pct": 68.88888888888889,
+    "worst_month_r": -7.54884,
+    "worst_day_r": -3.0550800000000002,
+    "longest_losing_streak": 7
+  },
+  "by_year": [
+    {
+      "year": 2023,
+      "trades": 123,
+      "win_pct": 57.72357723577236,
+      "pf": 1.4324479093454097,
+      "net_r": 20.42749,
+      "avg_r": 0.1660771544715447,
+      "max_dd_r": 8.727200000000002
+    },
+    {
+      "year": 2024,
+      "trades": 131,
+      "win_pct": 47.32824427480916,
+      "pf": 1.0730787225349716,
+      "net_r": 5.053010000000002,
+      "avg_r": 0.038572595419847346,
+      "max_dd_r": 13.258109999999999
+    },
+    {
+      "year": 2025,
+      "trades": 162,
+      "win_pct": 51.23456790123457,
+      "pf": 1.5687058171573682,
+      "net_r": 46.304129999999994,
+      "avg_r": 0.2858279629629629,
+      "max_dd_r": 15.483820000000001
+    },
+    {
+      "year": 2026,
+      "trades": 146,
+      "win_pct": 49.31506849315068,
+      "pf": 1.8915751833985512,
+      "net_r": 67.93209999999999,
+      "avg_r": 0.4652883561643835,
+      "max_dd_r": 12.507579999999997
+    },
+    {
+      "year": "all",
+      "trades": 562,
+      "win_pct": 51.245551601423486,
+      "pf": 1.5099240804107636,
+      "net_r": 139.71672999999998,
+      "avg_r": 0.24860628113879002,
+      "max_dd_r": 15.8307
+    }
+  ],
+  "risk": [
+    {
+      "risk_pct": 0.2,
+      "hist_dd_pct": 3.121708319546468,
+      "mc_dd_p50": 4.049215682501273,
+      "mc_dd_p95": 6.3141678165433675,
+      "mc_dd_p99": 7.6459881567721295,
+      "worst_day_pct": -0.6110160000000001,
+      "phases": [
+        {
+          "p_pass": 0.3914,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0007,
+          "p_no_result": 0.6079,
+          "calendar_days_p50": 260.1904761904762,
+          "calendar_days_p90": 345.0351966873706,
+          "target_pct": 10
+        },
+        {
+          "p_pass": 0.7754,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0006,
+          "p_no_result": 0.224,
+          "calendar_days_p50": 166.86128364389234,
+          "calendar_days_p90": 305.44099378881987,
+          "target_pct": 5
+        }
+      ],
+      "p_pass_all": 0.30349156
+    },
+    {
+      "risk_pct": 0.25,
+      "hist_dd_pct": 3.8883907681575125,
+      "mc_dd_p50": 5.038774149489051,
+      "mc_dd_p95": 7.798500226234225,
+      "mc_dd_p99": 9.329595606503958,
+      "worst_day_pct": -0.7637700000000001,
+      "phases": [
+        {
+          "p_pass": 0.5385,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0031,
+          "p_no_result": 0.4584,
+          "calendar_days_p50": 229.08074534161491,
+          "calendar_days_p90": 335.4194616977236,
+          "target_pct": 10
+        },
+        {
+          "p_pass": 0.8363,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0032,
+          "p_no_result": 0.1605,
+          "calendar_days_p50": 135.75155279503105,
+          "calendar_days_p90": 288.472049689441,
+          "target_pct": 5
+        }
+      ],
+      "p_pass_all": 0.45034755
+    },
+    {
+      "risk_pct": 0.3,
+      "hist_dd_pct": 4.649642212311356,
+      "mc_dd_p50": 6.015172634806914,
+      "mc_dd_p95": 9.323063636812964,
+      "mc_dd_p99": 11.373488965184688,
+      "worst_day_pct": -0.916524,
+      "phases": [
+        {
+          "p_pass": 0.6483,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0118,
+          "p_no_result": 0.3399,
+          "calendar_days_p50": 206.45548654244305,
+          "calendar_days_p90": 325.23809523809524,
+          "target_pct": 10
+        },
+        {
+          "p_pass": 0.8737,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0098,
+          "p_no_result": 0.1165,
+          "calendar_days_p50": 115.9544513457557,
+          "calendar_days_p90": 274.3312629399586,
+          "target_pct": 5
+        }
+      ],
+      "p_pass_all": 0.56641971
+    },
+    {
+      "risk_pct": 0.35,
+      "hist_dd_pct": 5.405495796435067,
+      "mc_dd_p50": 6.9631522432807404,
+      "mc_dd_p95": 10.837761896196149,
+      "mc_dd_p99": 12.972727063189994,
+      "worst_day_pct": -1.069278,
+      "phases": [
+        {
+          "p_pass": 0.7279,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0205,
+          "p_no_result": 0.2516,
+          "calendar_days_p50": 178.17391304347825,
+          "calendar_days_p90": 313.9254658385093,
+          "target_pct": 10
+        },
+        {
+          "p_pass": 0.9001,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0211,
+          "p_no_result": 0.0788,
+          "calendar_days_p50": 98.98550724637681,
+          "calendar_days_p90": 248.87784679089026,
+          "target_pct": 5
+        }
+      ],
+      "p_pass_all": 0.65518279
+    },
+    {
+      "risk_pct": 0.4,
+      "hist_dd_pct": 6.155984505834644,
+      "mc_dd_p50": 7.975383324513707,
+      "mc_dd_p95": 12.188001585930433,
+      "mc_dd_p99": 14.677803874025805,
+      "worst_day_pct": -1.2220320000000002,
+      "phases": [
+        {
+          "p_pass": 0.7758,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0341,
+          "p_no_result": 0.1901,
+          "calendar_days_p50": 164.03312629399585,
+          "calendar_days_p90": 305.44099378881987,
+          "target_pct": 10
+        },
+        {
+          "p_pass": 0.9106,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0344,
+          "p_no_result": 0.055,
+          "calendar_days_p50": 84.84472049689441,
+          "calendar_days_p90": 234.73706004140786,
+          "target_pct": 5
+        }
+      ],
+      "p_pass_all": 0.70644348
+    },
+    {
+      "risk_pct": 0.5,
+      "hist_dd_pct": 7.640998448533665,
+      "mc_dd_p50": 9.821352631523684,
+      "mc_dd_p95": 15.189594152673923,
+      "mc_dd_p99": 18.451941449526505,
+      "worst_day_pct": -1.5275400000000001,
+      "phases": [
+        {
+          "p_pass": 0.8296,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0726,
+          "p_no_result": 0.0978,
+          "calendar_days_p50": 130.0952380952381,
+          "calendar_days_p90": 279.9875776397516,
+          "target_pct": 10
+        },
+        {
+          "p_pass": 0.9113,
+          "p_daily_breach": 0.0,
+          "p_max_loss_breach": 0.0666,
+          "p_no_result": 0.0221,
+          "calendar_days_p50": 67.87577639751552,
+          "calendar_days_p90": 200.7991718426501,
+          "target_pct": 5
+        }
+      ],
+      "p_pass_all": 0.75601448
+    }
+  ],
+  "rules": {
+    "targets": [
+      10,
+      5
+    ],
+    "daily_loss": 5.0,
+    "max_loss": 8.0,
+    "trailing": false,
+    "min_days": 4,
+    "horizon_days": 365
+  }
+}

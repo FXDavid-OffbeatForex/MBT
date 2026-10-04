@@ -1,0 +1,47 @@
+=== FX sweep 20261003_181335 pairs ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD']
+[regress_gold_pct] 19s error=None passes=0 metrics={'net_profit': 269345.29, 'profit_factor': 1.7, 'trades': 483.0, 'win_rate_pct': 53.21, 'equity_dd_rel_pct': 14.96, 'sharpe': 3.05, 'recovery_factor': 7.03}
+[gold_atr_is] 15s error=None passes=0 metrics={'net_profit': 189998.78, 'profit_factor': 1.57, 'trades': 488.0, 'win_rate_pct': 52.05, 'equity_dd_rel_pct': 15.82, 'sharpe': 2.63, 'recovery_factor': 5.8}
+[gold_atr_oos] 14s error=None passes=0 metrics={'net_profit': -9782.31, 'profit_factor': 0.94, 'trades': 385.0, 'win_rate_pct': 48.31, 'equity_dd_rel_pct': 27.56, 'sharpe': -0.38, 'recovery_factor': -0.33}
+[fx_EURUSD_grid] 76s error=None passes=360 metrics=None
+--- EURUSD: 360 passes, top by PF x RF:
+    {'Profit': 2884.55, 'Profit Factor': 1.025, 'Recovery Factor': 0.206, 'Sharpe Ratio': 0.098, 'Equity DD %': 13.202, 'Trades': 389.0, '_score': 0.211, 'InpSLATR': 3.0, 'InpTPATR': 9.0, 'InpBEATR': 1.5, 'InpTrailStartATR': 0.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 2884.55, 'Profit Factor': 1.025, 'Recovery Factor': 0.206, 'Sharpe Ratio': 0.098, 'Equity DD %': 13.202, 'Trades': 389.0, '_score': 0.211, 'InpSLATR': 3.0, 'InpTPATR': 9.0, 'InpBEATR': 1.5, 'InpTrailStartATR': 0.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 2884.55, 'Profit Factor': 1.025, 'Recovery Factor': 0.206, 'Sharpe Ratio': 0.098, 'Equity DD %': 13.202, 'Trades': 389.0, '_score': 0.211, 'InpSLATR': 3.0, 'InpTPATR': 9.0, 'InpBEATR': 1.5, 'InpTrailStartATR': 0.0, 'InpTrailATRMult': 2.0}
+    {'Profit': 3368.13, 'Profit Factor': 1.018, 'Recovery Factor': 0.161, 'Sharpe Ratio': 0.131, 'Equity DD %': 19.113, 'Trades': 508.0, '_score': 0.164, 'InpSLATR': 2.5, 'InpTPATR': 6.0, 'InpBEATR': 1.5, 'InpTrailStartATR': 4.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 309.22, 'Profit Factor': 1.002, 'Recovery Factor': 0.016, 'Sharpe Ratio': 0.009, 'Equity DD %': 18.181, 'Trades': 413.0, '_score': 0.016, 'InpSLATR': 2.5, 'InpTPATR': 9.0, 'InpBEATR': 1.5, 'InpTrailStartATR': 0.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 309.22, 'Profit Factor': 1.002, 'Recovery Factor': 0.016, 'Sharpe Ratio': 0.009, 'Equity DD %': 18.181, 'Trades': 413.0, '_score': 0.016, 'InpSLATR': 2.5, 'InpTPATR': 9.0, 'InpBEATR': 1.5, 'InpTrailStartATR': 0.0, 'InpTrailATRMult': 3.0}
+[fx_EURUSD_oos1] 16s error=None passes=0 metrics={'net_profit': 17367.59, 'profit_factor': 1.17, 'trades': 294.0, 'win_rate_pct': 59.18, 'equity_dd_rel_pct': 9.31, 'sharpe': 0.73, 'recovery_factor': 1.62}
+[fx_EURUSD_oos2] 14s error=None passes=0 metrics={'net_profit': 17367.59, 'profit_factor': 1.17, 'trades': 294.0, 'win_rate_pct': 59.18, 'equity_dd_rel_pct': 9.31, 'sharpe': 0.73, 'recovery_factor': 1.62}
+[fx_EURUSD_oos3] 14s error=None passes=0 metrics={'net_profit': 17367.59, 'profit_factor': 1.17, 'trades': 294.0, 'win_rate_pct': 59.18, 'equity_dd_rel_pct': 9.31, 'sharpe': 0.73, 'recovery_factor': 1.62}
+[fx_GBPUSD_grid] 69s error=None passes=360 metrics=None
+--- GBPUSD: 360 passes, top by PF x RF:
+    {'Profit': 6088.6, 'Profit Factor': 1.042, 'Recovery Factor': 0.316, 'Sharpe Ratio': 0.132, 'Equity DD %': 18.797, 'Trades': 172.0, '_score': 0.33, 'InpSLATR': 2.5, 'InpTPATR': 12.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 0.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 6088.6, 'Profit Factor': 1.042, 'Recovery Factor': 0.316, 'Sharpe Ratio': 0.132, 'Equity DD %': 18.797, 'Trades': 172.0, '_score': 0.33, 'InpSLATR': 2.5, 'InpTPATR': 12.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 0.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 6088.6, 'Profit Factor': 1.042, 'Recovery Factor': 0.316, 'Sharpe Ratio': 0.132, 'Equity DD %': 18.797, 'Trades': 172.0, '_score': 0.33, 'InpSLATR': 2.5, 'InpTPATR': 12.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 0.0, 'InpTrailATRMult': 2.0}
+[fx_GBPUSD_oos1] 21s error=None passes=0 metrics={'net_profit': -5202.93, 'profit_factor': 0.95, 'trades': 131.0, 'win_rate_pct': 17.56, 'equity_dd_rel_pct': 23.17, 'sharpe': -0.15, 'recovery_factor': -0.2}
+[fx_GBPUSD_oos2] 14s error=None passes=0 metrics={'net_profit': -5202.93, 'profit_factor': 0.95, 'trades': 131.0, 'win_rate_pct': 17.56, 'equity_dd_rel_pct': 23.17, 'sharpe': -0.15, 'recovery_factor': -0.2}
+[fx_GBPUSD_oos3] 14s error=None passes=0 metrics={'net_profit': -5202.93, 'profit_factor': 0.95, 'trades': 131.0, 'win_rate_pct': 17.56, 'equity_dd_rel_pct': 23.17, 'sharpe': -0.15, 'recovery_factor': -0.2}
+[fx_USDJPY_grid] 88s error=None passes=360 metrics=None
+--- USDJPY: 360 passes, top by PF x RF:
+    {'Profit': 74081.0, 'Profit Factor': 1.25, 'Recovery Factor': 3.718, 'Sharpe Ratio': 1.335, 'Equity DD %': 10.271, 'Trades': 379.0, '_score': 4.645, 'InpSLATR': 2.0, 'InpTPATR': 12.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 4.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 73325.23, 'Profit Factor': 1.245, 'Recovery Factor': 3.695, 'Sharpe Ratio': 1.372, 'Equity DD %': 10.274, 'Trades': 411.0, '_score': 4.601, 'InpSLATR': 2.0, 'InpTPATR': 12.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 2.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 64238.85, 'Profit Factor': 1.216, 'Recovery Factor': 3.232, 'Sharpe Ratio': 1.239, 'Equity DD %': 10.794, 'Trades': 390.0, '_score': 3.931, 'InpSLATR': 2.0, 'InpTPATR': 9.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 4.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 62675.24, 'Profit Factor': 1.21, 'Recovery Factor': 3.186, 'Sharpe Ratio': 1.259, 'Equity DD %': 10.789, 'Trades': 421.0, '_score': 3.855, 'InpSLATR': 2.0, 'InpTPATR': 9.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 2.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 54439.63, 'Profit Factor': 1.235, 'Recovery Factor': 3.12, 'Sharpe Ratio': 1.247, 'Equity DD %': 11.37, 'Trades': 340.0, '_score': 3.851, 'InpSLATR': 2.5, 'InpTPATR': 12.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 4.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 45567.68, 'Profit Factor': 1.195, 'Recovery Factor': 2.942, 'Sharpe Ratio': 1.112, 'Equity DD %': 10.484, 'Trades': 350.0, '_score': 3.516, 'InpSLATR': 2.5, 'InpTPATR': 9.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 4.0, 'InpTrailATRMult': 4.0}
+[fx_USDJPY_oos1] 31s error=None passes=0 metrics={'net_profit': 120912.34, 'profit_factor': 1.57, 'trades': 284.0, 'win_rate_pct': 41.9, 'equity_dd_rel_pct': 16.74, 'sharpe': 2.81, 'recovery_factor': 4.97}
+[fx_USDJPY_oos2] no output file
+[fx_USDJPY_oos3] 18s error=None passes=0 metrics={'net_profit': 97350.69, 'profit_factor': 1.46, 'trades': 292.0, 'win_rate_pct': 42.12, 'equity_dd_rel_pct': 14.62, 'sharpe': 2.53, 'recovery_factor': 3.74}
+[fx_AUDUSD_grid] 76s error=None passes=360 metrics=None
+   (no pass met constraints; ranking all)
+--- AUDUSD: 360 passes, top by PF x RF:
+    {'Profit': 1651.22, 'Profit Factor': 1.009, 'Recovery Factor': 0.069, 'Sharpe Ratio': 0.057, 'Equity DD %': 20.318, 'Trades': 387.0, '_score': 0.07, 'InpSLATR': 3.0, 'InpTPATR': 6.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 2.0, 'InpTrailATRMult': 4.0}
+    {'Profit': -14.35, 'Profit Factor': 1.0, 'Recovery Factor': -0.001, 'Sharpe Ratio': -0.001, 'Equity DD %': 16.642, 'Trades': 429.0, '_score': -0.001, 'InpSLATR': 3.0, 'InpTPATR': 6.0, 'InpBEATR': 1.5, 'InpTrailStartATR': 4.0, 'InpTrailATRMult': 4.0}
+    {'Profit': -14.35, 'Profit Factor': 1.0, 'Recovery Factor': -0.001, 'Sharpe Ratio': -0.001, 'Equity DD %': 16.642, 'Trades': 429.0, '_score': -0.001, 'InpSLATR': 3.0, 'InpTPATR': 6.0, 'InpBEATR': 1.5, 'InpTrailStartATR': 2.0, 'InpTrailATRMult': 4.0}
+    {'Profit': -3505.51, 'Profit Factor': 0.984, 'Recovery Factor': -0.111, 'Sharpe Ratio': -0.108, 'Equity DD %': 26.128, 'Trades': 424.0, '_score': -0.109, 'InpSLATR': 2.5, 'InpTPATR': 6.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 2.0, 'InpTrailATRMult': 4.0}
+    {'Profit': -2753.62, 'Profit Factor': 0.987, 'Recovery Factor': -0.137, 'Sharpe Ratio': -0.11, 'Equity DD %': 18.467, 'Trades': 480.0, '_score': -0.135, 'InpSLATR': 2.5, 'InpTPATR': 6.0, 'InpBEATR': 0.0, 'InpTrailStartATR': 2.0, 'InpTrailATRMult': 2.0}
+    {'Profit': -4140.77, 'Profit Factor': 0.967, 'Recovery Factor': -0.16, 'Sharpe Ratio': -0.159, 'Equity DD %': 24.241, 'Trades': 398.0, '_score': -0.155, 'InpSLATR': 3.0, 'InpTPATR': 12.0, 'InpBEATR': 1.5, 'InpTrailStartATR': 4.0, 'InpTrailATRMult': 4.0}
+[fx_AUDUSD_oos1] 18s error=None passes=0 metrics={'net_profit': -11402.19, 'profit_factor': 0.91, 'trades': 295.0, 'win_rate_pct': 37.29, 'equity_dd_rel_pct': 25.84, 'sharpe': -0.58, 'recovery_factor': -0.44}
+[fx_AUDUSD_oos2] 14s error=None passes=0 metrics={'net_profit': -10824.43, 'profit_factor': 0.9, 'trades': 347.0, 'win_rate_pct': 67.72, 'equity_dd_rel_pct': 25.47, 'sharpe': -0.66, 'recovery_factor': -0.4}
+[fx_AUDUSD_oos3] 16s error=None passes=0 metrics={'net_profit': -10824.43, 'profit_factor': 0.9, 'trades': 347.0, 'win_rate_pct': 67.72, 'equity_dd_rel_pct': 25.47, 'sharpe': -0.66, 'recovery_factor': -0.4}
+=== DONE 18:23:41

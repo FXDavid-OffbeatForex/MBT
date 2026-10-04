@@ -1,0 +1,2 @@
+[v142_off_2023] 42s error=None passes=0 metrics={'net_profit': 31165.91, 'profit_factor': 1.46, 'trades': 135.0, 'win_rate_pct': 54.07, 'equity_dd_rel_pct': 12.38, 'sharpe': 2.03, 'recovery_factor': 1.96}
+[v142_off_2024-2026] 120s error=None passes=0 metrics={'net_profit': 201329.32, 'profit_factor': 1.55, 'trades': 461.0, 'win_rate_pct': 48.81, 'equity_dd_rel_pct': 15.89, 'sharpe': 2.66, 'recovery_factor': 7.11}

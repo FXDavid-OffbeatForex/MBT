@@ -1,0 +1,64 @@
+=== MACD_Cross_EA staged sweep 20261002_194548 | in-sample 2024-01-01..2026-10-01 | out /Users/lyudmilnikodimov/Projects/MBT/reports/macd_sweep_20261002_194548
+[s2_exits] resumed from file
+    {'Profit': 348211.87, 'Profit Factor': 1.684, 'Recovery Factor': 6.833, 'Sharpe Ratio': 2.863, 'Equity DD %': 11.185, 'Trades': 417.0, '_score': 11.503, 'InpStopLossPct': 0.5, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 699082.04, 'Profit Factor': 1.778, 'Recovery Factor': 6.213, 'Sharpe Ratio': 3.381, 'Equity DD %': 14.439, 'Trades': 510.0, '_score': 11.048, 'InpStopLossPct': 0.3, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 355702.36, 'Profit Factor': 1.649, 'Recovery Factor': 6.607, 'Sharpe Ratio': 3.151, 'Equity DD %': 16.751, 'Trades': 451.0, '_score': 10.898, 'InpStopLossPct': 0.5, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 554569.72, 'Profit Factor': 1.737, 'Recovery Factor': 6.027, 'Sharpe Ratio': 3.398, 'Equity DD %': 13.888, 'Trades': 476.0, '_score': 10.468, 'InpStopLossPct': 0.4, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 634249.68, 'Profit Factor': 1.7, 'Recovery Factor': 5.998, 'Sharpe Ratio': 3.377, 'Equity DD %': 14.438, 'Trades': 516.0, '_score': 10.195, 'InpStopLossPct': 0.3, 'InpTakeProfitPct': 3.0, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 815913.11, 'Profit Factor': 1.852, 'Recovery Factor': 5.428, 'Sharpe Ratio': 3.051, 'Equity DD %': 16.407, 'Trades': 444.0, '_score': 10.053, 'InpStopLossPct': 0.3, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 2.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 510235.82, 'Profit Factor': 1.691, 'Recovery Factor': 5.845, 'Sharpe Ratio': 3.39, 'Equity DD %': 13.889, 'Trades': 483.0, '_score': 9.886, 'InpStopLossPct': 0.4, 'InpTakeProfitPct': 3.0, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 696024.23, 'Profit Factor': 1.831, 'Recovery Factor': 5.364, 'Sharpe Ratio': 3.051, 'Equity DD %': 16.163, 'Trades': 483.0, '_score': 9.82, 'InpStopLossPct': 0.3, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 4.0}
+best after S2: {'InpStopLossPct': '0.5', 'InpTakeProfitPct': '3.75', 'InpTrailStartPct': '1', 'InpTrailATRMult': '4'}
+[s3_zlf_tff_cof] 16s error=None passes=15 metrics=None
+[s3_zlf_tff_cot] 21s error=None passes=15 metrics=None
+[s3_zlf_tft_cof] 20s error=None passes=15 metrics=None
+[s3_zlf_tft_cot] 22s error=None passes=15 metrics=None
+[s3_zlt_tff_cof] 21s error=None passes=15 metrics=None
+[s3_zlt_tff_cot] 21s error=None passes=15 metrics=None
+[s3_zlt_tft_cof] 21s error=None passes=15 metrics=None
+[s3_zlt_tft_cot] 20s error=None passes=15 metrics=None
+    {'Profit': 269345.29, 'Profit Factor': 1.698, 'Recovery Factor': 7.032, 'Sharpe Ratio': 3.051, 'Equity DD %': 11.499, 'Trades': 483.0, '_score': 11.938, 'InpZeroLineFilter': 'false', 'InpMinGapATR': 0.0, 'InpUseTimeFilter': 'false', 'InpCloseOnOpposite': 'false', 'InpBreakEvenPct': 0.5}
+    {'Profit': 264107.18, 'Profit Factor': 1.681, 'Recovery Factor': 6.989, 'Sharpe Ratio': 2.979, 'Equity DD %': 11.508, 'Trades': 500.0, '_score': 11.748, 'InpZeroLineFilter': 'false', 'InpMinGapATR': 0.0, 'InpUseTimeFilter': 'false', 'InpCloseOnOpposite': 'true', 'InpBreakEvenPct': 0.5}
+    {'Profit': 348211.87, 'Profit Factor': 1.684, 'Recovery Factor': 6.833, 'Sharpe Ratio': 2.863, 'Equity DD %': 11.185, 'Trades': 417.0, '_score': 11.503, 'InpZeroLineFilter': 'false', 'InpMinGapATR': 0.0, 'InpUseTimeFilter': 'false', 'InpCloseOnOpposite': 'false', 'InpBreakEvenPct': 0.0}
+    {'Profit': 345973.5, 'Profit Factor': 1.672, 'Recovery Factor': 6.823, 'Sharpe Ratio': 2.829, 'Equity DD %': 11.185, 'Trades': 435.0, '_score': 11.41, 'InpZeroLineFilter': 'false', 'InpMinGapATR': 0.0, 'InpUseTimeFilter': 'false', 'InpCloseOnOpposite': 'true', 'InpBreakEvenPct': 0.0}
+    {'Profit': 303919.49, 'Profit Factor': 1.639, 'Recovery Factor': 6.088, 'Sharpe Ratio': 2.744, 'Equity DD %': 17.668, 'Trades': 427.0, '_score': 9.977, 'InpZeroLineFilter': 'false', 'InpMinGapATR': 0.0, 'InpUseTimeFilter': 'false', 'InpCloseOnOpposite': 'false', 'InpBreakEvenPct': 1.0}
+    {'Profit': 303901.78, 'Profit Factor': 1.631, 'Recovery Factor': 6.088, 'Sharpe Ratio': 2.723, 'Equity DD %': 17.67, 'Trades': 444.0, '_score': 9.927, 'InpZeroLineFilter': 'false', 'InpMinGapATR': 0.0, 'InpUseTimeFilter': 'false', 'InpCloseOnOpposite': 'true', 'InpBreakEvenPct': 1.0}
+    {'Profit': 107689.13, 'Profit Factor': 1.519, 'Recovery Factor': 5.141, 'Sharpe Ratio': 2.787, 'Equity DD %': 10.773, 'Trades': 292.0, '_score': 7.812, 'InpZeroLineFilter': 'true', 'InpMinGapATR': 0.0, 'InpUseTimeFilter': 'false', 'InpCloseOnOpposite': 'true', 'InpBreakEvenPct': 0.5}
+    {'Profit': 128148.46, 'Profit Factor': 1.615, 'Recovery Factor': 4.704, 'Sharpe Ratio': 2.96, 'Equity DD %': 12.565, 'Trades': 310.0, '_score': 7.594, 'InpZeroLineFilter': 'false', 'InpMinGapATR': 0.0, 'InpUseTimeFilter': 'true', 'InpCloseOnOpposite': 'false', 'InpBreakEvenPct': 0.5}
+best after S3: {'InpZeroLineFilter': 'false', 'InpMinGapATR': '0', 'InpUseTimeFilter': 'false', 'InpCloseOnOpposite': 'false', 'InpBreakEvenPct': '0.5'}
+[s4a_macd] 25s error=None passes=27 metrics=None
+    {'Profit': 260910.42, 'Profit Factor': 1.679, 'Recovery Factor': 8.892, 'Sharpe Ratio': 3.045, 'Equity DD %': 9.266, 'Trades': 459.0, '_score': 14.931, 'InpFastEMA': 16.0, 'InpSlowEMA': 26.0, 'InpSignalSMA': 9.0}
+    {'Profit': 226404.97, 'Profit Factor': 1.675, 'Recovery Factor': 8.851, 'Sharpe Ratio': 2.878, 'Equity DD %': 16.023, 'Trades': 444.0, '_score': 14.827, 'InpFastEMA': 16.0, 'InpSlowEMA': 32.0, 'InpSignalSMA': 9.0}
+    {'Profit': 308055.11, 'Profit Factor': 1.754, 'Recovery Factor': 8.416, 'Sharpe Ratio': 3.289, 'Equity DD %': 9.008, 'Trades': 472.0, '_score': 14.761, 'InpFastEMA': 12.0, 'InpSlowEMA': 32.0, 'InpSignalSMA': 9.0}
+    {'Profit': 363252.54, 'Profit Factor': 1.756, 'Recovery Factor': 8.373, 'Sharpe Ratio': 3.309, 'Equity DD %': 8.942, 'Trades': 521.0, '_score': 14.707, 'InpFastEMA': 16.0, 'InpSlowEMA': 32.0, 'InpSignalSMA': 5.0}
+    {'Profit': 256681.68, 'Profit Factor': 1.731, 'Recovery Factor': 7.937, 'Sharpe Ratio': 3.075, 'Equity DD %': 13.02, 'Trades': 455.0, '_score': 13.736, 'InpFastEMA': 8.0, 'InpSlowEMA': 32.0, 'InpSignalSMA': 13.0}
+    {'Profit': 269345.29, 'Profit Factor': 1.698, 'Recovery Factor': 7.032, 'Sharpe Ratio': 3.051, 'Equity DD %': 11.499, 'Trades': 483.0, '_score': 11.938, 'InpFastEMA': 12.0, 'InpSlowEMA': 26.0, 'InpSignalSMA': 9.0}
+    {'Profit': 234869.96, 'Profit Factor': 1.631, 'Recovery Factor': 7.21, 'Sharpe Ratio': 2.849, 'Equity DD %': 10.565, 'Trades': 472.0, '_score': 11.763, 'InpFastEMA': 16.0, 'InpSlowEMA': 20.0, 'InpSignalSMA': 9.0}
+    {'Profit': 340455.4, 'Profit Factor': 1.716, 'Recovery Factor': 6.772, 'Sharpe Ratio': 3.105, 'Equity DD %': 12.72, 'Trades': 555.0, '_score': 11.619, 'InpFastEMA': 16.0, 'InpSlowEMA': 26.0, 'InpSignalSMA': 5.0}
+best after S4a: {'InpFastEMA': '16', 'InpSlowEMA': '26', 'InpSignalSMA': '9'}
+[s4b_trend_H1] 32s error=None passes=4 metrics=None
+[s4b_trend_H4] 32s error=None passes=4 metrics=None
+[s4b_trend_D1] 31s error=None passes=4 metrics=None
+[s4b_trend_off] 17s error=None passes=0 metrics={'net_profit': 256542.68, 'profit_factor': 1.51, 'trades': 670.0, 'win_rate_pct': 49.85, 'equity_dd_rel_pct': 20.29, 'sharpe': 2.21, 'recovery_factor': 8.07}
+    {'Profit': 260910.42, 'Profit Factor': 1.679, 'Recovery Factor': 8.892, 'Sharpe Ratio': 3.045, 'Equity DD %': 9.266, 'Trades': 459.0, '_score': 14.931, 'InpUseTrendFilter': 'true', 'InpTrendTF': '16388', 'InpTrendPeriod': 200.0}
+    {'Profit': 253104.56, 'Profit Factor': 1.672, 'Recovery Factor': 8.54, 'Sharpe Ratio': 3.037, 'Equity DD %': 17.261, 'Trades': 458.0, '_score': 14.282, 'InpUseTrendFilter': 'true', 'InpTrendTF': '16385', 'InpTrendPeriod': 200.0}
+    {'Profit': 189989.34, 'Profit Factor': 1.574, 'Recovery Factor': 9.008, 'Sharpe Ratio': 2.634, 'Equity DD %': 15.041, 'Trades': 459.0, '_score': 14.18, 'InpUseTrendFilter': 'true', 'InpTrendTF': '16385', 'InpTrendPeriod': 100.0}
+    {'Profit': 243366.69, 'Profit Factor': 1.664, 'Recovery Factor': 8.397, 'Sharpe Ratio': 2.956, 'Equity DD %': 10.402, 'Trades': 463.0, '_score': 13.975, 'InpUseTrendFilter': 'true', 'InpTrendTF': '16388', 'InpTrendPeriod': 150.0}
+    {'Profit': 205848.6, 'Profit Factor': 1.641, 'Recovery Factor': 8.001, 'Sharpe Ratio': 2.785, 'Equity DD %': 17.294, 'Trades': 445.0, '_score': 13.134, 'InpUseTrendFilter': 'true', 'InpTrendTF': '16385', 'InpTrendPeriod': 150.0}
+    {'Profit': 288168.88, 'Profit Factor': 1.683, 'Recovery Factor': 7.56, 'Sharpe Ratio': 3.132, 'Equity DD %': 19.32, 'Trades': 462.0, '_score': 12.727, 'InpUseTrendFilter': 'true', 'InpTrendTF': '16408', 'InpTrendPeriod': 50.0}
+    {'Profit': 161592.83, 'Profit Factor': 1.507, 'Recovery Factor': 7.482, 'Sharpe Ratio': 2.396, 'Equity DD %': 15.931, 'Trades': 468.0, '_score': 11.276, 'InpUseTrendFilter': 'true', 'InpTrendTF': '16385', 'InpTrendPeriod': 50.0}
+    {'Profit': 330559.91, 'Profit Factor': 1.595, 'Recovery Factor': 5.395, 'Sharpe Ratio': 3.34, 'Equity DD %': 16.323, 'Trades': 456.0, '_score': 8.603, 'InpUseTrendFilter': 'true', 'InpTrendTF': '16408', 'InpTrendPeriod': 150.0}
+best after S4b: {'InpUseTrendFilter': 'true', 'InpTrendTF': '16388', 'InpTrendPeriod': '200'}
+=== FINAL candidate: {"InpStopLossPct": "0.5", "InpTakeProfitPct": "3.75", "InpTrailStartPct": "1", "InpTrailATRMult": "4", "InpZeroLineFilter": "false", "InpMinGapATR": "0", "InpUseTimeFilter": "false", "InpCloseOnOpposite": "false", "InpBreakEvenPct": "0.5", "InpFastEMA": "16", "InpSlowEMA": "26", "InpSignalSMA": "9", "InpUseTrendFilter": "true", "InpTrendTF": "16388", "InpTrendPeriod": "200"}
+[val_final_2022] 48s error=None passes=0 metrics={'net_profit': 17113.59, 'profit_factor': 1.21, 'trades': 160.0, 'win_rate_pct': 50.62, 'equity_dd_rel_pct': 14.37, 'sharpe': 1.16, 'recovery_factor': 1.07}
+[val_final_2023] 47s error=None passes=0 metrics={'net_profit': 31165.91, 'profit_factor': 1.46, 'trades': 135.0, 'win_rate_pct': 54.07, 'equity_dd_rel_pct': 12.38, 'sharpe': 2.03, 'recovery_factor': 1.96}
+[val_final_2024] 53s error=None passes=0 metrics={'net_profit': -1121.02, 'profit_factor': 0.99, 'trades': 148.0, 'win_rate_pct': 45.27, 'equity_dd_rel_pct': 15.6, 'sharpe': -0.09, 'recovery_factor': -0.06}
+[val_final_2025] 63s error=None passes=0 metrics={'net_profit': 61461.16, 'profit_factor': 1.51, 'trades': 167.0, 'win_rate_pct': 51.5, 'equity_dd_rel_pct': 15.9, 'sharpe': 3.11, 'recovery_factor': 2.38}
+[val_final_2026ytd] 68s error=None passes=0 metrics={'net_profit': 88117.37, 'profit_factor': 1.87, 'trades': 146.0, 'win_rate_pct': 49.32, 'equity_dd_rel_pct': 12.97, 'sharpe': 5.27, 'recovery_factor': 5.0}
+[val_final_2024-2026] 159s error=None passes=0 metrics={'net_profit': 201329.32, 'profit_factor': 1.55, 'trades': 461.0, 'win_rate_pct': 48.81, 'equity_dd_rel_pct': 15.89, 'sharpe': 2.66, 'recovery_factor': 7.11}
+[val_v130_2022] 59s error=None passes=0 metrics={'net_profit': 22435.07, 'profit_factor': 1.29, 'trades': 100.0, 'win_rate_pct': 31.0, 'equity_dd_rel_pct': 13.49, 'sharpe': 1.21, 'recovery_factor': 1.36}
+[val_v130_2023] 52s error=None passes=0 metrics={'net_profit': 11352.93, 'profit_factor': 1.17, 'trades': 79.0, 'win_rate_pct': 27.85, 'equity_dd_rel_pct': 13.25, 'sharpe': 0.7, 'recovery_factor': 0.72}
+[val_v130_2024] 60s error=None passes=0 metrics={'net_profit': -987.07, 'profit_factor': 0.99, 'trades': 98.0, 'win_rate_pct': 24.49, 'equity_dd_rel_pct': 16.33, 'sharpe': -0.06, 'recovery_factor': -0.06}
+[val_v130_2025] 68s error=None passes=0 metrics={'net_profit': 53391.55, 'profit_factor': 1.47, 'trades': 120.0, 'win_rate_pct': 29.17, 'equity_dd_rel_pct': 14.76, 'sharpe': 2.38, 'recovery_factor': 2.77}
+[val_v130_2024-2026] 161s error=None passes=0 metrics={'net_profit': 122783.84, 'profit_factor': 1.34, 'trades': 346.0, 'win_rate_pct': 27.75, 'equity_dd_rel_pct': 16.97, 'sharpe': 1.67, 'recovery_factor': 3.75}
+=== DONE 20:04:44 summary: /Users/lyudmilnikodimov/Projects/MBT/reports/macd_sweep_20261002_194548/summary.json

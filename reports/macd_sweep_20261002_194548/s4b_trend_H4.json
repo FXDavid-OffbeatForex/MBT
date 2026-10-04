@@ -1,0 +1,105 @@
+{
+ "name": "s4b_trend_H4_20261002_194927",
+ "ini": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\s4b_trend_H4_20261002_194927.ini",
+ "mode": "opt",
+ "model": "1min_ohlc",
+ "period": "H1",
+ "from": "2024-01-01",
+ "to": "2026-10-01",
+ "inputs": {
+  "InpMagic": "240817",
+  "InpTimeframe": "16385",
+  "InpComment": "MACD_X",
+  "InpSlippagePoints": "30",
+  "InpMaxSpreadPoints": "0",
+  "InpFastEMA": "16",
+  "InpSlowEMA": "26",
+  "InpSignalSMA": "9",
+  "InpAppliedPrice": "1",
+  "InpZeroLineFilter": "false",
+  "InpUseTrendFilter": "true",
+  "InpTrendTF": "16388",
+  "InpTrendPeriod": "200",
+  "InpMinGapATR": "0",
+  "InpATRPeriod": "14",
+  "InpUseTimeFilter": "false",
+  "InpStartHour": "7",
+  "InpEndHour": "20",
+  "InpStopLossPct": "0.5",
+  "InpTakeProfitPct": "3.75",
+  "InpCloseOnOpposite": "false",
+  "InpBreakEvenPct": "0.5",
+  "InpBreakEvenLockPct": "0.1",
+  "InpTrailStartPct": "1",
+  "InpTrailDistPct": "1.0",
+  "InpTrailATRMult": "4",
+  "InpRiskMode": "1",
+  "InpRiskValue": "1.0"
+ },
+ "ranges": {
+  "InpTrendPeriod": [
+   "50",
+   "50",
+   "200"
+  ]
+ },
+ "ran_seconds": 30.8,
+ "timed_out": false,
+ "reports": [
+  "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\s4b_trend_H4_20261002_194927.xml"
+ ],
+ "passes": [
+  {
+   "Pass": 3.0,
+   "Result": 26609.33,
+   "Profit": 260910.42,
+   "Expected Payoff": 568.432288,
+   "Profit Factor": 1.679214,
+   "Recovery Factor": 8.891637,
+   "Sharpe Ratio": 3.045,
+   "Custom": 26609.333127240337,
+   "Equity DD %": 9.2659,
+   "Trades": 459.0,
+   "InpTrendPeriod": 200.0
+  },
+  {
+   "Pass": 2.0,
+   "Result": 23790.79,
+   "Profit": 243366.69,
+   "Expected Payoff": 525.63,
+   "Profit Factor": 1.664165,
+   "Recovery Factor": 8.397367,
+   "Sharpe Ratio": 2.955671,
+   "Custom": 23790.791995919768,
+   "Equity DD %": 10.4025,
+   "Trades": 463.0,
+   "InpTrendPeriod": 150.0
+  },
+  {
+   "Pass": 0.0,
+   "Result": 16322.39,
+   "Profit": 221804.18,
+   "Expected Payoff": 483.233508,
+   "Profit Factor": 1.612823,
+   "Recovery Factor": 6.413812,
+   "Sharpe Ratio": 2.824092,
+   "Custom": 16322.393292448247,
+   "Equity DD %": 20.9166,
+   "Trades": 459.0,
+   "InpTrendPeriod": 50.0
+  },
+  {
+   "Pass": 1.0,
+   "Result": 10503.64,
+   "Profit": 161418.49,
+   "Expected Payoff": 348.636048,
+   "Profit Factor": 1.522706,
+   "Recovery Factor": 6.206472,
+   "Sharpe Ratio": 2.415238,
+   "Custom": 10503.644776847923,
+   "Equity DD %": 22.4007,
+   "Trades": 463.0,
+   "InpTrendPeriod": 100.0
+  }
+ ]
+}
