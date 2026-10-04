@@ -17,7 +17,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPORTS = os.path.join(ROOT, "reports")
 WIN = ("2025-01-01", "2025-07-01")
 OFF = {"InpMaxSpreadPoints": "0", "InpDailyLossPct": "0", "InpMonthlyLossPct": "0"}
-MODES = {"bb": {"InpEntryMode": "0", "InpSLATR": "1.5", "InpMaxBars": "12", "InpRSILow": "30", "InpADXMax": "25"},
+MODES = {"bb": {"InpEntryMode": "0", "InpSLATR": "1.5", "InpMaxBars": "12", "InpRSILow": "30", "InpADXMax": "100"},
          "rsi2": {"InpEntryMode": "1", "InpSLATR": "3.0", "InpMaxBars": "24", "InpRSI2Entry": "10",
                   "InpRSI2Exit": "70", "InpTrendPeriod": "200"}}
 
