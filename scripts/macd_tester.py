@@ -11,29 +11,12 @@ then parses the .htm (single) or .xml (optimization) report MT5 wrote into the d
 import os, sys, re, json, glob, time, shutil, argparse, subprocess, html
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.tester import _launch_cmd, _data_dir, _read_text_any, _safe_run_name, _PERIOD_MAP, _MODEL_MAP
 from core.connection import reports_dir
+from core.connection import load_config
+import ea_profiles
 
-EXPERT = r"Advisors\MACD_Cross_EA.ex5"
-
-# EA defaults. ALWAYS written in full to [TesterInputs]: when the ini carries no
-# inputs, MT5 silently applies MQL5/Profiles/Tester/<EA>.set (last-used GUI values) instead of
-# the EA's defaults -- the exact trap that made the 17:33-17:50 GUI runs identical.
-DEFAULTS = {   # MACD_Cross_EA v1.42 compiled defaults
-    "InpMagic": "240817", "InpTimeframe": "16385", "InpComment": "MACD_X",
-    "InpSlippagePoints": "30", "InpMaxSpreadPoints": "150",
-    "InpFastEMA": "16", "InpSlowEMA": "26", "InpSignalSMA": "9", "InpAppliedPrice": "1",
-    "InpZeroLineFilter": "false",
-    "InpUseTrendFilter": "true", "InpTrendTF": "16388", "InpTrendPeriod": "200",
-    "InpMinGapATR": "0.0", "InpATRPeriod": "14",
-    "InpUseTimeFilter": "false", "InpStartHour": "7", "InpEndHour": "20",
-    "InpStopLossPct": "0.5", "InpTakeProfitPct": "3.75", "InpCloseOnOpposite": "false",
-    "InpBreakEvenPct": "0.5", "InpBreakEvenLockPct": "0.1",
-    "InpTrailStartPct": "1.0", "InpTrailDistPct": "1.0", "InpTrailATRMult": "4.0",
-    "InpRiskMode": "1", "InpRiskValue": "1.0",
-    "InpSpreadWaitMin": "30", "InpDailyLossPct": "4.0", "InpMonthlyLossPct": "12.0", "InpTradeLog": "true",
-    "InpLogEveryBar": "false",   # hourly status lines are for live/VPS, too noisy for optimizations
-}
 
 
 def _num(s):
@@ -107,7 +90,7 @@ def write_ini(name, args, inputs, ranges):
     period = _PERIOD_MAP.get(args.period.lower(), args.period.upper())
     model = _MODEL_MAP.get(args.model.lower(), 1)
     opt = 0 if args.mode == "single" else args.algo
-    lines = ["[Tester]", f"Expert={EXPERT}", f"Symbol={args.symbol}", f"Period={period}",
+    lines = ["[Tester]", f"Expert={ea_profiles.expert_path(args.expert)}", f"Symbol={args.symbol}", f"Period={period}",
              f"Model={model}", f"Optimization={opt}", f"OptimizationCriterion={args.criterion}",
              f"Deposit={args.deposit}", f"Leverage={args.leverage}", "Currency=USD",
              "ExecutionMode=0", "Visual=0", "ShutdownTerminal=1", "ReplaceReport=1",
@@ -118,19 +101,7 @@ def write_ini(name, args, inputs, ranges):
     else:
         lines.append("ForwardMode=0")
     lines.append("[TesterInputs]")
-    for k, v in inputs.items():
-        if k in ranges:
-            a, s, b = ranges[k]
-            lines.append(f"{k}={v}||{a}||{s}||{b}||Y")
-        elif k == "InpComment":
-            lines.append(f"{k}={v}")
-        else:
-            # pin explicitly: a bare "k=v" keeps any optimize flag MT5 cached from an earlier run
-            # (seen: a 15-pass grid re-swept the previous 320-pass exit ranges -> 4800 passes)
-            lines.append(f"{k}={v}||{v}||1||{v}||N")
-    for k, (a, s, b) in ranges.items():
-        if k not in inputs:
-            lines.append(f"{k}={a}||{a}||{s}||{b}||Y")
+    lines += ea_profiles.tester_input_lines(inputs, ranges)
     ini_path = os.path.join(reports_dir(), name + ".ini")
     with open(ini_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
@@ -155,24 +126,21 @@ def main():
     ap.add_argument("--range", action="append", default=[], help="Name=start:step:stop")
     ap.add_argument("--timeout", type=int, default=1800)
     ap.add_argument("--out", default="", help="also write the result JSON here (Windows path under Wine)")
+    ap.add_argument("--expert", default="MACD_Cross_EA", help="EA name under MQL5\\Experts\\Advisors")
     args = ap.parse_args()
 
-    inputs = dict(DEFAULTS)
+    sets = {}
     for s in args.set:
         k, v = s.split("=", 1)
-        inputs[k.strip()] = v.strip()
+        sets[k.strip()] = v.strip()
     ranges = {}
-    for s in args.range:
-        k, v = s.split("=", 1)
-        a, st, b = v.split(":")
-        try:
-            ok = float(st) > 0 and float(b) >= float(a)
-        except ValueError:
-            ok = False
-        if not ok:   # bool/enum or zero-step ranges explode MT5 grids (seen: 120 planned -> ~50k passes)
-            sys.exit(f"refusing range {k}={v}: numeric start:step:stop with step > 0 only; "
-                     f"sweep bools/enums as separate launches")
-        ranges[k.strip()] = (a, st, b)
+    try:
+        inputs = ea_profiles.merge_inputs(args.expert, sets)
+        for s in args.range:
+            k, r = ea_profiles.parse_range(s)
+            ranges[k] = r
+    except ValueError as e:
+        sys.exit(str(e))
 
     name = _safe_run_name(args.name) + "_" + time.strftime("%Y%m%d_%H%M%S")
     ini_path = write_ini(name, args, inputs, ranges)
@@ -186,7 +154,7 @@ def main():
     elapsed = round(time.time() - t0, 1)
 
     data = _data_dir()
-    result = {"name": name, "ini": ini_path, "mode": args.mode, "model": args.model,
+    result = {"name": name, "expert": args.expert, "ini": ini_path, "mode": args.mode, "model": args.model,
               "period": args.period, "from": args.date_from, "to": args.date_to,
               "inputs": inputs, "ranges": ranges, "ran_seconds": elapsed, "timed_out": timed_out}
     found = []
@@ -209,6 +177,14 @@ def main():
     if not found:
         result["error"] = ("no report written (elapsed %.1fs): another terminal running? EA not compiled? "
                            "check Tester/logs" % elapsed)
+    common = (load_config().get("tester") or {}).get("common_files", "")
+    src = os.path.join(common, ea_profiles.tester_log_name(args.expert, args.symbol, inputs["InpMagic"]))
+    fresh = ea_profiles.pick_fresh_log(src, t0) if common else None
+    result["trade_log"] = None
+    if fresh:
+        dst_name = name + "_trades.csv"
+        shutil.copyfile(fresh, os.path.join(reports_dir(), dst_name))
+        result["trade_log"] = dst_name
     with open(os.path.join(reports_dir(), name + ".json"), "w", encoding="utf-8") as f:
         json.dump(result, f, indent=1, default=str)
     if args.out:

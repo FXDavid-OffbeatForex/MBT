@@ -35,10 +35,11 @@ def winpath(p):
     return "Z:" + p.replace("/", "\\")
 
 
-def run(mode, name, sets=None, ranges=None, model="1min_ohlc", frm=IS_FROM, to=IS_TO, timeout=3000, symbol="XAUUSD"):
+def run(mode, name, sets=None, ranges=None, model="1min_ohlc", frm=IS_FROM, to=IS_TO, timeout=3000, symbol="XAUUSD",
+        expert="MACD_Cross_EA"):
     out = os.path.join(OUTDIR, name + ".json")
     cmd = [RUNNER, "scripts/macd_tester.py", mode, "--name", name, "--out", winpath(out), "--model", model,
-           "--from", frm, "--to", to, "--timeout", str(timeout), "--symbol", symbol]
+           "--from", frm, "--to", to, "--timeout", str(timeout), "--symbol", symbol, "--expert", expert]
     if mode == "opt":
         cmd += ["--criterion", "6"]
     for k, v in (sets or {}).items():

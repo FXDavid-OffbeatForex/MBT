@@ -1,0 +1,95 @@
+"""Per-EA tester input defaults and [TesterInputs] line building.
+
+Pure module (no MT5 / Wine imports) so it is importable by system python and tests.
+Every EA input is written explicitly: MT5 silently applies the last GUI .set for any input left out,
+and a bare "k=v" keeps an optimize flag cached from an earlier run, so fixed inputs are pinned as
+v||v||1||v||N. Unknown input names are refused instead of silently ignored.
+"""
+import os
+
+STRING_INPUTS = {"InpComment"}
+
+_CORE_DEFAULTS = {
+    "InpTimeframe": "16385", "InpSlippagePoints": "30", "InpMaxSpreadPoints": "150",
+    "InpRiskMode": "1", "InpRiskValue": "1.0",
+    "InpSpreadWaitMin": "30", "InpDailyLossPct": "4.0", "InpMonthlyLossPct": "12.0", "InpTradeLog": "true",
+    "InpLogEveryBar": "false",   # hourly status lines are for live/VPS, too noisy for tester runs
+}
+
+PROFILES = {
+    # MACD_Cross_EA v1.42 compiled defaults
+    "MACD_Cross_EA": dict(_CORE_DEFAULTS, **{
+        "InpMagic": "240817", "InpComment": "MACD_X",
+        "InpFastEMA": "16", "InpSlowEMA": "26", "InpSignalSMA": "9", "InpAppliedPrice": "1",
+        "InpZeroLineFilter": "false",
+        "InpUseTrendFilter": "true", "InpTrendTF": "16388", "InpTrendPeriod": "200",
+        "InpMinGapATR": "0.0", "InpATRPeriod": "14",
+        "InpUseTimeFilter": "false", "InpStartHour": "7", "InpEndHour": "20",
+        "InpStopLossPct": "0.5", "InpTakeProfitPct": "3.75", "InpCloseOnOpposite": "false",
+        "InpBreakEvenPct": "0.5", "InpBreakEvenLockPct": "0.1",
+        "InpTrailStartPct": "1.0", "InpTrailDistPct": "1.0", "InpTrailATRMult": "4.0",
+    }),
+    # MeanRev_EA v1.00 compiled defaults (pre-tuning; Task 8 replaces the strategy values with the winner's)
+    "MeanRev_EA": dict(_CORE_DEFAULTS, **{
+        "InpMagic": "240819", "InpComment": "MREV",
+        "InpEntryMode": "0", "InpATRPeriod": "14", "InpSLATR": "1.5", "InpMaxBars": "12",
+        "InpBBPeriod": "20", "InpBBDev": "2.0", "InpRSIPeriod": "14", "InpRSILow": "30",
+        "InpADXPeriod": "14", "InpADXMax": "20",
+        "InpRSI2Period": "2", "InpRSI2Entry": "10", "InpRSI2Exit": "70", "InpTrendPeriod": "200",
+    }),
+}
+
+
+def expert_path(expert):
+    if expert not in PROFILES:
+        raise ValueError(f"unknown expert {expert!r}; known: {sorted(PROFILES)}")
+    return f"Advisors\\{expert}.ex5"
+
+
+def merge_inputs(expert, sets):
+    expert_path(expert)
+    base = dict(PROFILES[expert])
+    unknown = sorted(k for k in sets if k not in base)
+    if unknown:
+        raise ValueError(f"unknown input(s) for {expert}: {', '.join(unknown)}")
+    base.update(sets)
+    return base
+
+
+def parse_range(spec):
+    try:
+        name, value = spec.split("=", 1)
+        start, step, stop = value.split(":")
+        ok = float(step) > 0 and float(stop) >= float(start)
+    except ValueError:
+        ok = False
+    if not ok:
+        raise ValueError(f"refusing range {spec!r}: numeric start:step:stop with step > 0 only; "
+                         f"sweep bools/enums as separate launches")
+    return name.strip(), (start, step, stop)
+
+
+def tester_input_lines(inputs, ranges):
+    unknown = sorted(k for k in ranges if k not in inputs)
+    if unknown:
+        raise ValueError(f"range for unknown input(s): {', '.join(unknown)}")
+    lines = []
+    for k, v in inputs.items():
+        if k in ranges:
+            a, s, b = ranges[k]
+            lines.append(f"{k}={v}||{a}||{s}||{b}||Y")
+        elif k in STRING_INPUTS:
+            lines.append(f"{k}={v}")
+        else:
+            lines.append(f"{k}={v}||{v}||1||{v}||N")
+    return lines
+
+
+def tester_log_name(expert, symbol, magic):
+    return f"{expert}_{symbol}_{magic}_tester_trades.csv"
+
+
+def pick_fresh_log(path, started_at):
+    if os.path.isfile(path) and os.path.getmtime(path) >= started_at:
+        return path
+    return None
