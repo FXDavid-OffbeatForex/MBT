@@ -37,6 +37,15 @@ PROFILES = {
         "InpADXPeriod": "14", "InpADXMax": "20",
         "InpRSI2Period": "2", "InpRSI2Entry": "10", "InpRSI2Exit": "70", "InpTrendPeriod": "200",
     }),
+    # RSI_Reversal_EA v1.10 compiled defaults (standalone, no EACore: no trade-log CSV)
+    "RSI_Reversal_EA": {
+        "InpMagic": "261004", "InpComment": "RSI_REV", "InpSlippage": "30",
+        "InpRsiTimeframe": "16390", "InpRsiPeriod": "4", "InpRsiBuyLevel": "40.0", "InpRsiSellLevel": "55.0",
+        "InpUseMaFilter": "true", "InpMaTimeframe": "16396", "InpMaPeriod": "250", "InpMaMethod": "0",
+        "InpStopLossPct": "1.0", "InpTakeProfitPct": "5.0",
+        "InpTrailTriggerPct": "1.0", "InpTrailDistancePct": "1.0", "InpTrailStepPct": "0.05",
+        "InpRiskMode": "0", "InpRiskValue": "1.0", "InpLotsWithoutSL": "0.01",
+    },
     # ATR Candle Breakout EA (third-party .ex5, no source): defaults as saved by MT5 on 2026-10-01.
     # Risk is a fixed money amount per trade (InpRiskAmount); no CSV trade log, magic input is InpMagicNumber.
     "ATR Candle Breakout EA": {

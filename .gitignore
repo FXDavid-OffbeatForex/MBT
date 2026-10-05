@@ -2,7 +2,7 @@
 config.yaml
 
 # generated reports
-reports/*.html
+reports/
 
 # python
 __pycache__/
