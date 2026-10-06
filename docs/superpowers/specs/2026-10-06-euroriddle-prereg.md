@@ -45,3 +45,11 @@ high/low" with something known at the moment of entry.
   trades in both periods; for 2021-22 (two years) the trade floor is 65.
 - Already seen before this amendment: the 2019-2022 totals per configuration. The 2023-2026 real-tick holdout is
   still untouched and stays the deciding test, used once, for at most one configuration.
+
+## Outcome (2026-10-06): closed
+- Gate A (amended periods 2018-20 / 2021-22, 1-minute OHLC): only A + RSI 70/30 passed (PF 1.32 / 1.34, 150 / 93
+  trades). All B and C configurations failed; A without a filter 1.09 / 1.01, A + MACD 1.00 / 1.17.
+- Sensitivity: RSI 65/35 held (1.17 / 1.18, 372 / 256 trades); RSI 75/25 failed (0.59 / 1.02 on only 27 / 23
+  trades). By the rule as written the configuration fails. The user chose to follow the rule rather than amend it.
+- The 2023-2026 real-tick holdout was not used.
+- Lesson for future pre-registrations: give the sensitivity neighbours the same minimum trade count as the gate.
