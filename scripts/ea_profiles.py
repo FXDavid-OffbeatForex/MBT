@@ -60,6 +60,16 @@ PROFILES = {
         "InpADRPeriod": "20", "InpADRFrac": "1.0", "InpLateStartNY": "720", "InpRSIPeriod": "14", "InpRSILevel": "70",
         "InpServerNYOffset": "7",
     }),
+    # Icarus_EA v1.00 compiled defaults = the Icarus 2.2 MQ4 defaults (docs/superpowers/specs/2026-10-06-icarus-prereg.md).
+    # Grid EA without stop loss: EACore's daily/monthly stops are compiled to 0 (they would close legs the grid reopens).
+    # InpMaxSpreadPoints 100 = max_spread 100 MT4 points. Progressions: 0 flat, 1 D'Alembert, 2 Martingale, 3 Fibonacci.
+    "Icarus_EA": dict(_CORE_DEFAULTS, **{
+        "InpMagic": "261009", "InpComment": "ICARUS", "InpSpreadWaitMin": "0", "InpMaxSpreadPoints": "100",
+        "InpDailyLossPct": "0", "InpMonthlyLossPct": "0",
+        "InpGridPips": "20", "InpGridProgression": "3", "InpTakeProfitPips": "20", "InpProfitLock": "0.3",
+        "InpMinLots": "0.01", "InpEquityWarning": "0.20", "InpAccountRisk": "1.00", "InpLotProgression": "3",
+        "InpMaxPositions": "6", "InpUnbalanceControl": "false",
+    }),
     # RSI_Reversal_EA v1.10 compiled defaults (standalone, no EACore: no trade-log CSV)
     "RSI_Reversal_EA": {
         "InpMagic": "261004", "InpComment": "RSI_REV", "InpSlippage": "30",

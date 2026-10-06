@@ -25,6 +25,12 @@
 #ifndef EA_SPREAD_WAIT_MIN
 #define EA_SPREAD_WAIT_MIN 30          // an EA may #define a different compiled default before including
 #endif
+#ifndef EA_DAILY_LOSS_PCT
+#define EA_DAILY_LOSS_PCT 4.0          // an EA may #define a different compiled default before including
+#endif
+#ifndef EA_MONTHLY_LOSS_PCT
+#define EA_MONTHLY_LOSS_PCT 12.0       // an EA may #define a different compiled default before including
+#endif
 
 enum ENUM_RISK_MODE
   {
@@ -45,8 +51,8 @@ input double              InpRiskValue       = 1.0;         // Risk value (money
 
 input group "=== Safety guards ==="
 input int                 InpSpreadWaitMin   = EA_SPREAD_WAIT_MIN; // Retry a spread-blocked signal for N minutes (0 = drop it)
-input double              InpDailyLossPct    = 4.0;         // Daily loss stop, % of day-start balance (0 = off)
-input double              InpMonthlyLossPct  = 12.0;        // Monthly loss stop, % of month-start balance (0 = off)
+input double              InpDailyLossPct    = EA_DAILY_LOSS_PCT;   // Daily loss stop, % of day-start balance (0 = off)
+input double              InpMonthlyLossPct  = EA_MONTHLY_LOSS_PCT; // Monthly loss stop, % of month-start balance (0 = off)
 input bool                InpTradeLog        = true;        // Write closed trades to a CSV in MQL5\Files
 
 input group "=== Diagnostics ==="

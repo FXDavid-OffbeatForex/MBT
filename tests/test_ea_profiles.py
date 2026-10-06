@@ -17,12 +17,20 @@ def test_profiles_have_core_inputs():
     core = ["InpMagic", "InpTimeframe", "InpComment", "InpSlippagePoints", "InpMaxSpreadPoints",
             "InpRiskMode", "InpRiskValue", "InpSpreadWaitMin", "InpDailyLossPct", "InpMonthlyLossPct",
             "InpTradeLog", "InpLogEveryBar"]
-    for name in ("MACD_Cross_EA", "MeanRev_EA", "VWAP_RSI_EA", "HoLo_EA", "EuroRiddle_EA"):
+    for name in ("MACD_Cross_EA", "MeanRev_EA", "VWAP_RSI_EA", "HoLo_EA", "EuroRiddle_EA", "Icarus_EA"):
         for k in core:
             assert k in P.PROFILES[name], (name, k)
     assert P.PROFILES["MeanRev_EA"]["InpMagic"] == "240819"
     assert P.PROFILES["MACD_Cross_EA"]["InpMagic"] == "240817"
     assert P.PROFILES["VWAP_RSI_EA"]["InpMagic"] == "261006"
+
+
+def test_icarus_profile_pins_the_grid_defaults():
+    p = P.PROFILES["Icarus_EA"]
+    assert p["InpMagic"] == "261009"
+    assert p["InpDailyLossPct"] == "0" and p["InpMonthlyLossPct"] == "0"   # no entry gate for EACore's stops in a grid
+    assert p["InpMaxSpreadPoints"] == "100" and p["InpSpreadWaitMin"] == "0"
+    assert (p["InpGridProgression"], p["InpLotProgression"], p["InpMaxPositions"]) == ("3", "3", "6")
     assert P.PROFILES["VWAP_RSI_EA"]["InpSpreadWaitMin"] == "0"    # a retried bar-level stop would re-anchor
     assert P.PROFILES["VWAP_RSI_EA"]["InpMinStopATR"] == "0.1"      # micro-stop guard (review finding #1)
 

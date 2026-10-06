@@ -43,6 +43,7 @@ def parse_htm(path):
     grab("expected_payoff", r"Expected Payoff: (-?[\d\s ]+\.\d+)")
     grab("recovery_factor", r"Recovery Factor: (-?[\d.]+)")
     grab("sharpe", r"Sharpe Ratio: (-?[\d.]+)")
+    grab("equity_dd_max", r"Equity Drawdown Maximal: (-?[\d\s ]+\.\d+) \(")
     grab("equity_dd_max_pct", r"Equity Drawdown Maximal: [\d\s ]+\.\d+ \(([\d.]+)%\)")
     grab("equity_dd_rel_pct", r"Equity Drawdown Relative: ([\d.]+)%")
     grab("balance_dd_max_pct", r"Balance Drawdown Maximal: [\d\s ]+\.\d+ \(([\d.]+)%\)")
