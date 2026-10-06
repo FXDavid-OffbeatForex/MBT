@@ -62,12 +62,12 @@ def free_agent_ports():
 
 
 def run(name, sets, period="H1", mode="single", ranges=None, frm=SC_WIN[0], to=SC_WIN[1], timeout=900,
-        expert=EXPERT, model="1min_ohlc"):
+        expert=EXPERT, model="1min_ohlc", symbol="XAUUSD"):
     """macd_sweep.run with one retry after killing a hung Wine terminal; singles also return the trade-log rows."""
     for attempt in (1, 2):
         free_agent_ports()
         d = M.run(mode, name, sets=sets, ranges=ranges, model=model, frm=frm, to=to, timeout=timeout,
-                  expert=expert, period=period)
+                  expert=expert, period=period, symbol=symbol)
         if mode == "opt" and d.get("passes"):
             return d, None
         if mode == "single" and d.get("metrics") and d.get("trade_log"):

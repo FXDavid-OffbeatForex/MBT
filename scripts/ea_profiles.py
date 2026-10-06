@@ -52,6 +52,14 @@ PROFILES = {
         "InpSessionStartNY": "480", "InpSessionEndNY": "1015", "InpServerNYOffset": "7",
         "InpExcursionLog": "false",
     }),
+    # EuroRiddle_EA v1.00 compiled defaults (docs/superpowers/specs/2026-10-06-euroriddle-prereg.md). EURUSD:
+    # 1 pip = 10 points, so the spread guard is 20 points = 2 pips. InpTimeframe (H1) is the filter timeframe.
+    "EuroRiddle_EA": dict(_CORE_DEFAULTS, **{
+        "InpMagic": "261008", "InpComment": "EURID", "InpSpreadWaitMin": "0", "InpMaxSpreadPoints": "20",
+        "InpMode": "0", "InpFilter": "0", "InpStopPips": "15", "InpTargetPips": "25",
+        "InpADRPeriod": "20", "InpADRFrac": "1.0", "InpLateStartNY": "720", "InpRSIPeriod": "14", "InpRSILevel": "70",
+        "InpServerNYOffset": "7",
+    }),
     # RSI_Reversal_EA v1.10 compiled defaults (standalone, no EACore: no trade-log CSV)
     "RSI_Reversal_EA": {
         "InpMagic": "261004", "InpComment": "RSI_REV", "InpSlippage": "30",

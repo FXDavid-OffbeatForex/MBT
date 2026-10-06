@@ -110,3 +110,20 @@ def unmoved_stop_rows(rows):
     """Trades whose logged stop (the stop at close) is still on the loss side, i.e. never moved to break-even."""
     return [r for r in rows if (r["side"] == "buy" and r["sl"] < r["open_price"]) or
             (r["side"] == "sell" and r["sl"] > r["open_price"])]
+
+
+def entries_per_day_violations(rows):
+    """Entries beyond the first in a trading day (server date; Darwinex server midnight = 17:00 New York)."""
+    seen, bad = set(), []
+    for r in sorted(rows, key=lambda r: r["open_time"]):
+        day = r["open_time"].date()
+        if day in seen:
+            bad.append(r)
+        seen.add(day)
+    return bad
+
+
+def fixed_stop_target_violations(rows, stop, target, tol):
+    """Trades whose stop or target is not exactly `stop` / `target` price units from the entry."""
+    return [r for r in rows if abs(abs(r["open_price"] - r["sl"]) - stop) > tol or
+            (r["tp"] > 0 and abs(abs(r["tp"] - r["open_price"]) - target) > tol)]

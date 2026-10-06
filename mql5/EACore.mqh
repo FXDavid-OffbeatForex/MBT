@@ -19,6 +19,9 @@
 #ifndef EA_TIMEFRAME
 #define EA_TIMEFRAME PERIOD_H1        // an EA may #define a different compiled default before including
 #endif
+#ifndef EA_MAX_SPREAD_POINTS
+#define EA_MAX_SPREAD_POINTS 150       // an EA may #define a different compiled default before including
+#endif
 #ifndef EA_SPREAD_WAIT_MIN
 #define EA_SPREAD_WAIT_MIN 30          // an EA may #define a different compiled default before including
 #endif
@@ -34,7 +37,7 @@ input ulong               InpMagic           = EA_MAGIC;    // Magic number
 input ENUM_TIMEFRAMES     InpTimeframe       = EA_TIMEFRAME; // Signal timeframe
 input string              InpComment         = EA_COMMENT;  // Order comment
 input int                 InpSlippagePoints  = 30;          // Max deviation (points)
-input int                 InpMaxSpreadPoints = 150;         // Max spread to trade (points, 0 = off)
+input int                 InpMaxSpreadPoints = EA_MAX_SPREAD_POINTS; // Max spread to trade (points, 0 = off)
 
 input group "=== Risk ==="
 input ENUM_RISK_MODE      InpRiskMode        = RISK_PERCENT;// Risk mode

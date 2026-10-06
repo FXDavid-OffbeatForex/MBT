@@ -127,3 +127,22 @@ def test_unmoved_stop_rows(tmp_path):
                              row("2024.01.03 15:00:00", "2024.01.03 16:00:00", side="sell", op=2000, sl=2010),
                              row("2024.01.03 17:00:00", "2024.01.03 18:00:00", side="sell", op=2000, sl=1999.5))) # moved
     assert [(r["side"], r["sl"]) for r in K.unmoved_stop_rows(rows)] == [("buy", 1990), ("sell", 2010)]
+
+
+def test_entries_per_day_violations(tmp_path):
+    # server midnight = 17:00 New York = the trading-day boundary
+    rows = K.load_rows(write(tmp_path,
+                             row("2024.01.03 10:00:00", "2024.01.03 11:00:00"),
+                             row("2024.01.03 15:00:00", "2024.01.03 16:00:00"),       # second entry the same day
+                             row("2024.01.04 00:30:00", "2024.01.04 02:00:00")))      # next trading day: fine
+    bad = K.entries_per_day_violations(rows)
+    assert len(bad) == 1 and bad[0]["open_time"].hour == 15
+
+
+def test_fixed_stop_target_violations(tmp_path):
+    rows = K.load_rows(write(tmp_path,
+                             row("2024.01.03 10:00:00", "2024.01.03 11:00:00", side="sell", op=1.10000, sl=1.10150, tp=1.09750),
+                             row("2024.01.03 12:00:00", "2024.01.03 13:00:00", side="buy", op=1.10000, sl=1.09850, tp=1.10250),
+                             row("2024.01.03 14:00:00", "2024.01.03 15:00:00", side="buy", op=1.10000, sl=1.09800, tp=1.10250)))
+    bad = K.fixed_stop_target_violations(rows, stop=0.0015, target=0.0025, tol=0.00002)
+    assert len(bad) == 1 and bad[0]["sl"] == pytest.approx(1.09800)

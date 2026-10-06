@@ -17,7 +17,7 @@ def test_profiles_have_core_inputs():
     core = ["InpMagic", "InpTimeframe", "InpComment", "InpSlippagePoints", "InpMaxSpreadPoints",
             "InpRiskMode", "InpRiskValue", "InpSpreadWaitMin", "InpDailyLossPct", "InpMonthlyLossPct",
             "InpTradeLog", "InpLogEveryBar"]
-    for name in ("MACD_Cross_EA", "MeanRev_EA", "VWAP_RSI_EA", "HoLo_EA"):
+    for name in ("MACD_Cross_EA", "MeanRev_EA", "VWAP_RSI_EA", "HoLo_EA", "EuroRiddle_EA"):
         for k in core:
             assert k in P.PROFILES[name], (name, k)
     assert P.PROFILES["MeanRev_EA"]["InpMagic"] == "240819"
@@ -95,3 +95,10 @@ def test_holo_profile_matches_design():
     assert p["InpMagic"] == "261007" and p["InpSpreadWaitMin"] == "0"      # entry exactly at the level: no delayed retry
     assert p["InpTimeframe"] == "15" and p["InpLevelTF"] == "16385"         # M15 trigger, H1 levels
     assert (p["InpSessionStartNY"], p["InpSessionEndNY"], p["InpServerNYOffset"]) == ("480", "1015", "7")
+
+
+def test_euroriddle_profile_matches_prereg():
+    p = P.PROFILES["EuroRiddle_EA"]
+    assert p["InpMagic"] == "261008" and p["InpSpreadWaitMin"] == "0"
+    assert (p["InpStopPips"], p["InpTargetPips"], p["InpMaxSpreadPoints"]) == ("15", "25", "20")   # 2 pips on EURUSD
+    assert (p["InpMode"], p["InpFilter"], p["InpADRPeriod"], p["InpADRFrac"], p["InpLateStartNY"]) == ("0", "0", "20", "1.0", "720")
