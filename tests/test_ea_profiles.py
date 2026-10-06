@@ -17,11 +17,13 @@ def test_profiles_have_core_inputs():
     core = ["InpMagic", "InpTimeframe", "InpComment", "InpSlippagePoints", "InpMaxSpreadPoints",
             "InpRiskMode", "InpRiskValue", "InpSpreadWaitMin", "InpDailyLossPct", "InpMonthlyLossPct",
             "InpTradeLog", "InpLogEveryBar"]
-    for name in ("MACD_Cross_EA", "MeanRev_EA"):
+    for name in ("MACD_Cross_EA", "MeanRev_EA", "VWAP_RSI_EA"):
         for k in core:
             assert k in P.PROFILES[name], (name, k)
     assert P.PROFILES["MeanRev_EA"]["InpMagic"] == "240819"
     assert P.PROFILES["MACD_Cross_EA"]["InpMagic"] == "240817"
+    assert P.PROFILES["VWAP_RSI_EA"]["InpMagic"] == "261006"
+    assert P.PROFILES["VWAP_RSI_EA"]["InpSpreadWaitMin"] == "0"    # a retried bar-level stop would re-anchor
 
 
 def test_merge_inputs_overrides_and_copies():

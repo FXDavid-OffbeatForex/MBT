@@ -80,3 +80,14 @@ def max_spread(rows):
 def median_sl_r(rows):
     vals = [r["r_multiple"] for r in rows if r["exit_reason"] == "sl" and r["r_multiple"] is not None]
     return statistics.median(vals) if vals else None
+
+
+def rr_violations(rows, rr, tol=0.02):
+    """|tp - open| must equal rr x |open - sl| for every trade with a TP (EA has no break-even or trailing)."""
+    return [r for r in rows if r["tp"] > 0 and
+            abs(abs(r["tp"] - r["open_price"]) - rr * abs(r["open_price"] - r["sl"])) > tol]
+
+
+def median_r(rows, reason):
+    vals = [r["r_multiple"] for r in rows if r["exit_reason"] == reason and r["r_multiple"] is not None]
+    return statistics.median(vals) if vals else None

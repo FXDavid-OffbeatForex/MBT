@@ -125,3 +125,15 @@ def test_drop_failed_passes_removes_init_failed_rows():
     ghost = {"Profit Factor": "", "Trades": 0.0, "Equity DD %": 0.0, "Profit": 0.0}
     kept, dropped = S.drop_failed_passes([ok, ghost, dict(ghost)])
     assert kept == [ok] and dropped == 2
+
+
+def test_joint_pick_needs_a_plateau_in_both_regimes():
+    left = full_grid(lambda x, y: 1.3 if x <= 2 else 0.9)       # regime A: X in {1,2} works
+    right = full_grid(lambda x, y: 1.3 if x >= 2 else 0.9)      # regime B: X in {2,3} works
+    pa, pb = S.joint_pick(left, right, GRID)
+    assert pa["X"] == 2.0 and pb["X"] == 2.0 and pa["Y"] == pb["Y"]
+    assert S.joint_pick(left, full_grid(lambda x, y: 0.9), GRID) is None          # dead in regime B
+    spike = full_grid(lambda x, y: 1.3 if (x, y) == (2, 20) else 0.9)             # passes PF in B but no plateau there
+    assert S.joint_pick(left, spike, GRID) is None
+    weak = full_grid(lambda x, y: 1.1 if x <= 2 else 0.9)                         # survives but below min_pf 1.15
+    assert S.joint_pick(weak, right, GRID) is None

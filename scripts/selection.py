@@ -90,6 +90,30 @@ def pick_plateau(passes, grid, min_trades=150, max_dd=20.0, min_neighbour_pf=1.1
     return None
 
 
+def joint_pick(passes_a, passes_b, grid, min_trades=150, max_dd=20.0, min_pf=1.15, min_neighbour_pf=1.10):
+    """pick_plateau across two regimes: the same parameter tuple must survive, reach min_pf and sit on a plateau
+    in BOTH; ranked by the weaker regime's score. Returns (pass_a, pass_b) or None."""
+    def key(p):
+        return tuple(float(p[k]) for k in grid)
+
+    def on_plateau(p, passes):
+        nb = neighbours(p, passes, grid)
+        return bool(nb) and sum(float(q.get("Profit Factor") or 0.0) for q in nb) / len(nb) >= min_neighbour_pf
+
+    in_b = {key(p): p for p in survivors(passes_b, min_trades, max_dd)}
+    best = None
+    for pa in survivors(passes_a, min_trades, max_dd):
+        pb = in_b.get(key(pa))
+        if pb is None or min(float(pa["Profit Factor"]), float(pb["Profit Factor"])) < min_pf:
+            continue
+        if not (on_plateau(pa, passes_a) and on_plateau(pb, passes_b)):
+            continue
+        s = min(score(pa), score(pb))
+        if best is None or s > best[0]:
+            best = (s, pa, pb)
+    return None if best is None else (best[1], best[2])
+
+
 def evaluate_gates(years, in_sample, corr, combined, macd_alone, deposit=100000.0):
     oos = [years["2022"], years["2023"]]
     oos_net = sum(y["net_profit"] for y in oos)

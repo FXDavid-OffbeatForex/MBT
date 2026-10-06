@@ -9,8 +9,8 @@ HDR = ("close_time,open_time,symbol,side,volume,open_price,close_price,sl,tp,gro
 
 
 def row(open_t, close_t, side="buy", op=2000.0, tp=2010.0, profit=-100.0, balance=99900.0, r="-1.0",
-        reason="sl", spread="30"):
-    return (f"{close_t},{open_t},XAUUSD,{side},1.00,{op},{op},0,{tp},0,0,0,{profit},{balance},{r},{reason},"
+        reason="sl", spread="30", sl=0):
+    return (f"{close_t},{open_t},XAUUSD,{side},1.00,{op},{op},{sl},{tp},0,0,0,{profit},{balance},{r},{reason},"
             f"{spread},0.0,1,1,240819\n")
 
 
@@ -82,3 +82,28 @@ def test_counters(tmp_path):
     assert K.count_reason(rows, "sl") == 2
     assert K.max_spread(rows) == 40
     assert K.median_sl_r(rows) == pytest.approx(-1.0)
+
+
+def test_rr_violations(tmp_path):
+    rows = K.load_rows(write(tmp_path,
+                             row("2024.01.03 10:00:00", "2024.01.03 12:00:00", side="buy", op=2000, sl=1990, tp=2015),
+                             row("2024.01.03 13:00:00", "2024.01.03 14:00:00", side="sell", op=2000, sl=2010, tp=1985),
+                             # TP at 1R on a 1.5R system -> violation
+                             row("2024.01.03 15:00:00", "2024.01.03 16:00:00", side="buy", op=2000, sl=1990, tp=2010),
+                             # no TP: not checked
+                             row("2024.01.03 17:00:00", "2024.01.03 18:00:00", side="buy", op=2000, sl=1990, tp=0)))
+    bad = K.rr_violations(rows, 1.5)
+    assert len(bad) == 1 and bad[0]["tp"] == 2010
+    assert K.rr_violations(rows[:2], 1.5, tol=0.02) == []
+
+
+def test_median_r_by_exit_reason(tmp_path):
+    rows = K.load_rows(write(tmp_path,
+                             row("2024.01.03 10:00:00", "2024.01.03 12:00:00", reason="sl", r="-1.02"),
+                             row("2024.01.03 13:00:00", "2024.01.03 14:00:00", reason="sl", r="-0.98"),
+                             row("2024.01.03 15:00:00", "2024.01.03 16:00:00", reason="tp", r="1.5"),
+                             row("2024.01.03 17:00:00", "2024.01.03 18:00:00", reason="tp", r="1.4"),
+                             row("2024.01.03 19:00:00", "2024.01.03 20:00:00", reason="tp", r="")))
+    assert K.median_r(rows, "sl") == pytest.approx(-1.0)
+    assert K.median_r(rows, "tp") == pytest.approx(1.45)
+    assert K.median_r(rows, "time_limit") is None

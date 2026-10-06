@@ -37,6 +37,12 @@ PROFILES = {
         "InpADXPeriod": "14", "InpADXMax": "20",
         "InpRSI2Period": "2", "InpRSI2Entry": "10", "InpRSI2Exit": "70", "InpTrendPeriod": "200",
     }),
+    # VWAP_RSI_EA v1.00 compiled defaults. Always pass InpTimeframe with --period (5 / 15 / 16385 / 16388).
+    # InpSpreadWaitMin=0: the stop is a bar level; Core_RetryPending would re-apply the stored distance to a later price.
+    "VWAP_RSI_EA": dict(_CORE_DEFAULTS, **{
+        "InpMagic": "261006", "InpComment": "VWAP_RSI", "InpSpreadWaitMin": "0",
+        "InpAnchor": "0", "InpRSIPeriod": "21", "InpRR": "1.0", "InpSLBufferATR": "0.0", "InpReentryMode": "0",
+    }),
     # RSI_Reversal_EA v1.10 compiled defaults (standalone, no EACore: no trade-log CSV)
     "RSI_Reversal_EA": {
         "InpMagic": "261004", "InpComment": "RSI_REV", "InpSlippage": "30",
