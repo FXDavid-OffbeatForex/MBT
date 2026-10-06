@@ -4,6 +4,7 @@ Quit the MT5 GUI first (MT5 is single-instance).
 
   python3 scripts/vwap_rsi_eval.py selfcheck                      # SL/TP geometry + sizing, H1 2025-01..07, guards off
   python3 scripts/vwap_rsi_eval.py stage-b --tf H1 --anchor 0     # 32-pass grid on 2019-21 and 2022-24, joint plateau pick
+  python3 scripts/vwap_rsi_eval.py report reports/vr_a_*_trades.csv   # PF, net R by regime, top entry hours per log
 
 Stage A and Stage C are plain commands (results land in reports/<name>_<stamp>.json + _trades.csv):
   for tf in "M5 5" "M15 15" "H1 16385" "H4 16388"; do set -- $tf; for a in 0 1; do
@@ -14,6 +15,7 @@ Stage A and Stage C are plain commands (results land in reports/<name>_<stamp>.j
   ~/.local/bin/mbt-wine-py scripts/walkforward.py --tag vwap_H1 --ea VWAP_RSI_EA --period H1 ... (see plan)
 """
 import argparse
+import collections
 import json
 import os
 import statistics
@@ -31,6 +33,7 @@ TF = {"M5": "5", "M15": "15", "H1": "16385", "H4": "16388"}
 OFF = {"InpMaxSpreadPoints": "0", "InpDailyLossPct": "0", "InpMonthlyLossPct": "0"}
 SC_WIN = ("2025-01-01", "2025-07-01")
 REGIMES = {"1921": ("2019-01-01", "2022-01-01"), "2224": ("2022-01-01", "2025-01-01")}
+REGIME_YEARS = {"R19-21": range(2019, 2022), "R22-24": range(2022, 2025), "R25-26": range(2025, 2027)}
 GRID = {"InpRR": ["1.0", "1.5", "2.0", "2.5"], "InpSLBufferATR": ["0.0", "0.25", "0.5", "0.75"],
         "InpRSIPeriod": ["14", "21"]}
 
@@ -39,9 +42,20 @@ def mt5_running():
     return subprocess.run(["pgrep", "-f", "terminal64.exe"], capture_output=True).returncode == 0
 
 
+def free_agent_ports():
+    """MT5 pins its local tester agents to 127.0.0.1:3000-3011; a dev server on 3000 makes every single run fail
+    with 'tester agent authorization error'. Kill whatever listens there (user-approved on this machine)."""
+    pids = subprocess.run(["lsof", "-nP", "-tiTCP:3000-3011", "-sTCP:LISTEN"], capture_output=True, text=True).stdout.split()
+    if pids:
+        subprocess.run(["kill", "-9", *pids])
+        M.log(f"freed MT5 agent ports: killed pid(s) {' '.join(pids)}")
+        subprocess.run(["sleep", "2"])
+
+
 def run(name, sets, period="H1", mode="single", ranges=None, frm=SC_WIN[0], to=SC_WIN[1], timeout=900):
     """macd_sweep.run with one retry after killing a hung Wine terminal; singles also return the trade-log rows."""
     for attempt in (1, 2):
+        free_agent_ports()
         d = M.run(mode, name, sets=sets, ranges=ranges, model="1min_ohlc", frm=frm, to=to, timeout=timeout,
                   expert=EXPERT, period=period)
         if mode == "opt" and d.get("passes"):
@@ -117,13 +131,39 @@ def stage_b(tf, anchor, extra):
         json.dump({"base": base, "grid": GRID, "passes": per, "pick": pick}, f, indent=1, default=str)
 
 
+def report(paths):
+    """One line per trade log: PF, net R, R per trade, win %, net R per regime (by close year), top entry hours."""
+    print(f"{'log':30} {'n':>5} {'PF':>5} {'netR':>7} {'R/tr':>6} {'win%':>5} | "
+          + " ".join(f"{k:>7}" for k in REGIME_YEARS) + " | top entry hours (server)")
+    for path in paths:
+        rows = K.load_rows(path)
+        if not rows:
+            print(f"{os.path.basename(path)[:30]:30} empty")
+            continue
+        gp = sum(r["profit"] for r in rows if r["profit"] > 0)
+        gl = -sum(r["profit"] for r in rows if r["profit"] < 0)
+        rs = [r["r_multiple"] or 0.0 for r in rows]
+        reg = {k: sum(r["r_multiple"] or 0.0 for r in rows if r["close_time"].year in yrs) for k, yrs in REGIME_YEARS.items()}
+        hours = collections.Counter(r["open_time"].hour for r in rows).most_common(3)
+        name = os.path.basename(path).replace("_trades.csv", "")
+        name = name[:name.rfind("_", 0, name.rfind("_"))] if name.count("_") >= 2 else name   # drop the _date_time stamp
+        print(f"{name[:30]:30} {len(rows):5d} {gp / gl if gl else 0:5.2f} {sum(rs):7.1f} {sum(rs) / len(rs):6.3f} "
+              f"{100 * sum(1 for r in rows if r['profit'] > 0) / len(rows):5.1f} | "
+              + " ".join(f"{reg[k]:7.1f}" for k in REGIME_YEARS) + " | "
+              + ", ".join(f"{h:02d}h {100 * c / len(rows):.0f}%" for h, c in hours))
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["selfcheck", "stage-b"])
+    ap.add_argument("cmd", choices=["selfcheck", "stage-b", "report"])
+    ap.add_argument("paths", nargs="*", help="trade CSVs for report")
     ap.add_argument("--tf", choices=sorted(TF), default="H1")
     ap.add_argument("--anchor", type=int, default=0)
     ap.add_argument("--extra", action="append", default=[], help="Name=value fixed input for stage-b")
     args = ap.parse_args()
+    if args.cmd == "report":
+        report(args.paths)
+        return
     if mt5_running():
         sys.exit("Quit the MetaTrader 5 GUI first (MT5 is single-instance).")
     M.OUTDIR = os.path.join(REPORTS, "vwap_rsi")
