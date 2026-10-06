@@ -71,9 +71,10 @@ def max_mae(path):
     return max((a for _, a in path), default=0.0)
 
 
-def stop_target_r(t, s, x):
+def stop_target_r(t, s, x, slip_price=0.0):
     """Net R with a stop s (price distance, at most the logged stop) and a target of x R of that stop. Trades that
-    reach neither exit at the session flat. Lots scale with 1/s, so the cost in R scales with d/s."""
+    reach neither exit at the session flat. Lots scale with 1/s, so the cost in R scales with d/s. Stop-outs keep
+    the real fill at the original stop; a tighter stop is charged slip_price (average price slippage beyond a stop)."""
     d = t["risk_price"]
     cost = t["cost_r"] * d / s
     target = x * s
@@ -82,10 +83,18 @@ def stop_target_r(t, s, x):
     # the exit tick itself is never seen by the EA (the position is already closed), so the exit price is the last
     # adverse point: a trade stopped at its original stop went at least d against the entry
     if max(max_mae(t["path"]), -t["close_r"] * d) >= s:
-        return -1.0 + cost
+        if s >= d - 1e-9 and t["close_r"] < -0.9:
+            return t["close_r"] + cost
+        return -1.0 - slip_price / s + cost
     return t["close_r"] * d / s + cost
 
 
 def terciles(values):
     v = sorted(values)
     return v[len(v) // 3], v[2 * len(v) // 3]
+
+
+def stop_slippage(trades):
+    """Average price distance stop-outs filled beyond the stop (positive = worse), from trades stopped at their stop."""
+    slips = [max(0.0, -(t["close_r"] + 1.0) * t["risk_price"]) for t in trades if t["close_r"] < -0.9]
+    return sum(slips) / len(slips) if slips else 0.0

@@ -215,7 +215,7 @@ STOPS = ("original", "half", "1 ATR")
 TARGETS = (1.0, 2.0, 3.0)
 
 
-def screen_cell(trades, trend, room, stop, x, cuts):
+def screen_cell(trades, trend, room, stop, x, cuts, slip):
     keep = []
     for t in trades:
         want = 1.0 if t["side"] == "buy" else -1.0
@@ -227,7 +227,7 @@ def screen_cell(trades, trend, room, stop, x, cuts):
             continue
         s = {"original": t["risk_price"], "half": 0.5 * t["risk_price"],
              "1 ATR": min(t["atr_trig"], t["risk_price"])}[stop]
-        keep.append(X.stop_target_r(t, s, x))
+        keep.append(X.stop_target_r(t, s, x, slip))
     return X.summary(keep) if keep else {"n": 0, "pf": 0.0, "r_per_trade": 0.0}
 
 
@@ -239,12 +239,13 @@ def screen():
             trades = X.load(exc, os.path.join(E.REPORTS, info["trade_log"]))
             reg = {k: [t for t in trades if t["open_time"].year in yrs] for k, yrs in REG_YEARS.items()}
             cuts = X.terciles([t["aoi_atr"] for t in reg["2019-21"]])
+            slip = X.stop_slippage(trades)
             grid = {}
             for tr in TRENDS:
                 for rm in ROOMS:
                     for st in STOPS:
                         for x in TARGETS:
-                            grid[(tr, rm, st, x)] = {k: screen_cell(ts, tr, rm, st, x, cuts) for k, ts in reg.items()}
+                            grid[(tr, rm, st, x)] = {k: screen_cell(ts, tr, rm, st, x, cuts, slip) for k, ts in reg.items()}
             def ok(c, pf, n=60):
                 return all(c[k]["pf"] >= pf and c[k]["n"] >= n for k in REG_YEARS)
             for key, c in grid.items():
@@ -258,7 +259,7 @@ def screen():
                                 "qualifies": ok(c, 1.15), "plateau": plateau})
             base = grid[("none", "none", "original", 1.0)]
             M.log(f"[screen] {mname} {cfg}: {len(trades)} trades, room terciles {cuts[0]:.2f}/{cuts[1]:.2f} ATR, "
-                  f"baseline PF {base['2019-21']['pf']:.2f}/{base['2022-24']['pf']:.2f}")
+                  f"stop slippage ${slip:.3f}, baseline PF {base['2019-21']['pf']:.2f}/{base['2022-24']['pf']:.2f}")
     json.dump(results, open(os.path.join(M.OUTDIR, "screen.json"), "w"), indent=1)
     q = [r for r in results if r["qualifies"]]
     fin = sorted([r for r in q if r["plateau"]], key=lambda r: (min(r["pf_a"], r["pf_b"]), r["n_a"] + r["n_b"]), reverse=True)

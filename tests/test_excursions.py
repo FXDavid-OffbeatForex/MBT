@@ -97,3 +97,11 @@ def test_exit_price_counts_as_the_last_adverse_move():
     # stopped at the original stop (close_r -1) but the stop-out tick itself was never logged: worst logged -7.0
     t = path_trade([(0.0, 3.0), (2.0, 7.0)], d=10.0, mfe=0.2, close_r=-1.0, cost_r=0.0)
     assert X.stop_target_r(t, 9.0, 1.0) == pytest.approx(-1.0)     # a 9-point stop is hit by the -10 exit
+
+
+def test_stop_outs_carry_slippage():
+    # original stop, actually filled 0.2R beyond it: the replay keeps the real fill
+    t = path_trade([(0.0, 10.0)], d=10.0, mfe=0.0, close_r=-1.2, cost_r=0.0)
+    assert X.stop_target_r(t, 10.0, 1.0) == pytest.approx(-1.2)
+    # half stop: charge the setup's average price slippage (0.1) in R of the 5-point stop
+    assert X.stop_target_r(t, 5.0, 1.0, slip_price=0.1) == pytest.approx(-1.02)
