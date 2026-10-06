@@ -107,3 +107,23 @@ def test_median_r_by_exit_reason(tmp_path):
     assert K.median_r(rows, "sl") == pytest.approx(-1.0)
     assert K.median_r(rows, "tp") == pytest.approx(1.45)
     assert K.median_r(rows, "time_limit") is None
+
+
+def test_ny_session_violations(tmp_path):
+    # server = NY + 7h; session 08:00-16:55 NY = server 15:00-23:55
+    rows = K.load_rows(write(tmp_path,
+                             row("2024.01.03 15:30:00", "2024.01.03 18:00:00"),          # ok
+                             row("2024.01.03 14:59:00", "2024.01.03 15:30:00"),          # opened 07:59 NY
+                             row("2024.01.03 23:00:00", "2024.01.03 23:58:00"),          # closed 16:58 NY, after the flat
+                             row("2024.01.03 22:00:00", "2024.01.04 16:00:00")))         # held across the 17:00 NY close
+    bad = K.ny_session_violations(rows, offset_h=7, start_min=480, end_min=1015, slack_min=2)
+    assert [r["open_time"].hour for r in bad] == [14, 23, 22]
+
+
+def test_unmoved_stop_rows(tmp_path):
+    rows = K.load_rows(write(tmp_path,
+                             row("2024.01.03 10:00:00", "2024.01.03 12:00:00", side="buy", op=2000, sl=1990),
+                             row("2024.01.03 13:00:00", "2024.01.03 14:00:00", side="buy", op=2000, sl=2000.5),   # moved to BE+
+                             row("2024.01.03 15:00:00", "2024.01.03 16:00:00", side="sell", op=2000, sl=2010),
+                             row("2024.01.03 17:00:00", "2024.01.03 18:00:00", side="sell", op=2000, sl=1999.5))) # moved
+    assert [(r["side"], r["sl"]) for r in K.unmoved_stop_rows(rows)] == [("buy", 1990), ("sell", 2010)]

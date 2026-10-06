@@ -16,6 +16,9 @@
 #include <Trade\Trade.mqh>
 #include <Trade\SymbolInfo.mqh>
 
+#ifndef EA_TIMEFRAME
+#define EA_TIMEFRAME PERIOD_H1        // an EA may #define a different compiled default before including
+#endif
 #ifndef EA_SPREAD_WAIT_MIN
 #define EA_SPREAD_WAIT_MIN 30          // an EA may #define a different compiled default before including
 #endif
@@ -28,7 +31,7 @@ enum ENUM_RISK_MODE
 
 input group "=== General ==="
 input ulong               InpMagic           = EA_MAGIC;    // Magic number
-input ENUM_TIMEFRAMES     InpTimeframe       = PERIOD_H1;   // Signal timeframe
+input ENUM_TIMEFRAMES     InpTimeframe       = EA_TIMEFRAME; // Signal timeframe
 input string              InpComment         = EA_COMMENT;  // Order comment
 input int                 InpSlippagePoints  = 30;          // Max deviation (points)
 input int                 InpMaxSpreadPoints = 150;         // Max spread to trade (points, 0 = off)

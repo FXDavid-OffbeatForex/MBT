@@ -44,6 +44,13 @@ PROFILES = {
         "InpAnchor": "0", "InpRSIPeriod": "21", "InpRR": "1.0", "InpSLBufferATR": "0.0", "InpMinStopATR": "0.1",
         "InpReentryMode": "0",
     }),
+    # HoLo_EA v1.00 compiled defaults (MichaelG's HoLo, NY session only). InpTimeframe = trigger timeframe.
+    "HoLo_EA": dict(_CORE_DEFAULTS, **{
+        "InpMagic": "261007", "InpComment": "HOLO", "InpTimeframe": "15", "InpSpreadWaitMin": "0",
+        "InpLevelTF": "16385", "InpRR": "1.0", "InpBETriggerPct": "0.067", "InpBELockPct": "0.013",
+        "InpMaxLatePct": "0.01", "InpMinStopPct": "0.03", "InpBreakoutFilter": "true",
+        "InpSessionStartNY": "480", "InpSessionEndNY": "1015", "InpServerNYOffset": "7",
+    }),
     # RSI_Reversal_EA v1.10 compiled defaults (standalone, no EACore: no trade-log CSV)
     "RSI_Reversal_EA": {
         "InpMagic": "261004", "InpComment": "RSI_REV", "InpSlippage": "30",

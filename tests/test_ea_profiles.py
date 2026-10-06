@@ -17,7 +17,7 @@ def test_profiles_have_core_inputs():
     core = ["InpMagic", "InpTimeframe", "InpComment", "InpSlippagePoints", "InpMaxSpreadPoints",
             "InpRiskMode", "InpRiskValue", "InpSpreadWaitMin", "InpDailyLossPct", "InpMonthlyLossPct",
             "InpTradeLog", "InpLogEveryBar"]
-    for name in ("MACD_Cross_EA", "MeanRev_EA", "VWAP_RSI_EA"):
+    for name in ("MACD_Cross_EA", "MeanRev_EA", "VWAP_RSI_EA", "HoLo_EA"):
         for k in core:
             assert k in P.PROFILES[name], (name, k)
     assert P.PROFILES["MeanRev_EA"]["InpMagic"] == "240819"
@@ -88,3 +88,10 @@ def test_trade_log_name_for_needs_inpmagic():
     assert P.trade_log_name_for("MeanRev_EA", "XAUUSD", P.PROFILES["MeanRev_EA"]) == \
         "MeanRev_EA_XAUUSD_240819_tester_trades.csv"
     assert P.trade_log_name_for("ATR Candle Breakout EA", "XAUUSD", P.PROFILES["ATR Candle Breakout EA"]) is None
+
+
+def test_holo_profile_matches_design():
+    p = P.PROFILES["HoLo_EA"]
+    assert p["InpMagic"] == "261007" and p["InpSpreadWaitMin"] == "0"      # entry exactly at the level: no delayed retry
+    assert p["InpTimeframe"] == "15" and p["InpLevelTF"] == "16385"         # M15 trigger, H1 levels
+    assert (p["InpSessionStartNY"], p["InpSessionEndNY"], p["InpServerNYOffset"]) == ("480", "1015", "7")

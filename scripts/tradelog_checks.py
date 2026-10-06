@@ -91,3 +91,22 @@ def rr_violations(rows, rr, tol=0.02):
 def median_r(rows, reason):
     vals = [r["r_multiple"] for r in rows if r["exit_reason"] == reason and r["r_multiple"] is not None]
     return statistics.median(vals) if vals else None
+
+
+def ny_session_violations(rows, offset_h, start_min, end_min, slack_min=2):
+    """Trades opened outside [start, end) New York minutes, closed after end + slack, or held across 17:00 NY.
+    New York time = server time - offset_h (Darwinex: 7, all year)."""
+    bad = []
+    for r in rows:
+        o = r["open_time"] - dt.timedelta(hours=offset_h)
+        c = r["close_time"] - dt.timedelta(hours=offset_h)
+        o_min, c_min = o.hour * 60 + o.minute, c.hour * 60 + c.minute
+        if not (start_min <= o_min < end_min) or c.date() != o.date() or c_min > end_min + slack_min:
+            bad.append(r)
+    return bad
+
+
+def unmoved_stop_rows(rows):
+    """Trades whose logged stop (the stop at close) is still on the loss side, i.e. never moved to break-even."""
+    return [r for r in rows if (r["side"] == "buy" and r["sl"] < r["open_price"]) or
+            (r["side"] == "sell" and r["sl"] > r["open_price"])]

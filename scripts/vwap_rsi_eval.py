@@ -31,7 +31,7 @@ import tradelog_checks as K
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPORTS = os.path.join(ROOT, "reports")
 EXPERT = "VWAP_RSI_EA"
-TF = {"M5": "5", "M15": "15", "H1": "16385", "H4": "16388"}
+TF = {"M5": "5", "M15": "15", "M30": "30", "H1": "16385", "H4": "16388", "D1": "16408"}
 OFF = {"InpMaxSpreadPoints": "0", "InpDailyLossPct": "0", "InpMonthlyLossPct": "0"}
 SC_WIN = ("2025-01-01", "2025-07-01")
 REGIMES = {"1921": ("2019-01-01", "2022-01-01"), "2224": ("2022-01-01", "2025-01-01")}
@@ -61,12 +61,13 @@ def free_agent_ports():
     subprocess.run(["sleep", "1"])
 
 
-def run(name, sets, period="H1", mode="single", ranges=None, frm=SC_WIN[0], to=SC_WIN[1], timeout=900):
+def run(name, sets, period="H1", mode="single", ranges=None, frm=SC_WIN[0], to=SC_WIN[1], timeout=900,
+        expert=EXPERT, model="1min_ohlc"):
     """macd_sweep.run with one retry after killing a hung Wine terminal; singles also return the trade-log rows."""
     for attempt in (1, 2):
         free_agent_ports()
-        d = M.run(mode, name, sets=sets, ranges=ranges, model="1min_ohlc", frm=frm, to=to, timeout=timeout,
-                  expert=EXPERT, period=period)
+        d = M.run(mode, name, sets=sets, ranges=ranges, model=model, frm=frm, to=to, timeout=timeout,
+                  expert=expert, period=period)
         if mode == "opt" and d.get("passes"):
             return d, None
         if mode == "single" and d.get("metrics") and d.get("trade_log"):
