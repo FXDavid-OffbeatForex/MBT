@@ -46,5 +46,25 @@ Default cycle: lots 1,1,2,3,5,8 x 0.01 at gaps 20,20,40,60,100 pips; after leg 6
 5. Nothing passes -> Icarus is closed; no retuning. A daily-loss (5%) check needs an equity-per-day log and is
    deferred to the holdout stage.
 
-## Outcome
-(to be filled after Stage A)
+## Outcome (2026-10-06): closed
+Self-check 11/11 (EURUSD real ticks 2024-Q1: hedged start, Fibonacci lots and gaps, exact triggers and lock
+arithmetic from the agent log, cycle restarts, A/B on both progressions, account_risk kill switch, red alert).
+Stage A, author defaults, 1-minute OHLC, 100k, min_lots 0.01 (`reports/icarus/stage_a.json`, `.log`):
+
+| symbol | from | net $ | PF | legs | baskets | end-of-test $ | max equity DD $ | k | 2018/19-21 %/yr | 2022-24 %/yr | longest basket | gate A |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| EURUSD | 2018 | -6,964 | 0.17 | 424 | 217 | -7,436 | 7,086 | 1.13 | +0.1 | -2.8 | 818 d | fail |
+| USDJPY | 2019 | -8,449 | 0.27 | 1,177 | 604 | -9,566 | 9,672 | 0.83 | +0.3 | -2.6 | 173 d | fail |
+| GBPUSD | 2019 | +755 | 1.10 | 3,903 | 2,083 | -2,864 | 5,130 | 1.56 | +1.1 | -0.7 | 646 d | fail |
+| EURJPY | 2019 | -7,124 | 0.32 | 1,542 | 820 | -8,235 | 9,355 | 0.86 | +0.3 | -2.3 | 132 d | fail |
+| USDCHF | 2024 | -818 | 0.44 | 238 | 117 | -998 | 1,178 | 6.79 | n/a | -5.6 | 216 d | n/a |
+| EURGBP | 2024 | -1,039 | 0.08 | 26 | 12 | -1,072 | 1,158 | 6.91 | n/a | -7.2 | 110 d | n/a |
+
+- No symbol reaches +10% a year in either regime at the lot scale where the worst drawdown is 8%; the best
+  regime anywhere is GBPUSD 2019-21 at +1.1% a year. Gate A fails for all four scored symbols; the one-year
+  symbols are negative too.
+- The pattern is the grid signature: closed baskets are net positive on every symbol (EURUSD +472, USDJPY
+  +1,117, GBPUSD +3,619, EURJPY +1,111 over 6-7 years at 0.01 lots), and one side freezes at 6 legs in each big
+  trend (EURUSD 1.25 -> 0.95, USDJPY 103 -> 160) and carries the whole loss: the longest EURUSD basket lasted
+  818 days. Even counting only closed baskets, the return at 8% worst drawdown is +0.1 to +0.9% a year.
+- Holdout and sensitivity were not run (nothing passed). Icarus is closed under rule 5; no retuning.
