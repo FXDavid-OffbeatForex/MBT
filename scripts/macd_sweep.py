@@ -12,9 +12,8 @@ import os, sys, json, time, subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RUNNER = os.path.expanduser("~/.local/bin/mbt-wine-py")
 STAMP = time.strftime("%Y%m%d_%H%M%S")
-OUTDIR = os.path.join(ROOT, "reports", "macd_sweep_" + STAMP)
-os.makedirs(OUTDIR, exist_ok=True)
-LOGF = open(os.path.join(OUTDIR, "sweep.log"), "a")
+OUTDIR = os.path.join(ROOT, "reports", "macd_sweep_" + STAMP)   # callers may repoint this before the first log()/run()
+LOGF = None                                                       # opened lazily by log(): importing creates nothing
 IS_FROM, IS_TO = "2024-01-01", "2026-10-01"
 MIN_TRADES, MAX_DD = 150, 20.0
 DRY = "--dry" in sys.argv
@@ -27,8 +26,13 @@ KEYS = ("Profit", "Profit Factor", "Recovery Factor", "Sharpe Ratio", "Equity DD
 
 
 def log(*a):
+    global LOGF
     s = " ".join(str(x) for x in a)
-    print(s, flush=True); LOGF.write(s + "\n"); LOGF.flush()
+    print(s, flush=True)
+    if LOGF is None:
+        os.makedirs(OUTDIR, exist_ok=True)
+        LOGF = open(os.path.join(OUTDIR, "sweep.log"), "a")
+    LOGF.write(s + "\n"); LOGF.flush()
 
 
 def winpath(p):
@@ -37,6 +41,7 @@ def winpath(p):
 
 def run(mode, name, sets=None, ranges=None, model="1min_ohlc", frm=IS_FROM, to=IS_TO, timeout=3000, symbol="XAUUSD",
         expert="MACD_Cross_EA", period="H1"):
+    os.makedirs(OUTDIR, exist_ok=True)
     out = os.path.join(OUTDIR, name + ".json")
     cmd = [RUNNER, "scripts/macd_tester.py", mode, "--name", name, "--out", winpath(out), "--model", model,
            "--from", frm, "--to", to, "--timeout", str(timeout), "--symbol", symbol, "--expert", expert,

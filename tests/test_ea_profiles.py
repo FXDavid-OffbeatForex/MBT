@@ -24,6 +24,7 @@ def test_profiles_have_core_inputs():
     assert P.PROFILES["MACD_Cross_EA"]["InpMagic"] == "240817"
     assert P.PROFILES["VWAP_RSI_EA"]["InpMagic"] == "261006"
     assert P.PROFILES["VWAP_RSI_EA"]["InpSpreadWaitMin"] == "0"    # a retried bar-level stop would re-anchor
+    assert P.PROFILES["VWAP_RSI_EA"]["InpMinStopATR"] == "0.1"      # micro-stop guard (review finding #1)
 
 
 def test_merge_inputs_overrides_and_copies():

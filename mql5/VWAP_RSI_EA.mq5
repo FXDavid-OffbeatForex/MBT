@@ -19,6 +19,7 @@
 #define EA_VERSION "1.00"
 #define EA_MAGIC   261006
 #define EA_COMMENT "VWAP_RSI"
+#define EA_SPREAD_WAIT_MIN 0   // the stop is a bar level: a retried signal would re-anchor it to a later price
 #include "EACore.mqh"
 #define ATR_PERIOD 14
 
@@ -40,17 +41,19 @@ input ENUM_ANCHOR         InpAnchor          = ANCHOR_DAY;          // VWAP anch
 input int                 InpRSIPeriod       = 21;                  // RSI period (close)
 input double              InpRR              = 1.0;                 // Take profit = RR x stop distance
 input double              InpSLBufferATR     = 0.0;                 // Stop beyond the signal bar by k x ATR(14)
+input double              InpMinStopATR      = 0.1;                 // Skip if the stop is closer than k x ATR(14) to its trigger price
 input ENUM_REENTRY        InpReentryMode     = REENTRY_FRESH_ONLY;  // Re-entry rule
 
-int g_rsi = INVALID_HANDLE;
-int g_atr = INVALID_HANDLE;
+int  g_rsi = INVALID_HANDLE;
+int  g_atr = INVALID_HANDLE;
+bool g_warnedShortHistory = false;
 
 //+------------------------------------------------------------------+
 int OnInit()
   {
-   if(InpRSIPeriod <= 1 || InpRR <= 0.0 || InpSLBufferATR < 0.0)
+   if(InpRSIPeriod <= 1 || InpRR <= 0.0 || InpSLBufferATR < 0.0 || InpMinStopATR < 0.0)
      {
-      Print("Invalid RSI period / RR / SL buffer");
+      Print("Invalid RSI period / RR / SL buffer / min stop");
       return(INIT_PARAMETERS_INCORRECT);
      }
    if(!Core_Init())
@@ -64,8 +67,8 @@ int OnInit()
      }
    PrintFormat("%s v%s started on %s %s, magic %I64u, own positions: %d",
                EA_NAME, EA_VERSION, _Symbol, EnumToString(InpTimeframe), InpMagic, CountOwnPositions());
-   PrintFormat("Inputs: anchor %s | RSI%d vs 50 | RR %.2f | SL buffer %.2fxATR(%d) | re-entry %s | risk %s %.2f",
-               EnumToString(InpAnchor), InpRSIPeriod, InpRR, InpSLBufferATR, ATR_PERIOD,
+   PrintFormat("Inputs: anchor %s | RSI%d vs 50 | RR %.2f | SL buffer %.2fxATR(%d) min stop %.2fxATR | re-entry %s | risk %s %.2f",
+               EnumToString(InpAnchor), InpRSIPeriod, InpRR, InpSLBufferATR, ATR_PERIOD, InpMinStopATR,
                InpReentryMode == REENTRY_FRESH_ONLY ? "fresh only" : "every bar",
                InpRiskMode == RISK_PERCENT ? "percent" : "money", InpRiskValue);
    Core_PrintReady();
@@ -97,6 +100,7 @@ datetime PeriodStart(const datetime t)
 
 //--- VWAP of bar i (series index, 0 = last closed bar), anchored at that bar's own period. 0.0 = not computable.
 //--- The first bar of a period has VWAP == its own hlc3, exactly like the Pine script.
+//--- ponytail: recomputed from scratch on every new bar (<= 300 bars for Day on M5); running sums if Month on M1/M5 matters.
 double VwapAt(const MqlRates &r[], const int i)
   {
    const datetime start = PeriodStart(r[i].time);
@@ -137,11 +141,20 @@ void OnTick()
    MqlRates r[];
    ArraySetAsSeries(r, true);
    double rsi[2], atr[1];                        // CopyBuffer fills static arrays oldest-first: rsi[1] = shift 1, rsi[0] = shift 2
-   if(CopyRates(_Symbol, InpTimeframe, 1, need, r) < 2 ||
-      CopyBuffer(g_rsi, 0, 1, 2, rsi) < 2 || CopyBuffer(g_atr, 0, 1, 1, atr) < 1 ||
+   const int copied = CopyRates(_Symbol, InpTimeframe, 1, need, r);
+   if(copied < 2 || CopyBuffer(g_rsi, 0, 1, 2, rsi) < 2 || CopyBuffer(g_atr, 0, 1, 1, atr) < 1 ||
       rsi[0] == EMPTY_VALUE || rsi[1] == EMPTY_VALUE || atr[0] <= 0.0)
       return;                                   // data not ready: bar stays unprocessed, retried next tick
    const double vwap1 = VwapAt(r, 0), vwap2 = VwapAt(r, 1);
+   if(vwap1 <= 0.0 || vwap2 <= 0.0)
+     {
+      if(copied < need && !g_warnedShortHistory)
+        {
+         g_warnedShortHistory = true;
+         PrintFormat("VWAP not computable: only %d of %d bars available (history still loading, or Max bars in chart too low)", copied, need);
+        }
+      return;                                   // unknown VWAP is not "neutral": no state, no signal, retried next tick
+     }
    const int s1 = State(r[0].close, vwap1, rsi[1]);
    const int s2 = State(r[1].close, vwap2, rsi[0]);
    Core_MarkBar(bar);
@@ -163,9 +176,11 @@ void OnTick()
    const double sl   = buy ? r[0].low - buf : r[0].high + buf + g_symbol.Spread() * g_symbol.Point();   // sell stop fills at ask
    const double px   = buy ? g_symbol.Ask() : g_symbol.Bid();
    const double dist = buy ? px - sl : sl - px;
-   if(dist <= 0.0)
+   const double trig = buy ? g_symbol.Bid() - sl : sl - g_symbol.Ask();   // distance to the price that triggers the stop
+   if(trig <= InpMinStopATR * atr[0])            // gap through the level, or a micro-stop that would size to the margin cap
      {
-      PrintFormat("Signal skipped, %s price %.2f is already beyond the signal bar stop %.2f", buy ? "BUY" : "SELL", px, sl);
+      PrintFormat("Signal skipped, %s stop %.2f is %.2f from its trigger price (min %.2f = %.2f x ATR %.2f)",
+                  buy ? "BUY" : "SELL", sl, trig, InpMinStopATR * atr[0], InpMinStopATR, atr[0]);
       return;
      }
    Core_LogBar(bar, ctx + StringFormat(" | %s sl %.2f dist %.2f", buy ? "BUY" : "SELL", sl, dist));

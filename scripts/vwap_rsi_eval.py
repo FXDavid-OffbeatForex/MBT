@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """VWAP_RSI_EA tester checks and two-regime selection (system python; MT5 runs go through macd_sweep.run).
-Quit the MT5 GUI first (MT5 is single-instance).
+Quit the MT5 GUI first (MT5 is single-instance). MBT_FREE_PORTS=1 lets the runs terminate whatever listens on
+TCP 3000-3011 (MT5's local tester agent ports) first; a dev server there breaks every single run.
 
   python3 scripts/vwap_rsi_eval.py selfcheck                      # SL/TP geometry + sizing, H1 2025-01..07, guards off
   python3 scripts/vwap_rsi_eval.py stage-b --tf H1 --anchor 0     # 32-pass grid on 2019-21 and 2022-24, joint plateau pick
@@ -18,6 +19,7 @@ import argparse
 import collections
 import json
 import os
+import re
 import statistics
 import subprocess
 import sys
@@ -44,12 +46,19 @@ def mt5_running():
 
 def free_agent_ports():
     """MT5 pins its local tester agents to 127.0.0.1:3000-3011; a dev server on 3000 makes every single run fail
-    with 'tester agent authorization error'. Kill whatever listens there (user-approved on this machine)."""
-    pids = subprocess.run(["lsof", "-nP", "-tiTCP:3000-3011", "-sTCP:LISTEN"], capture_output=True, text=True).stdout.split()
-    if pids:
-        subprocess.run(["kill", "-9", *pids])
-        M.log(f"freed MT5 agent ports: killed pid(s) {' '.join(pids)}")
-        subprocess.run(["sleep", "2"])
+    with 'tester agent authorization error'. Opt-in (MBT_FREE_PORTS=1): terminate, then kill, whatever listens there."""
+    if os.environ.get("MBT_FREE_PORTS") != "1":
+        return
+    out = subprocess.run(["lsof", "-nP", "-Fpc", "-iTCP:3000-3011", "-sTCP:LISTEN"], capture_output=True, text=True).stdout
+    procs = re.findall(r"^p(\d+)\nc(.*)$", out, flags=re.M)
+    if not procs:
+        return
+    pids = [p for p, _ in procs]
+    M.log("freeing MT5 agent ports: " + ", ".join(f"{p}:{c}" for p, c in procs))
+    subprocess.run(["kill", "-TERM", *pids], stderr=subprocess.DEVNULL)
+    subprocess.run(["sleep", "2"])
+    subprocess.run(["kill", "-9", *pids], stderr=subprocess.DEVNULL)
+    subprocess.run(["sleep", "1"])
 
 
 def run(name, sets, period="H1", mode="single", ranges=None, frm=SC_WIN[0], to=SC_WIN[1], timeout=900):
