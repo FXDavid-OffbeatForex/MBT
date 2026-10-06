@@ -23,7 +23,13 @@ def load(exc_path, log_path):
         t = {"side": e["side"], "open_time": dt.datetime.strptime(lg["open_time"], TIME_FMT),
              "close_r": float(lg["gross"]) / risk,
              "cost_r": (float(lg["commission"]) + float(lg["swap"])) / risk,
-             "mfe_r": float(e["mfe_r"]), "reached": {}, "returned": {}, "run": {}}
+             "mfe_r": float(e["mfe_r"]), "risk_price": float(e["risk_price"]),
+             "reached": {}, "returned": {}, "run": {}}
+        for k in ("trend_h4", "trend_h12", "aoi_atr", "atr_trig"):          # enriched log (improvement screen)
+            if k in e:
+                t[k] = float(e[k])
+        if "path" in e:
+            t["path"] = [tuple(float(v) for v in pt.split(":")) for pt in e["path"].split("|") if pt]
         for k in e:
             if k.startswith("hit_"):
                 x = float(k[4:])
@@ -53,3 +59,33 @@ def summary(rs):
     loss = -sum(r for r in rs if r < 0)
     return {"n": len(rs), "net_r": sum(rs), "r_per_trade": sum(rs) / len(rs) if rs else 0.0,
             "pf": gain / loss if loss else float("inf"), "win_pct": 100.0 * sum(1 for r in rs if r > 0) / len(rs) if rs else 0.0}
+
+
+def mae_before(path, f):
+    """Worst adverse price move before the favourable move first reached f. path: [(mfe so far, mae so far)]
+    logged each time the adverse excursion grew, so an event with mfe < f happened before f was reached."""
+    return max((a for m, a in path if m < f), default=0.0)
+
+
+def max_mae(path):
+    return max((a for _, a in path), default=0.0)
+
+
+def stop_target_r(t, s, x):
+    """Net R with a stop s (price distance, at most the logged stop) and a target of x R of that stop. Trades that
+    reach neither exit at the session flat. Lots scale with 1/s, so the cost in R scales with d/s."""
+    d = t["risk_price"]
+    cost = t["cost_r"] * d / s
+    target = x * s
+    if t["mfe_r"] * d >= target - 1e-9 and mae_before(t["path"], target) < s:
+        return x + cost
+    # the exit tick itself is never seen by the EA (the position is already closed), so the exit price is the last
+    # adverse point: a trade stopped at its original stop went at least d against the entry
+    if max(max_mae(t["path"]), -t["close_r"] * d) >= s:
+        return -1.0 + cost
+    return t["close_r"] * d / s + cost
+
+
+def terciles(values):
+    v = sorted(values)
+    return v[len(v) // 3], v[2 * len(v) // 3]

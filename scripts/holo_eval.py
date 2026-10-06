@@ -6,6 +6,8 @@ Quit the MT5 GUI first. Real ticks throughout: entries are exact touches of a pr
   MBT_FREE_PORTS=1 python3 scripts/holo_eval.py stage-a       # levels H1/H4/D1 x trigger M30/M15/M5, 2019-01..2026-10
   MBT_FREE_PORTS=1 python3 scripts/holo_eval.py stage-b H1_M30 H4_M15 D1_M5   # RR x break-even grid, 2019-21 and 2022-24
   MBT_FREE_PORTS=1 python3 scripts/holo_eval.py excursions H1_M30 H4_M15 D1_M5  # one run each, exit rules replayed offline
+  MBT_FREE_PORTS=1 python3 scripts/holo_eval.py screen        # pre-registered improvement screen (docs/superpowers/specs/
+                                                              # 2026-10-06-holo-improvements-prereg.md): 6 runs, 486 cells
   python3 scripts/vwap_rsi_eval.py report reports/ho_a_*_trades.csv
 """
 import argparse
@@ -205,9 +207,73 @@ def excursions(configs):
           f"R/trade {replay['r_per_trade']:+.3f} | real EA n={actual['n']} PF {actual['pf']:.2f} R/trade {actual['r_per_trade']:+.3f}")
 
 
+SCREEN_SETUPS = ("H1_M30", "H4_M15", "D1_M5")
+MODES = {"0": "touch", "1": "close-confirm"}
+TRENDS = ("none", "h4", "h12")
+ROOMS = ("none", "drop low third", "drop high third")
+STOPS = ("original", "half", "1 ATR")
+TARGETS = (1.0, 2.0, 3.0)
+
+
+def screen_cell(trades, trend, room, stop, x, cuts):
+    keep = []
+    for t in trades:
+        want = 1.0 if t["side"] == "buy" else -1.0
+        if trend != "none" and t["trend_" + trend] != want:
+            continue
+        if room == "drop low third" and t["aoi_atr"] < cuts[0]:
+            continue
+        if room == "drop high third" and t["aoi_atr"] >= cuts[1]:
+            continue
+        s = {"original": t["risk_price"], "half": 0.5 * t["risk_price"],
+             "1 ATR": min(t["atr_trig"], t["risk_price"])}[stop]
+        keep.append(X.stop_target_r(t, s, x))
+    return X.summary(keep) if keep else {"n": 0, "pf": 0.0, "r_per_trade": 0.0}
+
+
+def screen():
+    results = []
+    for mode, mname in MODES.items():
+        for cfg in SCREEN_SETUPS:
+            info, exc = exc_run(cfg, {"InpEntryMode": mode, "InpRR": "0", "InpBETriggerPct": "0", "InpExcursionLog": "true"}, f"s{mode}")
+            trades = X.load(exc, os.path.join(E.REPORTS, info["trade_log"]))
+            reg = {k: [t for t in trades if t["open_time"].year in yrs] for k, yrs in REG_YEARS.items()}
+            cuts = X.terciles([t["aoi_atr"] for t in reg["2019-21"]])
+            grid = {}
+            for tr in TRENDS:
+                for rm in ROOMS:
+                    for st in STOPS:
+                        for x in TARGETS:
+                            grid[(tr, rm, st, x)] = {k: screen_cell(ts, tr, rm, st, x, cuts) for k, ts in reg.items()}
+            def ok(c, pf, n=60):
+                return all(c[k]["pf"] >= pf and c[k]["n"] >= n for k in REG_YEARS)
+            for key, c in grid.items():
+                tr, rm, st, x = key
+                nb = [grid[(tr, rm, STOPS[i], x)] for i in (STOPS.index(st) - 1, STOPS.index(st) + 1) if 0 <= i < len(STOPS)] + \
+                     [grid[(tr, rm, st, TARGETS[i])] for i in (TARGETS.index(x) - 1, TARGETS.index(x) + 1) if 0 <= i < len(TARGETS)]
+                plateau = all(sum(n[k]["pf"] for n in nb) / len(nb) >= 1.10 for k in REG_YEARS)
+                results.append({"mode": mname, "setup": cfg, "trend": tr, "room": rm, "stop": st, "target": x,
+                                "pf_a": c["2019-21"]["pf"], "pf_b": c["2022-24"]["pf"], "n_a": c["2019-21"]["n"], "n_b": c["2022-24"]["n"],
+                                "r_a": c["2019-21"]["r_per_trade"], "r_b": c["2022-24"]["r_per_trade"],
+                                "qualifies": ok(c, 1.15), "plateau": plateau})
+            base = grid[("none", "none", "original", 1.0)]
+            M.log(f"[screen] {mname} {cfg}: {len(trades)} trades, room terciles {cuts[0]:.2f}/{cuts[1]:.2f} ATR, "
+                  f"baseline PF {base['2019-21']['pf']:.2f}/{base['2022-24']['pf']:.2f}")
+    json.dump(results, open(os.path.join(M.OUTDIR, "screen.json"), "w"), indent=1)
+    q = [r for r in results if r["qualifies"]]
+    fin = sorted([r for r in q if r["plateau"]], key=lambda r: (min(r["pf_a"], r["pf_b"]), r["n_a"] + r["n_b"]), reverse=True)
+    print(f"\n{len(results)} cells; {len(q)} qualify (PF >= 1.15 and >= 60 trades in both periods); {len(fin)} also on a plateau")
+    print("\nTop 15 cells by the weaker period's PF:")
+    for r in sorted(results, key=lambda r: min(r["pf_a"], r["pf_b"]), reverse=True)[:15]:
+        print(f"  {r['mode']:13} {r['setup']:6} trend {r['trend']:4} room {r['room']:15} stop {r['stop']:8} TP {r['target']:.0f}R | "
+              f"PF {r['pf_a']:.2f} / {r['pf_b']:.2f}  n {r['n_a']:3d} / {r['n_b']:3d}  R/tr {r['r_a']:+.3f} / {r['r_b']:+.3f}"
+              f"{'  QUALIFIES' if r['qualifies'] else ''}{' +plateau' if r['plateau'] else ''}")
+    print("\nFinalist:", fin[0] if fin else None)
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["selfcheck", "stage-a", "stage-b", "excursions"])
+    ap.add_argument("cmd", choices=["selfcheck", "stage-a", "stage-b", "excursions", "screen"])
     ap.add_argument("configs", nargs="*", help="stage-b: LEVEL_TRIGGER, e.g. H1_M30")
     args = ap.parse_args()
     if E.mt5_running():
@@ -216,7 +282,7 @@ def main():
     if args.cmd in ("stage-b", "excursions"):
         {"stage-b": stage_b, "excursions": excursions}[args.cmd](args.configs)
     else:
-        {"selfcheck": selfcheck, "stage-a": stage_a}[args.cmd]()
+        {"selfcheck": selfcheck, "stage-a": stage_a, "screen": screen}[args.cmd]()
 
 
 if __name__ == "__main__":

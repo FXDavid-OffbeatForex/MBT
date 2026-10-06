@@ -29,7 +29,14 @@
 #define D1_WINDOW 5                     // D1 level mode: highest/lowest open of the last 5 daily bars
 #define FLAT_MARGIN_MIN 10              // go flat this long before the broker's session close (ticks thin out before it)
 
+enum ENUM_HOLO_ENTRY
+  {
+   ENTRY_TOUCH         = 0,  // Touch: enter when price returns to the level (PDF)
+   ENTRY_CLOSE_CONFIRM = 1   // Close-confirm: enter after a trigger candle closes beyond the level
+  };
+
 input group "=== HoLo ==="
+input ENUM_HOLO_ENTRY     InpEntryMode       = ENTRY_TOUCH; // Entry mode
 input ENUM_TIMEFRAMES     InpLevelTF         = PERIOD_H1;   // Level timeframe: H1/H4 = today's opens, D1 = last 5 daily opens
 input double              InpRR              = 1.0;         // Take profit = RR x stop distance (0 = none)
 input double              InpBETriggerPct    = 0.067;       // Stop to break-even after this profit, % of price (0 = off)
@@ -51,12 +58,17 @@ struct Levels { double ho, lo, high, low, pdHigh, pdLow; };
 #define EXC_N 13
 double EXC_X[EXC_N] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0};
 //--- per open position: reached x R (hit), came back to entry after it (back), best R after x before coming back (run)
-struct Excursion { ulong position; bool buy; double entry, risk, riskMoney, mfe; bool hit[EXC_N]; bool back[EXC_N]; double run[EXC_N]; };
+struct Excursion { ulong position; bool buy; double entry, risk, riskMoney, mfe; bool hit[EXC_N]; bool back[EXC_N]; double run[EXC_N];
+                   double mfeP, maeP, lastM, lastA; string path; double trendH4, trendH12, aoiAtr, atrTrig; };
+//--- entry context for the research log, set just before an order is sent and picked up by ExcTrack
+double    g_ctxTrendH4 = 0.0, g_ctxTrendH12 = 0.0, g_ctxAoiAtr = 0.0, g_ctxAtrTrig = 0.0;
+int       g_emaH4 = INVALID_HANDLE, g_smaH12 = INVALID_HANDLE, g_atrLevel = INVALID_HANDLE, g_atrTrig = INVALID_HANDLE;
 Excursion g_exc[];
 string    g_excFile  = "";
 int       g_excFlags = 0;
 
-bool   g_sellArmed = false, g_buyArmed = false;
+bool     g_sellArmed = false, g_buyArmed = false;
+datetime g_sellArmBar = 0, g_buyArmBar = 0;
 double g_sellHO = 0.0, g_sellHigh = 0.0, g_buyLO = 0.0, g_buyLow = 0.0;
 
 //+------------------------------------------------------------------+
@@ -95,6 +107,10 @@ int OnInit()
 
 void OnDeinit(const int reason)
   {
+   int hs[] = {g_emaH4, g_smaH12, g_atrLevel, g_atrTrig};
+   for(int i = 0; i < ArraySize(hs); i++)
+      if(hs[i] != INVALID_HANDLE)
+         IndicatorRelease(hs[i]);
    for(int j = ArraySize(g_exc) - 1; j >= 0; j--)   // positions the tester closes at the end of the test
       ExcWrite(j);
    Core_Deinit(reason);
@@ -120,8 +136,12 @@ void ExcInit()
    string hdr = "position,side,entry,risk_price,risk_money,mfe_r";
    for(int k = 0; k < EXC_N; k++)
       hdr += StringFormat(",hit_%.2f,back_%.2f,run_%.2f", EXC_X[k], EXC_X[k], EXC_X[k]);
-   FileWriteString(h, hdr + "\n");
+   FileWriteString(h, hdr + ",trend_h4,trend_h12,aoi_atr,atr_trig,path\n");
    FileClose(h);
+   g_emaH4    = iMA(_Symbol, PERIOD_H4, 200, 0, MODE_EMA, PRICE_CLOSE);    // MACD_Cross_EA's trend filter
+   g_smaH12   = iMA(_Symbol, PERIOD_H12, 250, 0, MODE_SMA, PRICE_CLOSE);   // RSI_Reversal_EA's trend filter
+   g_atrLevel = iATR(_Symbol, InpLevelTF, 14);
+   g_atrTrig  = iATR(_Symbol, InpTimeframe, 14);
   }
 
 void ExcWrite(const int j)
@@ -133,6 +153,10 @@ void ExcWrite(const int j)
                              g_exc[j].entry, g_exc[j].risk, g_exc[j].riskMoney, g_exc[j].mfe);
    for(int k = 0; k < EXC_N; k++)
       row += StringFormat(",%d,%d,%.3f", g_exc[j].hit[k] ? 1 : 0, g_exc[j].back[k] ? 1 : 0, g_exc[j].run[k]);
+   string path = g_exc[j].path;
+   if(g_exc[j].mfeP != g_exc[j].lastM || g_exc[j].maeP != g_exc[j].lastA)
+      path += StringFormat("%.2f:%.2f|", g_exc[j].mfeP, g_exc[j].maeP);
+   row += StringFormat(",%.0f,%.0f,%.3f,%.3f,%s", g_exc[j].trendH4, g_exc[j].trendH12, g_exc[j].aoiAtr, g_exc[j].atrTrig, path);
    FileSeek(h, 0, SEEK_END);
    FileWriteString(h, row + "\n");
    FileClose(h);
@@ -161,6 +185,8 @@ void ExcTrack()
       ArrayResize(g_exc, n + 1, 64);
       g_exc[n].position = id; g_exc[n].buy = buy; g_exc[n].entry = entry;
       g_exc[n].risk = MathAbs(entry - sl); g_exc[n].riskMoney = -pl; g_exc[n].mfe = 0.0;
+      g_exc[n].mfeP = 0.0; g_exc[n].maeP = 0.0; g_exc[n].lastM = 0.0; g_exc[n].lastA = 0.0; g_exc[n].path = "";
+      g_exc[n].trendH4 = g_ctxTrendH4; g_exc[n].trendH12 = g_ctxTrendH12; g_exc[n].aoiAtr = g_ctxAoiAtr; g_exc[n].atrTrig = g_ctxAtrTrig;
       for(int k = 0; k < EXC_N; k++)
         {
          g_exc[n].hit[k] = false; g_exc[n].back[k] = false; g_exc[n].run[k] = 0.0;
@@ -177,6 +203,19 @@ void ExcTrack()
         }
       const double r = (g_exc[j].buy ? bid - g_exc[j].entry : g_exc[j].entry - ask) / g_exc[j].risk;   // the closing side's price
       g_exc[j].mfe = MathMax(g_exc[j].mfe, r);
+      //--- adverse-move staircase: log (best favourable, worst adverse) whenever the adverse excursion grows
+      const double fav = r * g_exc[j].risk;
+      g_exc[j].mfeP = MathMax(g_exc[j].mfeP, fav);
+      if(-fav > g_exc[j].maeP)
+        {
+         g_exc[j].maeP = -fav;
+         if(g_exc[j].maeP >= g_exc[j].lastA + 0.02 * g_exc[j].risk || g_exc[j].mfeP > g_exc[j].lastM)
+           {
+            g_exc[j].path += StringFormat("%.2f:%.2f|", g_exc[j].mfeP, g_exc[j].maeP);
+            g_exc[j].lastM = g_exc[j].mfeP;
+            g_exc[j].lastA = g_exc[j].maeP;
+           }
+        }
       for(int k = 0; k < EXC_N; k++)
         {
          if(!g_exc[j].hit[k])
@@ -293,6 +332,9 @@ bool OnNewTriggerBar(const datetime bar, const bool session)
       Core_LogBar(bar, ctx + (session ? " | in position" : " | outside NY session"));
       return(true);
      }
+   TryCloseConfirmEntry(bar);
+   if(CountOwnPositions() > 0)
+      return(true);
    const double minStop = InpMinStopPct / 100.0 * o;
    string what = "";
    if(!g_sellArmed && o > lv.ho && o < lv.high)
@@ -303,7 +345,7 @@ bool OnNewTriggerBar(const datetime bar, const bool session)
          what += " | sell skipped: stop too close";
       else
         {
-         g_sellArmed = true; g_sellHO = lv.ho; g_sellHigh = lv.high;
+         g_sellArmed = true; g_sellHO = lv.ho; g_sellHigh = lv.high; g_sellArmBar = bar;
          what += " | SELL armed";
         }
      }
@@ -315,12 +357,58 @@ bool OnNewTriggerBar(const datetime bar, const bool session)
          what += " | buy skipped: stop too close";
       else
         {
-         g_buyArmed = true; g_buyLO = lv.lo; g_buyLow = lv.low;
+         g_buyArmed = true; g_buyLO = lv.lo; g_buyLow = lv.low; g_buyArmBar = bar;
          what += " | BUY armed";
         }
      }
    Core_LogBar(bar, ctx + (what == "" ? " | no setup" : what));
    return(true);
+  }
+
+double LastClosed(const int handle)
+  {
+   double b[1];
+   return((handle != INVALID_HANDLE && CopyBuffer(handle, 0, 1, 1, b) == 1) ? b[0] : 0.0);
+  }
+
+//--- research log context: with-trend sign vs H4 EMA200 and H12 SMA250, Area of Interest width in level-TF ATRs
+void SetEntryContext(const double level, const double extreme)
+  {
+   if(g_excFile == "")
+      return;
+   const double bid = g_symbol.Bid(), ema = LastClosed(g_emaH4), sma = LastClosed(g_smaH12), atr = LastClosed(g_atrLevel);
+   g_ctxTrendH4  = (ema > 0.0) ? (bid > ema ? 1.0 : -1.0) : 0.0;
+   g_ctxTrendH12 = (sma > 0.0) ? (bid > sma ? 1.0 : -1.0) : 0.0;
+   g_ctxAoiAtr   = (atr > 0.0) ? MathAbs(extreme - level) / atr : 0.0;
+   g_ctxAtrTrig  = LastClosed(g_atrTrig);
+  }
+
+//--- close-confirm mode: the trigger candle that just closed (opened at or after arming) closed beyond the level
+void TryCloseConfirmEntry(const datetime bar)
+  {
+   if(InpEntryMode != ENTRY_CLOSE_CONFIRM || (!g_sellArmed && !g_buyArmed) || CountOwnPositions() > 0 || !g_symbol.RefreshRates())
+      return;
+   if(InpMaxSpreadPoints > 0 && g_symbol.Spread() > InpMaxSpreadPoints)
+      return;
+   const datetime prevBar = iTime(_Symbol, InpTimeframe, 1);
+   const double   prevClose = iClose(_Symbol, InpTimeframe, 1);
+   const double   bid = g_symbol.Bid(), ask = g_symbol.Ask();
+   if(g_sellArmed && prevBar >= g_sellArmBar && prevClose < g_sellHO)
+     {
+      const double sl = g_sellHigh + (ask - bid);
+      PrintFormat("HOLO SELL (close-confirmed %.2f < HO %.2f): bid %.2f, stop %.2f", prevClose, g_sellHO, bid, sl);
+      SetEntryContext(g_sellHO, g_sellHigh);
+      g_sellArmed = g_buyArmed = false;
+      Core_Open(POSITION_TYPE_SELL, sl - bid, InpRR > 0.0 ? bid - InpRR * (sl - bid) : 0.0);
+      return;
+     }
+   if(g_buyArmed && prevBar >= g_buyArmBar && prevClose > g_buyLO)
+     {
+      PrintFormat("HOLO BUY (close-confirmed %.2f > LO %.2f): ask %.2f, stop %.2f", prevClose, g_buyLO, ask, g_buyLow);
+      SetEntryContext(g_buyLO, g_buyLow);
+      g_sellArmed = g_buyArmed = false;
+      Core_Open(POSITION_TYPE_BUY, ask - g_buyLow, InpRR > 0.0 ? ask + InpRR * (ask - g_buyLow) : 0.0);
+     }
   }
 
 void ManageBreakEven()
@@ -362,7 +450,7 @@ void FlattenOwn(const string reason)
 //--- enter exactly at the level: Bid back to HO for a sell, Ask back to LO for a buy, never more than InpMaxLatePct beyond it
 void TryEntry()
   {
-   if((!g_sellArmed && !g_buyArmed) || CountOwnPositions() > 0)
+   if(InpEntryMode != ENTRY_TOUCH || (!g_sellArmed && !g_buyArmed) || CountOwnPositions() > 0)
       return;
    if(InpMaxSpreadPoints > 0 && g_symbol.Spread() > InpMaxSpreadPoints)
       return;                                   // wait until the spread allows the entry
@@ -372,6 +460,7 @@ void TryEntry()
       const double sl = g_sellHigh + (ask - bid);   // the high is a Bid high, a sell stop triggers on the Ask
       const double dist = sl - bid;
       PrintFormat("HOLO SELL: bid %.2f at HO %.2f, stop %.2f (high %.2f + spread)", bid, g_sellHO, sl, g_sellHigh);
+      SetEntryContext(g_sellHO, g_sellHigh);
       g_sellArmed = g_buyArmed = false;
       Core_Open(POSITION_TYPE_SELL, dist, InpRR > 0.0 ? bid - InpRR * dist : 0.0);
       return;
@@ -380,6 +469,7 @@ void TryEntry()
      {
       const double dist = ask - g_buyLow;             // the low is a Bid low and a buy stop triggers on the Bid
       PrintFormat("HOLO BUY: ask %.2f at LO %.2f, stop %.2f", ask, g_buyLO, g_buyLow);
+      SetEntryContext(g_buyLO, g_buyLow);
       g_sellArmed = g_buyArmed = false;
       Core_Open(POSITION_TYPE_BUY, dist, InpRR > 0.0 ? ask + InpRR * dist : 0.0);
      }

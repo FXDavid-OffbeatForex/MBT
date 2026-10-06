@@ -54,3 +54,46 @@ def test_load_joins_trade_log_costs(tmp_path):
     assert t["close_r"] == pytest.approx(-1.0) and t["cost_r"] == pytest.approx(-0.03)
     assert t["reached"][0.5] and t["returned"][0.5] and t["run"][0.5] == pytest.approx(0.8)
     assert t["open_time"].year == 2024
+
+
+def path_trade(path, d=10.0, mfe=2.0, close_r=-1.0, cost_r=-0.02):
+    """path: [(favourable price move reached, worst adverse price move so far)], prices relative to entry."""
+    return {"path": path, "risk_price": d, "mfe_r": mfe, "close_r": close_r, "cost_r": cost_r}
+
+
+def test_mae_before_counts_only_adverse_moves_before_the_target():
+    p = [(0.0, 3.0), (4.0, 3.0), (4.0, 6.0), (12.0, 6.0)]     # down 3, up to 4, down to 6, then up to 12
+    assert X.mae_before(p, 4.0) == 3.0                          # +4 first reached after the -3 only
+    assert X.mae_before(p, 5.0) == 6.0                          # +5 came after the -6
+    assert X.max_mae(p) == 6.0
+
+
+def test_tighter_stop_and_target_replay():
+    p = [(0.0, 3.0), (4.0, 3.0), (4.0, 6.0), (12.0, 6.0)]
+    t = path_trade(p, d=10.0, mfe=1.2, close_r=0.8)
+    # stop 5 (half the original 10): the -6 dip stops it before +2R (10) -> -1R, costs double (d/s = 2)
+    assert X.stop_target_r(t, 5.0, 2.0) == pytest.approx(-1.0 - 0.04)
+    # stop 5, target 0.8R = +4: reached after only a -3 dip -> win
+    assert X.stop_target_r(t, 5.0, 0.8) == pytest.approx(0.8 - 0.04)
+    # stop 8: the -6 dip survives; +1R = 8 reached at the end -> win
+    assert X.stop_target_r(t, 8.0, 1.0) == pytest.approx(1.0 - 0.025)
+    # stop 8, target 3R = 24 never reached, stop never hit -> session flat at +8 price = +1R of the new stop
+    assert X.stop_target_r(t, 8.0, 3.0) == pytest.approx(8.0 / 8.0 - 0.025)
+
+
+def test_original_stop_matches_plain_take_profit():
+    p = [(0.0, 2.0), (15.0, 2.0)]
+    t = path_trade(p, d=10.0, mfe=1.5, close_r=-1.0)
+    t.update({"reached": {1.0: True}, "returned": {1.0: True}, "run": {1.0: 1.5}})
+    assert X.stop_target_r(t, 10.0, 1.0) == pytest.approx(X.variant_r(t, "tp", 1.0))
+
+
+def test_terciles_split_into_thirds():
+    lo, hi = X.terciles([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    assert sum(v < lo for v in range(1, 10)) == 3 and sum(v >= hi for v in range(1, 10)) == 3
+
+
+def test_exit_price_counts_as_the_last_adverse_move():
+    # stopped at the original stop (close_r -1) but the stop-out tick itself was never logged: worst logged -7.0
+    t = path_trade([(0.0, 3.0), (2.0, 7.0)], d=10.0, mfe=0.2, close_r=-1.0, cost_r=0.0)
+    assert X.stop_target_r(t, 9.0, 1.0) == pytest.approx(-1.0)     # a 9-point stop is hit by the -10 exit

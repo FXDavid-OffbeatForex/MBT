@@ -46,7 +46,7 @@ PROFILES = {
     }),
     # HoLo_EA v1.00 compiled defaults (MichaelG's HoLo, NY session only). InpTimeframe = trigger timeframe.
     "HoLo_EA": dict(_CORE_DEFAULTS, **{
-        "InpMagic": "261007", "InpComment": "HOLO", "InpTimeframe": "15", "InpSpreadWaitMin": "0",
+        "InpMagic": "261007", "InpComment": "HOLO", "InpTimeframe": "15", "InpSpreadWaitMin": "0", "InpEntryMode": "0",
         "InpLevelTF": "16385", "InpRR": "1.0", "InpBETriggerPct": "0.067", "InpBELockPct": "0.013",
         "InpMaxLatePct": "0.01", "InpMinStopPct": "0.03", "InpBreakoutFilter": "true",
         "InpSessionStartNY": "480", "InpSessionEndNY": "1015", "InpServerNYOffset": "7",
