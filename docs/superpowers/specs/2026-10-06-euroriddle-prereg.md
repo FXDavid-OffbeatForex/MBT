@@ -35,3 +35,13 @@ high/low" with something known at the moment of entry.
 - Holdout, once, for the best surviving configuration only: real ticks 2023-01-01 to 2026-10-01; PF >= 1.15.
   Then prop_mc with FTMO 2-step rules.
 - If nothing passes Gate A, the strategy is closed. Stop and target stay at the rule's 15/25 pips throughout.
+
+## Amendment 1 (2026-10-06, after Stage A; before scoring the new periods)
+- Finding: in 1-minute OHLC mode the Darwinex EURUSD history before 2018 replays each day's final high and low in
+  the day's first minute (2015: 96% of days, 2016: 97%, 2017: 38%, 2018+: 0-4%). That is look-ahead for every
+  version here, so 2015-2017 results are void (B: PF 109 in 2015, buys only, about one stop a year).
+- New tuning periods, the clean years split in two: 2018-2020 and 2021-2022, scored from the existing Stage A trade
+  logs (each trade depends only on its own day and the previous 20 days). Gate A unchanged: PF >= 1.15 with >= 100
+  trades in both periods; for 2021-22 (two years) the trade floor is 65.
+- Already seen before this amendment: the 2019-2022 totals per configuration. The 2023-2026 real-tick holdout is
+  still untouched and stays the deciding test, used once, for at most one configuration.
