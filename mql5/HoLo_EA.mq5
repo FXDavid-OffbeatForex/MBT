@@ -43,7 +43,18 @@ input int                 InpSessionStartNY  = 480;         // Entries from, min
 input int                 InpSessionEndNY    = 1015;        // Entries until and flat at (1015 = 16:55)
 input int                 InpServerNYOffset  = 7;           // Server time minus New York time, hours (Darwinex: 7 all year)
 
+input group "=== Research (tester) ==="
+input bool                InpExcursionLog    = false;       // Write each trade's favourable excursions per R level to a CSV
+
 struct Levels { double ho, lo, high, low, pdHigh, pdLow; };
+
+#define EXC_N 13
+double EXC_X[EXC_N] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0};
+//--- per open position: reached x R (hit), came back to entry after it (back), best R after x before coming back (run)
+struct Excursion { ulong position; bool buy; double entry, risk, riskMoney, mfe; bool hit[EXC_N]; bool back[EXC_N]; double run[EXC_N]; };
+Excursion g_exc[];
+string    g_excFile  = "";
+int       g_excFlags = 0;
 
 bool   g_sellArmed = false, g_buyArmed = false;
 double g_sellHO = 0.0, g_sellHigh = 0.0, g_buyLO = 0.0, g_buyLow = 0.0;
@@ -67,6 +78,7 @@ int OnInit()
      }
    if(!Core_Init())
       return(INIT_PARAMETERS_INCORRECT);
+   ExcInit();
    PrintFormat("%s v%s started on %s, levels %s, trigger %s, magic %I64u, own positions: %d",
                EA_NAME, EA_VERSION, _Symbol, EnumToString(InpLevelTF), EnumToString(InpTimeframe), InpMagic, CountOwnPositions());
    PrintFormat("Inputs: RR %.2f | BE +%.3f%% lock %.3f%% | late %.3f%% | min stop %.3f%% | breakout filter %s | NY %02d:%02d-%02d:%02d (server = NY%+d h) | risk %s %.2f",
@@ -81,7 +93,110 @@ int OnInit()
    return(INIT_SUCCEEDED);
   }
 
-void OnDeinit(const int reason) { Core_Deinit(reason); }
+void OnDeinit(const int reason)
+  {
+   for(int j = ArraySize(g_exc) - 1; j >= 0; j--)   // positions the tester closes at the end of the test
+      ExcWrite(j);
+   Core_Deinit(reason);
+  }
+
+//+------------------------------------------------------------------+
+//| Excursion log (research): replays exit rules offline             |
+//+------------------------------------------------------------------+
+void ExcInit()
+  {
+   if(!InpExcursionLog || MQLInfoInteger(MQL_OPTIMIZATION))
+      return;
+   g_excFlags = MQLInfoInteger(MQL_TESTER) ? FILE_COMMON : 0;
+   g_excFile  = StringFormat("%s_%s_%I64u_exc.csv", EA_NAME, _Symbol, InpMagic);
+   FileDelete(g_excFile, g_excFlags);
+   const int h = FileOpen(g_excFile, FILE_WRITE | FILE_TXT | FILE_ANSI | g_excFlags);
+   if(h == INVALID_HANDLE)
+     {
+      PrintFormat("Excursion log open failed, error %d", GetLastError());
+      g_excFile = "";
+      return;
+     }
+   string hdr = "position,side,entry,risk_price,risk_money,mfe_r";
+   for(int k = 0; k < EXC_N; k++)
+      hdr += StringFormat(",hit_%.2f,back_%.2f,run_%.2f", EXC_X[k], EXC_X[k], EXC_X[k]);
+   FileWriteString(h, hdr + "\n");
+   FileClose(h);
+  }
+
+void ExcWrite(const int j)
+  {
+   const int h = FileOpen(g_excFile, FILE_READ | FILE_WRITE | FILE_TXT | FILE_ANSI | g_excFlags);
+   if(h == INVALID_HANDLE)
+      return;
+   string row = StringFormat("%I64u,%s,%.2f,%.2f,%.2f,%.3f", g_exc[j].position, g_exc[j].buy ? "buy" : "sell",
+                             g_exc[j].entry, g_exc[j].risk, g_exc[j].riskMoney, g_exc[j].mfe);
+   for(int k = 0; k < EXC_N; k++)
+      row += StringFormat(",%d,%d,%.3f", g_exc[j].hit[k] ? 1 : 0, g_exc[j].back[k] ? 1 : 0, g_exc[j].run[k]);
+   FileSeek(h, 0, SEEK_END);
+   FileWriteString(h, row + "\n");
+   FileClose(h);
+  }
+
+void ExcTrack()
+  {
+   if(g_excFile == "")
+      return;
+   for(int i = PositionsTotal() - 1; i >= 0; i--)          // start tracking new positions
+     {
+      if(PositionGetTicket(i) == 0 || !IsOwnPosition())
+         continue;
+      const ulong id = (ulong)PositionGetInteger(POSITION_IDENTIFIER);
+      bool known = false;
+      for(int j = 0; j < ArraySize(g_exc) && !known; j++)
+         known = (g_exc[j].position == id);
+      const double entry = PositionGetDouble(POSITION_PRICE_OPEN), sl = PositionGetDouble(POSITION_SL);
+      if(known || sl <= 0.0)
+         continue;
+      const bool buy = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY);
+      double pl = 0.0;
+      if(!OrderCalcProfit(buy ? ORDER_TYPE_BUY : ORDER_TYPE_SELL, _Symbol, PositionGetDouble(POSITION_VOLUME), entry, sl, pl))
+         continue;
+      const int n = ArraySize(g_exc);
+      ArrayResize(g_exc, n + 1, 64);
+      g_exc[n].position = id; g_exc[n].buy = buy; g_exc[n].entry = entry;
+      g_exc[n].risk = MathAbs(entry - sl); g_exc[n].riskMoney = -pl; g_exc[n].mfe = 0.0;
+      for(int k = 0; k < EXC_N; k++)
+        {
+         g_exc[n].hit[k] = false; g_exc[n].back[k] = false; g_exc[n].run[k] = 0.0;
+        }
+     }
+   const double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID), ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   for(int j = ArraySize(g_exc) - 1; j >= 0; j--)
+     {
+      if(!PositionSelectByTicket(g_exc[j].position))      // closed (hedging: position ticket == identifier)
+        {
+         ExcWrite(j);
+         ArrayRemove(g_exc, j, 1);
+         continue;
+        }
+      const double r = (g_exc[j].buy ? bid - g_exc[j].entry : g_exc[j].entry - ask) / g_exc[j].risk;   // the closing side's price
+      g_exc[j].mfe = MathMax(g_exc[j].mfe, r);
+      for(int k = 0; k < EXC_N; k++)
+        {
+         if(!g_exc[j].hit[k])
+           {
+            if(r >= EXC_X[k])
+              {
+               g_exc[j].hit[k] = true;
+               g_exc[j].run[k] = r;
+              }
+           }
+         else if(!g_exc[j].back[k])
+           {
+            if(r <= 0.0)
+               g_exc[j].back[k] = true;
+            else
+               g_exc[j].run[k] = MathMax(g_exc[j].run[k], r);
+           }
+        }
+     }
+  }
 
 void Diag(const string msg)
   {
@@ -273,6 +388,7 @@ void TryEntry()
 void OnTick()
   {
    Core_OnTickStart();
+   ExcTrack();
    const bool session = InSession(TimeCurrent());
    if(session)
       ManageBreakEven();

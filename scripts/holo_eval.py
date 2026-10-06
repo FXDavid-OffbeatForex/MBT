@@ -4,17 +4,24 @@ Quit the MT5 GUI first. Real ticks throughout: entries are exact touches of a pr
 
   MBT_FREE_PORTS=1 python3 scripts/holo_eval.py selfcheck     # H1 levels, M15 trigger, 2025-01..04, guards off
   MBT_FREE_PORTS=1 python3 scripts/holo_eval.py stage-a       # levels H1/H4/D1 x trigger M30/M15/M5, 2019-01..2026-10
+  MBT_FREE_PORTS=1 python3 scripts/holo_eval.py stage-b H1_M30 H4_M15 D1_M5   # RR x break-even grid, 2019-21 and 2022-24
+  MBT_FREE_PORTS=1 python3 scripts/holo_eval.py excursions H1_M30 H4_M15 D1_M5  # one run each, exit rules replayed offline
   python3 scripts/vwap_rsi_eval.py report reports/ho_a_*_trades.csv
 """
 import argparse
+import shutil
 import glob
 import json
 import os
 import re
 import statistics
 import sys
+import time
 
+import ea_profiles as P
+import excursions as X
 import macd_sweep as M
+import selection as S
 import tradelog_checks as K
 import vwap_rsi_eval as E
 
@@ -105,14 +112,111 @@ def stage_a():
     E.report([os.path.join(E.REPORTS, v["trade_log"]) for v in out.values()])
 
 
+GRID = {"InpRR": ["1.0", "1.5", "2.0", "2.5", "3.0"], "InpBETriggerPct": ["0.0", "0.075", "0.15"]}
+REGIMES = {"1921": ("2019-01-01", "2022-01-01"), "2224": ("2022-01-01", "2025-01-01")}
+
+
+def stage_b(configs):
+    """Exit grid per (level, trigger) config on two regimes; the 2025-26 holdout stays untouched."""
+    for cfg in configs:
+        level, trig = cfg.split("_")
+        base = {"InpLevelTF": E.TF[level], "InpTimeframe": E.TF[trig]}
+        per = {}
+        for reg, (frm, to) in REGIMES.items():
+            passes = []
+            for i, (fixed, ranges) in enumerate(S.plan_launches(GRID)):
+                d, _ = E.run(f"ho_b_{cfg}_{reg}_{i}", dict(base, **fixed), period=trig, mode="opt", ranges=ranges,
+                             frm=frm, to=to, timeout=5400, expert=EXPERT, model="real_ticks")
+                passes += d.get("passes") or []
+            per[reg], failed = S.drop_failed_passes(passes)
+            M.log(f"[stage-b {cfg}] {reg}: {len(per[reg])} passes, {failed} failed OnInit")
+        print(f"\n{cfg}: PF 2019-21 / 2022-24 (trades)")
+        print("  RR \\ BE  " + "".join(f"{be:>22}" for be in GRID["InpBETriggerPct"]))
+        for rr in GRID["InpRR"]:
+            cells = []
+            for be in GRID["InpBETriggerPct"]:
+                q = [next((p for p in per[r] if abs(p["InpRR"] - float(rr)) < 1e-9 and
+                           abs(p["InpBETriggerPct"] - float(be)) < 1e-9), None) for r in REGIMES]
+                cells.append("  ".join("   n/a" if p is None else f"{p['Profit Factor']:.2f} ({p['Trades']:.0f})" for p in q))
+            print(f"  {rr:>7}  " + "".join(f"{c:>22}" for c in cells))
+        pick = S.joint_pick(per["1921"], per["2224"], GRID)
+        print(f"  joint plateau pick (PF >= 1.15 both regimes): {None if not pick else {k: pick[0][k] for k in GRID}}")
+        json.dump({"base": base, "grid": GRID, "passes": per, "pick": pick},
+                  open(os.path.join(M.OUTDIR, f"stage_b_{cfg}.json"), "w"), indent=1, default=str)
+
+
+COMMON = os.path.expanduser("~/Library/Application Support/net.metaquotes.wine.metatrader5/drive_c/users/"
+                            "lyudmilnikodimov/AppData/Roaming/MetaQuotes/Terminal/Common/Files/")
+EXC_WIN = ("2019-01-01", "2025-01-01")                       # the 2025-26 holdout stays untouched
+REG_YEARS = {"2019-21": range(2019, 2022), "2022-24": range(2022, 2025)}
+PARTIAL_X = (0.3, 0.5, 0.75, 1.0)
+PARTIAL_Y = (None, 1.0, 1.5, 2.0, 3.0)
+
+
+def exc_run(cfg, sets, tag):
+    level, trig = cfg.split("_")
+    name = f"ho_{tag}_{cfg}"
+    meta = os.path.join(M.OUTDIR, name + ".meta.json")
+    if not os.path.exists(meta):
+        t0 = time.time()
+        d, _ = run(name, dict({"InpLevelTF": E.TF[level], "InpTimeframe": E.TF[trig]}, **sets),
+                   frm=EXC_WIN[0], to=EXC_WIN[1], period=trig, timeout=3600)
+        exc = P.pick_fresh_log(os.path.join(COMMON, f"{EXPERT}_XAUUSD_261007_exc.csv"), t0)
+        if sets.get("InpExcursionLog") == "true":
+            if not exc:
+                sys.exit(f"[{name}] no fresh excursion log")
+            shutil.copyfile(exc, os.path.join(M.OUTDIR, name + "_exc.csv"))
+        json.dump({"trade_log": d["trade_log"], "metrics": d["metrics"]}, open(meta, "w"))
+    return json.load(open(meta)), os.path.join(M.OUTDIR, name + "_exc.csv")
+
+
+def exc_table(cfg, trades):
+    reg = {k: [t for t in trades if t["open_time"].year in yrs] for k, yrs in REG_YEARS.items()}
+    def line(label, fn):
+        s = {k: X.summary([fn(t) for t in ts]) for k, ts in reg.items()}
+        a, b = s["2019-21"], s["2022-24"]
+        return min(a["pf"], b["pf"]), (f"  {label:30} PF {a['pf']:4.2f} / {b['pf']:4.2f}   R/trade {a['r_per_trade']:+.3f} / "
+                                        f"{b['r_per_trade']:+.3f}   win {a['win_pct']:3.0f}% / {b['win_pct']:3.0f}%")
+    print(f"\n== {cfg}: {len(reg['2019-21'])} / {len(reg['2022-24'])} trades (2019-21 / 2022-24), after costs")
+    print(line("no target, flat at session end", lambda t: t["close_r"] + t["cost_r"])[1])
+    for x in sorted(trades[0]["reached"]):
+        print(line(f"take profit {x:.2f}R", lambda t, x=x: X.variant_r(t, "tp", x))[1])
+    rows = [line(f"half at {x:.2f}R, rest " + ("to flat" if y is None else f"at {y:.1f}R"),
+                 lambda t, x=x, y=y: X.variant_r(t, "partial", x, y))
+            for x in PARTIAL_X for y in PARTIAL_Y if y is None or y > x]
+    print("  -- partials (stop to entry after the first half), best first --")
+    for _, txt in sorted(rows, reverse=True):
+        print(txt)
+
+
+def excursions(configs):
+    for cfg in configs:
+        info, exc = exc_run(cfg, {"InpRR": "0", "InpBETriggerPct": "0", "InpExcursionLog": "true"}, "x")
+        exc_table(cfg, X.load(exc, os.path.join(E.REPORTS, info["trade_log"])))
+    cfg = "H1_M30"                                           # how far can the replay be trusted? (earlier exits -> extra trades)
+    if cfg not in configs:
+        return
+    info, exc = exc_run(cfg, {"InpRR": "0", "InpBETriggerPct": "0", "InpExcursionLog": "true"}, "x")
+    replay = X.summary([X.variant_r(t, "tp", 0.5) for t in X.load(exc, os.path.join(E.REPORTS, info["trade_log"]))])
+    real, _ = exc_run(cfg, {"InpRR": "0.5", "InpBETriggerPct": "0"}, "xc")
+    rows = K.load_rows(os.path.join(E.REPORTS, real["trade_log"]))
+    actual = X.summary([r["r_multiple"] or 0.0 for r in rows])
+    print(f"\n== cross-check {cfg}, take profit 0.5R, 2019-2024: replay n={replay['n']} PF {replay['pf']:.2f} "
+          f"R/trade {replay['r_per_trade']:+.3f} | real EA n={actual['n']} PF {actual['pf']:.2f} R/trade {actual['r_per_trade']:+.3f}")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["selfcheck", "stage-a"])
+    ap.add_argument("cmd", choices=["selfcheck", "stage-a", "stage-b", "excursions"])
+    ap.add_argument("configs", nargs="*", help="stage-b: LEVEL_TRIGGER, e.g. H1_M30")
     args = ap.parse_args()
     if E.mt5_running():
         sys.exit("Quit the MetaTrader 5 GUI first (MT5 is single-instance).")
     M.OUTDIR = os.path.join(E.REPORTS, "holo")
-    selfcheck() if args.cmd == "selfcheck" else stage_a()
+    if args.cmd in ("stage-b", "excursions"):
+        {"stage-b": stage_b, "excursions": excursions}[args.cmd](args.configs)
+    else:
+        {"selfcheck": selfcheck, "stage-a": stage_a}[args.cmd]()
 
 
 if __name__ == "__main__":

@@ -50,6 +50,7 @@ PROFILES = {
         "InpLevelTF": "16385", "InpRR": "1.0", "InpBETriggerPct": "0.067", "InpBELockPct": "0.013",
         "InpMaxLatePct": "0.01", "InpMinStopPct": "0.03", "InpBreakoutFilter": "true",
         "InpSessionStartNY": "480", "InpSessionEndNY": "1015", "InpServerNYOffset": "7",
+        "InpExcursionLog": "false",
     }),
     # RSI_Reversal_EA v1.10 compiled defaults (standalone, no EACore: no trade-log CSV)
     "RSI_Reversal_EA": {
