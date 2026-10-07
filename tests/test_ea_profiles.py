@@ -110,3 +110,13 @@ def test_euroriddle_profile_matches_prereg():
     assert p["InpMagic"] == "261008" and p["InpSpreadWaitMin"] == "0"
     assert (p["InpStopPips"], p["InpTargetPips"], p["InpMaxSpreadPoints"]) == ("15", "25", "20")   # 2 pips on EURUSD
     assert (p["InpMode"], p["InpFilter"], p["InpADRPeriod"], p["InpADRFrac"], p["InpLateStartNY"]) == ("0", "0", "20", "1.0", "720")
+
+
+def test_blessing_profile_is_complete_and_strings_are_bare():
+    p = P.PROFILES["Blessing_3"]
+    assert len(p) == 190
+    assert (p["UseMM"], p["LAF"], p["Lot"], p["Multiplier"], p["MaxTrades"]) == ("true", "0.5", "0.01", "1.4", "15")
+    assert (p["GridSetArray"], p["TP_SetArray"], p["SetCountArray"]) == ("25,50,100", "50,100,200", "4,4")
+    assert {"GridSetArray", "TradeComment", "Holidays", "HedgeSymbol"} <= P.STRING_INPUTS
+    lines = P.tester_input_lines(p, {})
+    assert "GridSetArray=25,50,100" in lines and "MaxTrades=15||15||1||15||N" in lines
