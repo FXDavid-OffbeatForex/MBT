@@ -1,0 +1,21 @@
+{
+ "macd_alone": {
+  "net_return_pct": 410.90184000000045,
+  "max_dd_pct": 17.042593135163877,
+  "ret_dd": 24.110288659780842,
+  "worst_day_pct": -3.0165752250224664,
+  "worst_month_pct": -9.262315166001844,
+  "calib_median_days": 101.0,
+  "trades": 753
+ },
+ "modes": {
+  "bb": {
+   "error": "no Stage A survivor"
+  },
+  "rsi2": {
+   "error": "no Stage A survivor"
+  }
+ },
+ "winner": null,
+ "risk_check": null
+}

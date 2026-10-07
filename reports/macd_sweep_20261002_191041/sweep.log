@@ -1,0 +1,11 @@
+=== MACD_Cross_EA staged sweep 20261002_191041 | in-sample 2024-01-01..2026-10-01 | out /Users/lyudmilnikodimov/Projects/MBT/reports/macd_sweep_20261002_191041
+[s2_exits] 135s error=None passes=320 metrics=None
+    {'Profit': 348211.87, 'Profit Factor': 1.684, 'Recovery Factor': 6.833, 'Sharpe Ratio': 2.863, 'Equity DD %': 11.185, 'Trades': 417.0, '_score': 11.503, 'InpStopLossPct': 0.5, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 4.0}
+    {'Profit': 699082.04, 'Profit Factor': 1.778, 'Recovery Factor': 6.213, 'Sharpe Ratio': 3.381, 'Equity DD %': 14.439, 'Trades': 510.0, '_score': 11.048, 'InpStopLossPct': 0.3, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 355702.36, 'Profit Factor': 1.649, 'Recovery Factor': 6.607, 'Sharpe Ratio': 3.151, 'Equity DD %': 16.751, 'Trades': 451.0, '_score': 10.898, 'InpStopLossPct': 0.5, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 554569.72, 'Profit Factor': 1.737, 'Recovery Factor': 6.027, 'Sharpe Ratio': 3.398, 'Equity DD %': 13.888, 'Trades': 476.0, '_score': 10.468, 'InpStopLossPct': 0.4, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 634249.68, 'Profit Factor': 1.7, 'Recovery Factor': 5.998, 'Sharpe Ratio': 3.377, 'Equity DD %': 14.438, 'Trades': 516.0, '_score': 10.195, 'InpStopLossPct': 0.3, 'InpTakeProfitPct': 3.0, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 815913.11, 'Profit Factor': 1.852, 'Recovery Factor': 5.428, 'Sharpe Ratio': 3.051, 'Equity DD %': 16.407, 'Trades': 444.0, '_score': 10.053, 'InpStopLossPct': 0.3, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 2.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 510235.82, 'Profit Factor': 1.691, 'Recovery Factor': 5.845, 'Sharpe Ratio': 3.39, 'Equity DD %': 13.889, 'Trades': 483.0, '_score': 9.886, 'InpStopLossPct': 0.4, 'InpTakeProfitPct': 3.0, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 3.0}
+    {'Profit': 696024.23, 'Profit Factor': 1.831, 'Recovery Factor': 5.364, 'Sharpe Ratio': 3.051, 'Equity DD %': 16.163, 'Trades': 483.0, '_score': 9.82, 'InpStopLossPct': 0.3, 'InpTakeProfitPct': 3.75, 'InpTrailStartPct': 1.0, 'InpTrailATRMult': 4.0}
+best after S2: {'InpStopLossPct': '0.5', 'InpTakeProfitPct': '3.75', 'InpTrailStartPct': '1', 'InpTrailATRMult': '4'}

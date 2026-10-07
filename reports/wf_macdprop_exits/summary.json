@@ -1,0 +1,356 @@
+{
+ "config": {
+  "ea": "MACD_Prop_EA",
+  "expert": "Advisors\\MACD_Prop_EA.ex5",
+  "symbol": "XAUUSD",
+  "period": "H1",
+  "is_months": 24,
+  "oos_months": 6,
+  "anchored": false,
+  "model": "1min_ohlc",
+  "oos_model": "real_ticks",
+  "deposit": 100000,
+  "leverage": "20",
+  "select": "plateau",
+  "min_trades": 100,
+  "max_dd": 30.0,
+  "date_from": "2021-01-01",
+  "inputs": {
+   "InpMagic": "240818",
+   "InpTimeframe": "16385",
+   "InpComment": "MACD_P",
+   "InpFastEMA": "16",
+   "InpSlowEMA": "26",
+   "InpSignalSMA": "9",
+   "InpAppliedPrice": "1",
+   "InpZeroLineFilter": "false",
+   "InpUseTrendFilter": "true",
+   "InpTrendTF": "16388",
+   "InpTrendPeriod": "200",
+   "InpMinGapATR": "0.0",
+   "InpATRPeriod": "14",
+   "InpUseTimeFilter": "false",
+   "InpStartHour": "7",
+   "InpEndHour": "20",
+   "InpStopLossPct": "0.5",
+   "InpTakeProfitPct": "3.75",
+   "InpCloseOnOpposite": "false",
+   "InpBreakEvenPct": "0.5",
+   "InpBreakEvenLockPct": "0.1",
+   "InpTrailStartPct": "1.0",
+   "InpTrailDistPct": "1.0",
+   "InpTrailATRMult": "4.0",
+   "InpLogEveryBar": "false",
+   "RG_RiskPct": "1.0",
+   "RG_InitialBalance": "0.0",
+   "RG_DailyStopPct": "50",
+   "RG_TotalStopPct": "90",
+   "RG_TargetPct": "0.0",
+   "RG_DayResetHour": "0",
+   "RG_MaxTradesPerDay": "0",
+   "RG_MaxPositions": "1",
+   "RG_MaxSpreadPoints": "0",
+   "RG_FridayCutoff": "0",
+   "RG_CloseAllOnStop": "false",
+   "RG_DeviationPoints": "30",
+   "RG_TradeLog": "true"
+  },
+  "ranges": {
+   "InpStopLossPct": [
+    "0.4",
+    "0.1",
+    "0.7"
+   ],
+   "InpTakeProfitPct": [
+    "2.25",
+    "0.75",
+    "4.5"
+   ],
+   "InpTrailATRMult": [
+    "3",
+    "1",
+    "6"
+   ]
+  }
+ },
+ "summary": {
+  "folds": 8,
+  "folds_ok": 8,
+  "folds_profitable": 8,
+  "oos_trades": 562,
+  "oos_years": 3.7481177275838466,
+  "oos_pf": 1.509924187841344,
+  "oos_compounded_pct": 260.80728552399705,
+  "oos_max_dd_pct": 14.755177844874801,
+  "oos_simple_ann_pct": 40.805273771000735,
+  "is_mean_ann_pct": 34.05905599052246,
+  "wfe": 1.1980741269621662,
+  "verdict": "PASS"
+ },
+ "folds": [
+  {
+   "fold": 1,
+   "is_from": "2021-01-01",
+   "is_to": "2023-01-01",
+   "oos_to": "2023-07-01",
+   "passes": 64,
+   "params": {
+    "InpStopLossPct": "0.6",
+    "InpTakeProfitPct": "3.75",
+    "InpTrailATRMult": "5"
+   },
+   "note": "",
+   "is": {
+    "profit": 5099.36,
+    "pf": 1.0418,
+    "rf": 0.196293,
+    "dd_pct": 23.5508,
+    "trades": 284.0,
+    "ann_pct": 2.5514263561643835,
+    "plateau": 0.4789703765407037,
+    "score": 0.2044980474
+   },
+   "oos": {
+    "profit": 16179.74,
+    "pf": 1.64,
+    "trades": 67.0,
+    "dd_pct": 7.31,
+    "ann_pct": 32.65000019337017
+   },
+   "wfe": 12.796763706107374,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_macdprop_exits\\wf_macdprop_exits_f01_oos.htm",
+   "seconds": 57
+  },
+  {
+   "fold": 2,
+   "is_from": "2021-07-01",
+   "is_to": "2023-07-01",
+   "oos_to": "2024-01-01",
+   "passes": 64,
+   "params": {
+    "InpStopLossPct": "0.6",
+    "InpTakeProfitPct": "3.75",
+    "InpTrailATRMult": "5"
+   },
+   "note": "",
+   "is": {
+    "profit": 17760.76,
+    "pf": 1.165134,
+    "rf": 0.822087,
+    "dd_pct": 21.4885,
+    "trades": 279.0,
+    "ann_pct": 8.886462452054793,
+    "plateau": 1.4880051179717408,
+    "score": 0.9578415146579999
+   },
+   "oos": {
+    "profit": 4243.25,
+    "pf": 1.18,
+    "trades": 56.0,
+    "dd_pct": 8.45,
+    "ann_pct": 8.423081861413044
+   },
+   "wfe": 0.947855449438758,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_macdprop_exits\\wf_macdprop_exits_f02_oos.htm",
+   "seconds": 50
+  },
+  {
+   "fold": 3,
+   "is_from": "2022-01-01",
+   "is_to": "2024-01-01",
+   "oos_to": "2024-07-01",
+   "passes": 64,
+   "params": {
+    "InpStopLossPct": "0.6",
+    "InpTakeProfitPct": "3.75",
+    "InpTrailATRMult": "5"
+   },
+   "note": "",
+   "is": {
+    "profit": 55019.08,
+    "pf": 1.44557,
+    "rf": 4.129343,
+    "dd_pct": 8.8972,
+    "trades": 260.0,
+    "ann_pct": 27.52838215068493,
+    "plateau": 6.0028246806341485,
+    "score": 5.969254360510001
+   },
+   "oos": {
+    "profit": 254.13,
+    "pf": 1.01,
+    "trades": 65.0,
+    "dd_pct": 13.21,
+    "ann_pct": 0.5100053983516483
+   },
+   "wfe": 0.018526530021269663,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_macdprop_exits\\wf_macdprop_exits_f03_oos.htm",
+   "seconds": 50
+  },
+  {
+   "fold": 4,
+   "is_from": "2022-07-01",
+   "is_to": "2024-07-01",
+   "oos_to": "2025-01-01",
+   "passes": 64,
+   "params": {
+    "InpStopLossPct": "0.6",
+    "InpTakeProfitPct": "3.75",
+    "InpTrailATRMult": "5"
+   },
+   "note": "",
+   "is": {
+    "profit": 51622.01,
+    "pf": 1.363361,
+    "rf": 2.225346,
+    "dd_pct": 15.1539,
+    "trades": 256.0,
+    "ann_pct": 25.793350413816693,
+    "plateau": 2.984812079601667,
+    "score": 3.033949947906
+   },
+   "oos": {
+    "profit": 3099.71,
+    "pf": 1.08,
+    "trades": 66.0,
+    "dd_pct": 11.18,
+    "ann_pct": 6.153092812500001
+   },
+   "wfe": 0.23855345326538038,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_macdprop_exits\\wf_macdprop_exits_f04_oos.htm",
+   "seconds": 56
+  },
+  {
+   "fold": 5,
+   "is_from": "2023-01-01",
+   "is_to": "2025-01-01",
+   "oos_to": "2025-07-01",
+   "passes": 64,
+   "params": {
+    "InpStopLossPct": "0.5",
+    "InpTakeProfitPct": "3.75",
+    "InpTrailATRMult": "5"
+   },
+   "note": "",
+   "is": {
+    "profit": 52204.95,
+    "pf": 1.295306,
+    "rf": 2.051351,
+    "dd_pct": 15.6725,
+    "trades": 268.0,
+    "ann_pct": 26.0846210499316,
+    "plateau": 2.2067313090950003,
+    "score": 2.657127258406
+   },
+   "oos": {
+    "profit": 44285.2,
+    "pf": 2.12,
+    "trades": 74.0,
+    "dd_pct": 10.14,
+    "ann_pct": 89.36557624309391
+   },
+   "wfe": 3.4259871390130185,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_macdprop_exits\\wf_macdprop_exits_f05_oos.htm",
+   "seconds": 53
+  },
+  {
+   "fold": 6,
+   "is_from": "2023-07-01",
+   "is_to": "2025-07-01",
+   "oos_to": "2026-01-01",
+   "passes": 64,
+   "params": {
+    "InpStopLossPct": "0.5",
+    "InpTakeProfitPct": "3.75",
+    "InpTrailATRMult": "4"
+   },
+   "note": "",
+   "is": {
+    "profit": 71244.74,
+    "pf": 1.429447,
+    "rf": 3.544714,
+    "dd_pct": 17.7881,
+    "trades": 291.0,
+    "ann_pct": 35.59800449384405,
+    "plateau": 4.7694546805155555,
+    "score": 5.066980793158
+   },
+   "oos": {
+    "profit": 6231.39,
+    "pf": 1.12,
+    "trades": 88.0,
+    "dd_pct": 11.37,
+    "ann_pct": 12.369647812500002
+   },
+   "wfe": 0.34748149477421075,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_macdprop_exits\\wf_macdprop_exits_f06_oos.htm",
+   "seconds": 55
+  },
+  {
+   "fold": 7,
+   "is_from": "2024-01-01",
+   "is_to": "2026-01-01",
+   "oos_to": "2026-07-01",
+   "passes": 64,
+   "params": {
+    "InpStopLossPct": "0.5",
+    "InpTakeProfitPct": "3.75",
+    "InpTrailATRMult": "4"
+   },
+   "note": "",
+   "is": {
+    "profit": 79958.56,
+    "pf": 1.390974,
+    "rf": 3.139258,
+    "dd_pct": 15.3091,
+    "trades": 313.0,
+    "ann_pct": 39.951934391244876,
+    "plateau": 4.721425987630444,
+    "score": 4.366626257291999
+   },
+   "oos": {
+    "profit": 63959.27,
+    "pf": 1.97,
+    "trades": 104.0,
+    "dd_pct": 12.97,
+    "ann_pct": 129.06697993093923
+   },
+   "wfe": 3.230556464851002,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_macdprop_exits\\wf_macdprop_exits_f07_oos.htm",
+   "seconds": 63
+  },
+  {
+   "fold": 8,
+   "is_from": "2024-07-01",
+   "is_to": "2026-07-01",
+   "oos_to": "2026-10-01",
+   "passes": 64,
+   "params": {
+    "InpStopLossPct": "0.5",
+    "InpTakeProfitPct": "3.75",
+    "InpTrailATRMult": "4"
+   },
+   "note": "",
+   "is": {
+    "profit": 212011.32,
+    "pf": 1.74593,
+    "rf": 7.912671,
+    "dd_pct": 10.9685,
+    "trades": 343.0,
+    "ann_pct": 106.07826661643836,
+    "plateau": 11.820572620715037,
+    "score": 13.81496967903
+   },
+   "oos": {
+    "profit": 14690.28,
+    "pf": 1.68,
+    "trades": 42.0,
+    "dd_pct": 10.43,
+    "ann_pct": 58.32200836956522
+   },
+   "wfe": 0.5498016721978315,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_macdprop_exits\\wf_macdprop_exits_f08_oos.htm",
+   "seconds": 51
+  }
+ ]
+}

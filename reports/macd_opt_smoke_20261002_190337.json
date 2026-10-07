@@ -1,0 +1,114 @@
+{
+ "name": "macd_opt_smoke_20261002_190337",
+ "ini": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\macd_opt_smoke_20261002_190337.ini",
+ "mode": "opt",
+ "model": "1min_ohlc",
+ "period": "H1",
+ "from": "2026-01-01",
+ "to": "2026-10-01",
+ "inputs": {
+  "InpMagic": "240817",
+  "InpTimeframe": "16385",
+  "InpComment": "MACD_X",
+  "InpSlippagePoints": "30",
+  "InpMaxSpreadPoints": "0",
+  "InpFastEMA": "12",
+  "InpSlowEMA": "26",
+  "InpSignalSMA": "9",
+  "InpAppliedPrice": "1",
+  "InpZeroLineFilter": "false",
+  "InpUseTrendFilter": "true",
+  "InpTrendTF": "16388",
+  "InpTrendPeriod": "200",
+  "InpMinGapATR": "0.0",
+  "InpATRPeriod": "14",
+  "InpUseTimeFilter": "false",
+  "InpStartHour": "7",
+  "InpEndHour": "20",
+  "InpStopLossPct": "0.6",
+  "InpTakeProfitPct": "3.0",
+  "InpCloseOnOpposite": "false",
+  "InpBreakEvenPct": "0.0",
+  "InpBreakEvenLockPct": "0.1",
+  "InpTrailStartPct": "2.0",
+  "InpTrailDistPct": "1.0",
+  "InpTrailATRMult": "3.0",
+  "InpRiskMode": "1",
+  "InpRiskValue": "1.0"
+ },
+ "ranges": {
+  "InpStopLossPct": [
+   "0.6",
+   "0.4",
+   "1.0"
+  ],
+  "InpTakeProfitPct": [
+   "2.0",
+   "1.0",
+   "3.0"
+  ]
+ },
+ "ran_seconds": 31.8,
+ "timed_out": false,
+ "reports": [
+  "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\macd_opt_smoke_20261002_190337.xml"
+ ],
+ "passes": [
+  {
+   "Pass": 2.0,
+   "Result": 158653.9,
+   "Profit": 58653.9,
+   "Expected Payoff": 458.233594,
+   "Profit Factor": 1.508444,
+   "Recovery Factor": 2.570723,
+   "Sharpe Ratio": 3.444709,
+   "Custom": 4915.697361490784,
+   "Equity DD %": 16.9987,
+   "Trades": 128.0,
+   "InpStopLossPct": 0.6,
+   "InpTakeProfitPct": 3.0
+  },
+  {
+   "Pass": 0.0,
+   "Result": 136869.09,
+   "Profit": 36869.09,
+   "Expected Payoff": 273.10437,
+   "Profit Factor": 1.332661,
+   "Recovery Factor": 1.997967,
+   "Sharpe Ratio": 2.707259,
+   "Custom": 2949.9796055704865,
+   "Equity DD %": 15.6557,
+   "Trades": 135.0,
+   "InpStopLossPct": 0.6,
+   "InpTakeProfitPct": 2.0
+  },
+  {
+   "Pass": 3.0,
+   "Result": 133882.44,
+   "Profit": 33882.44,
+   "Expected Payoff": 319.64566,
+   "Profit Factor": 1.467402,
+   "Recovery Factor": 2.259888,
+   "Sharpe Ratio": 3.168287,
+   "Custom": 3692.1381074513242,
+   "Equity DD %": 12.4662,
+   "Trades": 106.0,
+   "InpStopLossPct": 1.0,
+   "InpTakeProfitPct": 3.0
+  },
+  {
+   "Pass": 1.0,
+   "Result": 115659.33,
+   "Profit": 15659.33,
+   "Expected Payoff": 137.362544,
+   "Profit Factor": 1.212554,
+   "Recovery Factor": 1.076847,
+   "Sharpe Ratio": 1.755953,
+   "Custom": 1339.3865828862747,
+   "Equity DD %": 13.1765,
+   "Trades": 114.0,
+   "InpStopLossPct": 1.0,
+   "InpTakeProfitPct": 2.0
+  }
+ ]
+}

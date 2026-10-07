@@ -153,6 +153,21 @@ def _fmt_date(d) -> str:
     return s
 
 
+def _safe_run_name(stem: str) -> str:
+    """Filename-safe stem for the generated .ini / .set / report names.
+
+    MT5's /config: cannot carry a path containing a space: the argv element is
+    re-quoted into the Windows command line and the terminal logs
+    `cannot load config "...ini""`, then starts interactively instead of testing
+    — so the launch never returns and the tool blocks until its timeout. An EA
+    named "Moving Average.ex5" is enough to trigger it. Glob metacharacters in
+    the stem would likewise break _newest_report()'s lookup, so collapse
+    everything outside [A-Za-z0-9._-] to a single underscore.
+    """
+    safe = re.sub(r"[^A-Za-z0-9._-]+", "_", stem).strip("._-")
+    return safe or "run"
+
+
 def build_tester_ini(expert, symbol, period="H1", from_date=None, to_date=None,
                      model="open_prices", deposit=10000, leverage=100,
                      report_path="", set_file="", optimization=0) -> str:
@@ -354,7 +369,7 @@ def run_strategy_tester(expert, symbol, timeframe="h1", from_date=None, to_date=
 
     expert_name = expert if expert.lower().endswith(".ex5") else expert + ".ex5"
     stamp   = datetime.now().strftime("%Y%m%d_%H%M%S")
-    rname   = f"{os.path.splitext(os.path.basename(expert))[0]}_{stamp}"
+    rname   = f"{_safe_run_name(os.path.splitext(os.path.basename(expert))[0])}_{stamp}"
 
     # Report= must be a path the TERMINAL can write. A bare name is the portable
     # choice — MT5 writes <name>.htm into its data dir; we then copy it into
@@ -365,6 +380,13 @@ def run_strategy_tester(expert, symbol, timeframe="h1", from_date=None, to_date=
                                set_file=set_file)
 
     ini_path = os.path.join(reports_dir(), rname + ".ini")
+    # rname is sanitized, so a remaining space comes from reports_dir itself.
+    # MT5 would silently start interactively and hang until timeout, so say so.
+    if " " in ini_path:
+        return {"error": f"The tester config path contains a space ({ini_path}). "
+                         f"MT5's /config: cannot read such a path and would start "
+                         f"interactively instead of testing. Set reports_dir in "
+                         f"config.yaml to a space-free directory."}
     with open(ini_path, "w", encoding="utf-8") as f:
         f.write(ini_txt)
 

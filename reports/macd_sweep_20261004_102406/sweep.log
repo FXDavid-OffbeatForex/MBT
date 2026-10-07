@@ -1,0 +1,12 @@
+[v142_off_2022] 39s error=None passes=0 metrics={'net_profit': 17113.59, 'profit_factor': 1.21, 'trades': 160.0, 'win_rate_pct': 50.62, 'equity_dd_rel_pct': 14.37, 'sharpe': 1.16, 'recovery_factor': 1.07}
+[v142_off_2023] 565s error=no report written (elapsed 564.4s): another terminal running? EA not compiled? check Tester/logs passes=0 metrics=None
+[v142_off_2024-2026] 3s error=no report written (elapsed 2.1s): another terminal running? EA not compiled? check Tester/logs passes=0 metrics=None
+[v142_on_2022] 35s error=None passes=0 metrics={'net_profit': 17111.51, 'profit_factor': 1.21, 'trades': 160.0, 'win_rate_pct': 50.62, 'equity_dd_rel_pct': 14.38, 'sharpe': 1.16, 'recovery_factor': 1.07}
+[v142_on_2023] 37s error=None passes=0 metrics={'net_profit': 31165.91, 'profit_factor': 1.46, 'trades': 135.0, 'win_rate_pct': 54.07, 'equity_dd_rel_pct': 12.38, 'sharpe': 2.03, 'recovery_factor': 1.96}
+[v142_on_2024-2026] 115s error=None passes=0 metrics={'net_profit': 230149.97, 'profit_factor': 1.62, 'trades': 459.0, 'win_rate_pct': 49.02, 'equity_dd_rel_pct': 15.89, 'sharpe': 2.86, 'recovery_factor': 7.42}
+[v142_force_daily] 21s error=None passes=0 metrics={'net_profit': -6416.03, 'profit_factor': 0.39, 'trades': 40.0, 'win_rate_pct': 17.5, 'equity_dd_rel_pct': 9.52, 'sharpe': -5.0, 'recovery_factor': -0.67}
+[v142_force_monthly] 17s error=None passes=0 metrics={'net_profit': 7160.29, 'profit_factor': 1.95, 'trades': 16.0, 'win_rate_pct': 56.25, 'equity_dd_rel_pct': 4.98, 'sharpe': 2.84, 'recovery_factor': 1.44}
+[v142_force_spread] 18s error=None passes=0 metrics={'net_profit': -6080.47, 'profit_factor': 0.71, 'trades': 36.0, 'win_rate_pct': 38.89, 'equity_dd_rel_pct': 16.55, 'sharpe': -2.18, 'recovery_factor': -0.37}
+V140 reference: {'2022': 17113.59, '2023': 31165.91, '2024-2026': 201329.32}
+RESULT {"off_2022": 17113.59, "off_2023": null, "off_2024-2026": null, "on_2022": {"net_profit": 17111.51, "trades": 160.0, "profit_factor": 1.21, "equity_dd_rel_pct": 14.38}, "on_2023": {"net_profit": 31165.91, "trades": 135.0, "profit_factor": 1.46, "equity_dd_rel_pct": 12.38}, "on_2024-2026": {"net_profit": 230149.97, "trades": 459.0, "profit_factor": 1.62, "equity_dd_rel_pct": 15.89}, "force_daily": {"net_profit": -6416.03, "trades": 40.0, "profit_factor": 0.39, "equity_dd_rel_pct": 9.52}, "force_monthly": {"net_profit": 7160.29, "trades": 16.0, "profit_factor": 1.95, "equity_dd_rel_pct": 4.98}, "force_spread": {"net_profit": -6080.47, "trades": 36.0, "profit_factor": 0.71, "equity_dd_rel_pct": 16.55}}
+=== DONE

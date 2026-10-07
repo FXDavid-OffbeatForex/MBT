@@ -1,0 +1,17 @@
+Walk-forward MACD_Prop_EA XAUUSD H1: 8 folds, IS 24m rolling, OOS 6m, grid 64 passes/fold, select=plateau -> reports\wf_macdprop_exits
+   1  2021-01-01..2023-01-01 -> 2023-07-01  IS  284tr PF 1.04   +2.6%/y | OOS   67tr PF 1.64  +32.7%/y | WFE +1280% | InpStopLossPct=0.6 InpTakeProfitPct=3.75 InpTrailATRMult=5
+   2  2021-07-01..2023-07-01 -> 2024-01-01  IS  279tr PF 1.17   +8.9%/y | OOS   56tr PF 1.18   +8.4%/y | WFE   +95% | InpStopLossPct=0.6 InpTakeProfitPct=3.75 InpTrailATRMult=5
+   3  2022-01-01..2024-01-01 -> 2024-07-01  IS  260tr PF 1.45  +27.5%/y | OOS   65tr PF 1.01   +0.5%/y | WFE    +2% | InpStopLossPct=0.6 InpTakeProfitPct=3.75 InpTrailATRMult=5
+   4  2022-07-01..2024-07-01 -> 2025-01-01  IS  256tr PF 1.36  +25.8%/y | OOS   66tr PF 1.08   +6.2%/y | WFE   +24% | InpStopLossPct=0.6 InpTakeProfitPct=3.75 InpTrailATRMult=5
+   5  2023-01-01..2025-01-01 -> 2025-07-01  IS  268tr PF 1.30  +26.1%/y | OOS   74tr PF 2.12  +89.4%/y | WFE  +343% | InpStopLossPct=0.5 InpTakeProfitPct=3.75 InpTrailATRMult=5
+   6  2023-07-01..2025-07-01 -> 2026-01-01  IS  291tr PF 1.43  +35.6%/y | OOS   88tr PF 1.12  +12.4%/y | WFE   +35% | InpStopLossPct=0.5 InpTakeProfitPct=3.75 InpTrailATRMult=4
+   7  2024-01-01..2026-01-01 -> 2026-07-01  IS  313tr PF 1.39  +40.0%/y | OOS  104tr PF 1.97 +129.1%/y | WFE  +323% | InpStopLossPct=0.5 InpTakeProfitPct=3.75 InpTrailATRMult=4
+   8  2024-07-01..2026-07-01 -> 2026-10-01  IS  343tr PF 1.75 +106.1%/y | OOS   42tr PF 1.68  +58.3%/y | WFE   +55% | InpStopLossPct=0.5 InpTakeProfitPct=3.75 InpTrailATRMult=4
+Stitched OOS: 562 trades over 3.7 years | PF 1.51 | compounded +260.8% | max DD 14.8% | profitable folds 8/8
+Annualized: OOS +40.8%/y vs IS +34.1%/y -> WFE 120%
+  PASS  stitched OOS profitable: +260.8%
+  PASS  WFE >= 50%: 120%
+  PASS  stitched OOS PF >= 1.2: 1.51
+  PASS  OOS trades >= 100: 562
+Walk-forward verdict (roadmap gates 4-5): PASS
+Prop-firm view: python3 scripts/prop_mc.py reports/wf_macdprop_exits/oos_trades.csv --bt-risk <risk % per trade>

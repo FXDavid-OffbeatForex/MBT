@@ -1,0 +1,109 @@
+{
+ "config": {
+  "ea": "MACD_Prop_EA",
+  "expert": "Advisors\\MACD_Prop_EA.ex5",
+  "symbol": "XAUUSD",
+  "period": "H1",
+  "is_months": 24,
+  "oos_months": 6,
+  "anchored": false,
+  "model": "1min_ohlc",
+  "oos_model": "real_ticks",
+  "deposit": 100000,
+  "leverage": "20",
+  "select": "plateau",
+  "min_trades": 100,
+  "max_dd": 30.0,
+  "date_from": "2021-01-01",
+  "inputs": {
+   "InpMagic": "240818",
+   "InpTimeframe": "16385",
+   "InpComment": "MACD_P",
+   "InpFastEMA": "16",
+   "InpSlowEMA": "26",
+   "InpSignalSMA": "9",
+   "InpAppliedPrice": "1",
+   "InpZeroLineFilter": "false",
+   "InpUseTrendFilter": "true",
+   "InpTrendTF": "16388",
+   "InpTrendPeriod": "200",
+   "InpMinGapATR": "0.0",
+   "InpATRPeriod": "14",
+   "InpUseTimeFilter": "false",
+   "InpStartHour": "7",
+   "InpEndHour": "20",
+   "InpStopLossPct": "0.5",
+   "InpTakeProfitPct": "3.75",
+   "InpCloseOnOpposite": "false",
+   "InpBreakEvenPct": "0.5",
+   "InpBreakEvenLockPct": "0.1",
+   "InpTrailStartPct": "1.0",
+   "InpTrailDistPct": "1.0",
+   "InpTrailATRMult": "4.0",
+   "InpLogEveryBar": "false",
+   "RG_RiskPct": "1.0",
+   "RG_InitialBalance": "0.0",
+   "RG_DailyStopPct": "50",
+   "RG_TotalStopPct": "90",
+   "RG_TargetPct": "0.0",
+   "RG_DayResetHour": "0",
+   "RG_MaxTradesPerDay": "0",
+   "RG_MaxPositions": "1",
+   "RG_MaxSpreadPoints": "0",
+   "RG_FridayCutoff": "0",
+   "RG_CloseAllOnStop": "false",
+   "RG_DeviationPoints": "30",
+   "RG_TradeLog": "true"
+  },
+  "ranges": {
+   "InpStopLossPct": [
+    "0.4",
+    "0.1",
+    "0.7"
+   ],
+   "InpTakeProfitPct": [
+    "2.25",
+    "0.75",
+    "4.5"
+   ],
+   "InpTrailATRMult": [
+    "3",
+    "1",
+    "6"
+   ]
+  }
+ },
+ "result": {
+  "fold": 4,
+  "is_from": "2022-07-01",
+  "is_to": "2024-07-01",
+  "oos_to": "2025-01-01",
+  "passes": 64,
+  "params": {
+   "InpStopLossPct": "0.6",
+   "InpTakeProfitPct": "3.75",
+   "InpTrailATRMult": "5"
+  },
+  "note": "",
+  "is": {
+   "profit": 51622.01,
+   "pf": 1.363361,
+   "rf": 2.225346,
+   "dd_pct": 15.1539,
+   "trades": 256.0,
+   "ann_pct": 25.793350413816693,
+   "plateau": 2.984812079601667,
+   "score": 3.033949947906
+  },
+  "oos": {
+   "profit": 3099.71,
+   "pf": 1.08,
+   "trades": 66.0,
+   "dd_pct": 11.18,
+   "ann_pct": 6.153092812500001
+  },
+  "wfe": 0.23855345326538038,
+  "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_macdprop_exits\\wf_macdprop_exits_f04_oos.htm",
+  "seconds": 56
+ }
+}

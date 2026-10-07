@@ -1,0 +1,274 @@
+{
+ "config": {
+  "ea": "StrategyTemplate",
+  "expert": "Advisors\\StrategyTemplate.ex5",
+  "symbol": "XAUUSD",
+  "period": "H1",
+  "is_months": 24,
+  "oos_months": 6,
+  "anchored": false,
+  "model": "1min_ohlc",
+  "oos_model": "1min_ohlc",
+  "deposit": 100000,
+  "leverage": "20",
+  "select": "plateau",
+  "min_trades": 30,
+  "max_dd": 20.0,
+  "date_from": "2022-01-01",
+  "inputs": {
+   "InpMagic": "260101",
+   "InpTimeframe": "16385",
+   "InpComment": "TPL",
+   "InpFastEMA": "20",
+   "InpSlowEMA": "50",
+   "InpATRPeriod": "14",
+   "InpSLATR": "2.0",
+   "InpRewardRisk": "2.0",
+   "InpLogEveryBar": "false",
+   "RG_RiskPct": "0.5",
+   "RG_InitialBalance": "0.0",
+   "RG_DailyStopPct": "4.0",
+   "RG_TotalStopPct": "8.0",
+   "RG_TargetPct": "0.0",
+   "RG_DayResetHour": "0",
+   "RG_MaxTradesPerDay": "3",
+   "RG_MaxPositions": "1",
+   "RG_MaxSpreadPoints": "0",
+   "RG_FridayCutoff": "0",
+   "RG_CloseAllOnStop": "false",
+   "RG_DeviationPoints": "30",
+   "RG_TradeLog": "true"
+  },
+  "ranges": {
+   "InpFastEMA": [
+    "10",
+    "10",
+    "30"
+   ],
+   "InpSlowEMA": [
+    "40",
+    "20",
+    "80"
+   ],
+   "InpSLATR": [
+    "1.5",
+    "0.5",
+    "2.5"
+   ]
+  }
+ },
+ "summary": {
+  "folds": 6,
+  "folds_ok": 6,
+  "folds_profitable": 5,
+  "oos_trades": 216,
+  "oos_years": 2.74880219028063,
+  "oos_pf": 1.0987800493100777,
+  "oos_compounded_pct": 6.317200718371696,
+  "oos_max_dd_pct": 8.773385520063325,
+  "oos_simple_ann_pct": 2.4006456424302787,
+  "is_mean_ann_pct": 1.7041687723750538,
+  "wfe": 1.4086900789084194,
+  "verdict": "FAIL"
+ },
+ "folds": [
+  {
+   "fold": 1,
+   "is_from": "2022-01-01",
+   "is_to": "2024-01-01",
+   "oos_to": "2024-07-01",
+   "passes": 27,
+   "params": {
+    "InpFastEMA": "30",
+    "InpSlowEMA": "60",
+    "InpSLATR": "2"
+   },
+   "note": "",
+   "is": {
+    "profit": 3285.58,
+    "pf": 1.077024,
+    "rf": 0.408847,
+    "dd_pct": 7.3869,
+    "trades": 126.0,
+    "ann_pct": 1.643915198630137,
+    "plateau": 0.1909685936354074,
+    "score": 0.44033803132800003
+   },
+   "oos": {
+    "profit": 882.15,
+    "pf": 1.07,
+    "trades": 40.0,
+    "dd_pct": 3.14,
+    "ann_pct": 1.7703587225274724
+   },
+   "wfe": 1.0769160866708332,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_tpl_ema\\wf_tpl_ema_f01_oos.htm",
+   "seconds": 35
+  },
+  {
+   "fold": 2,
+   "is_from": "2022-07-01",
+   "is_to": "2024-07-01",
+   "oos_to": "2025-01-01",
+   "passes": 27,
+   "params": {
+    "InpFastEMA": "20",
+    "InpSlowEMA": "60",
+    "InpSLATR": "2"
+   },
+   "note": "",
+   "is": {
+    "profit": 699.16,
+    "pf": 1.013595,
+    "rf": 0.087099,
+    "dd_pct": 7.4267,
+    "trades": 154.0,
+    "ann_pct": 0.3493408891928865,
+    "plateau": 0.03304618676144445,
+    "score": 0.088283110905
+   },
+   "oos": {
+    "profit": -5077.97,
+    "pf": 0.65,
+    "trades": 41.0,
+    "dd_pct": 7.73,
+    "ann_pct": -10.080046426630437
+   },
+   "wfe": -28.854470628729636,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_tpl_ema\\wf_tpl_ema_f02_oos.htm",
+   "seconds": 27
+  },
+  {
+   "fold": 3,
+   "is_from": "2023-01-01",
+   "is_to": "2025-01-01",
+   "oos_to": "2025-07-01",
+   "passes": 27,
+   "params": {
+    "InpFastEMA": "20",
+    "InpSlowEMA": "40",
+    "InpSLATR": "2"
+   },
+   "note": "",
+   "is": {
+    "profit": 1712.87,
+    "pf": 1.029766,
+    "rf": 0.197546,
+    "dd_pct": 8.243,
+    "trades": 174.0,
+    "ann_pct": 0.8558492031463749,
+    "plateau": 0.008452990393111112,
+    "score": 0.203426154236
+   },
+   "oos": {
+    "profit": 8265.41,
+    "pf": 1.87,
+    "trades": 37.0,
+    "dd_pct": 3.37,
+    "ann_pct": 16.67923205801105
+   },
+   "wfe": 19.48851736578461,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_tpl_ema\\wf_tpl_ema_f03_oos.htm",
+   "seconds": 29
+  },
+  {
+   "fold": 4,
+   "is_from": "2023-07-01",
+   "is_to": "2025-07-01",
+   "oos_to": "2026-01-01",
+   "passes": 27,
+   "params": {
+    "InpFastEMA": "20",
+    "InpSlowEMA": "60",
+    "InpSLATR": "2"
+   },
+   "note": "",
+   "is": {
+    "profit": 4987.9,
+    "pf": 1.109038,
+    "rf": 0.379683,
+    "dd_pct": 12.0083,
+    "trades": 142.0,
+    "ann_pct": 2.4922441518467853,
+    "plateau": 0.3269389265375185,
+    "score": 0.421082874954
+   },
+   "oos": {
+    "profit": 1154.04,
+    "pf": 1.13,
+    "trades": 27.0,
+    "dd_pct": 5.52,
+    "ann_pct": 2.2908321195652177
+   },
+   "wfe": 0.9191844698954079,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_tpl_ema\\wf_tpl_ema_f04_oos.htm",
+   "seconds": 30
+  },
+  {
+   "fold": 5,
+   "is_from": "2024-01-01",
+   "is_to": "2026-01-01",
+   "oos_to": "2026-07-01",
+   "passes": 27,
+   "params": {
+    "InpFastEMA": "20",
+    "InpSlowEMA": "40",
+    "InpSLATR": "2"
+   },
+   "note": "",
+   "is": {
+    "profit": 6256.62,
+    "pf": 1.11364,
+    "rf": 0.900934,
+    "dd_pct": 6.7882,
+    "trades": 173.0,
+    "ann_pct": 3.126170253077975,
+    "plateau": 0.14790547768292592,
+    "score": 1.00331613976
+   },
+   "oos": {
+    "profit": 420.75,
+    "pf": 1.03,
+    "trades": 49.0,
+    "dd_pct": 5.4,
+    "ann_pct": 0.8490549033149172
+   },
+   "wfe": 0.27159586157502197,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_tpl_ema\\wf_tpl_ema_f05_oos.htm",
+   "seconds": 28
+  },
+  {
+   "fold": 6,
+   "is_from": "2024-07-01",
+   "is_to": "2026-07-01",
+   "oos_to": "2026-10-01",
+   "passes": 27,
+   "params": {
+    "InpFastEMA": "20",
+    "InpSlowEMA": "60",
+    "InpSLATR": "2"
+   },
+   "note": "",
+   "is": {
+    "profit": 3512.58,
+    "pf": 1.07772,
+    "rf": 0.388019,
+    "dd_pct": 8.3543,
+    "trades": 143.0,
+    "ann_pct": 1.7574929383561644,
+    "plateau": 0.5382856060979999,
+    "score": 0.41817583668
+   },
+   "oos": {
+    "profit": 954.52,
+    "pf": 1.14,
+    "trades": 22.0,
+    "dd_pct": 2.45,
+    "ann_pct": 3.7895481521739134
+   },
+   "wfe": 2.1562238285397557,
+   "oos_report": "Z:\\Users\\lyudmilnikodimov\\Projects\\MBT\\reports\\wf_tpl_ema\\wf_tpl_ema_f06_oos.htm",
+   "seconds": 30
+  }
+ ]
+}

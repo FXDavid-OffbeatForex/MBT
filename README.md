@@ -334,6 +334,42 @@ reference material, not user tools.
 
 ---
 
+## Prop-firm risk guard
+
+`mql5/RiskGuard.mqh` (copy to `MQL5/Include`) adds prop-firm limits and a closed-trade
+CSV to any EA. `mql5/StrategyTemplate.mq5` shows the wiring with a placeholder signal.
+`mql5/MACD_Prop_EA.mq5` is MACD_Cross_EA v1.41's strategy, logic unchanged, on top of the guard. It uses magic 240818, so it never touches MACD_Cross_EA's positions.
+- Lot size comes from risk % of balance and the SL. Orders without an SL are refused.
+- **Daily stop:** when equity falls a set % below the day-start balance, it closes positions and pauses until the next reset.
+- **Total stop:** when equity falls a set % below the initial balance, it closes positions and halts for good.
+- **Optional target lock:** at the profit target it closes positions and halts.
+- It refuses any entry whose SL, added to the open SLs, could cross a stop.
+- Further limits: max entries per day, max positions, max spread, a Friday cut-off hour.
+
+The trade CSV (`profit` = net, `balance` = after the close) feeds `scripts/prop_mc.py`.
+That script gives drawdown percentiles and P(pass) for a challenge, per risk level:
+
+```bash
+python3 scripts/prop_mc.py MQL5/Files/StrategyTemplate_XAUUSD_260101_trades.csv --bt-risk 0.5
+python3 scripts/prop_mc.py reports/<tester report>.htm --bt-risk 1.0   # MT5 reports work too
+```
+
+`scripts/walkforward.py` runs a rolling walk-forward for any EA. Run it under the Wine Python with the MT5 GUI closed.
+- For each window it runs a complete-grid optimization in-sample.
+- It then picks the centre of the best profitable *region*, not the single best pass, and runs that set once out-of-sample.
+- It writes the stitched out-of-sample trades to `reports/wf_<tag>/oos_trades.csv`.
+- The verdict covers four checks: out-of-sample profit, walk-forward efficiency ≥ 50%, stitched profit factor ≥ 1.2, and at least 100 trades.
+- It reads every input's default from the EA source, so all inputs are written explicitly.
+- Finished folds are reused, so re-running the same command resumes.
+
+```bash
+~/.local/bin/mbt-wine-py scripts/walkforward.py --tag tpl_ema --ea StrategyTemplate \
+  --from 2022-01-01 --to 2026-10-01 --is-months 24 --oos-months 6 \
+  --range InpFastEMA=10:10:30 --range InpSlowEMA=40:20:80 --range InpSLATR=1.5:0.5:2.5
+```
+
+---
+
 ## Built on YouTube
 
 This toolkit was built live on [FX David](https://www.youtube.com/@fxdavid9392) — a series on building, verifying, and backtesting MT5 indicators with Claude AI.
