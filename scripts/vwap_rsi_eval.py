@@ -49,7 +49,7 @@ def free_agent_ports():
     listens there the run would fail ('tester agent authorization error'), so refuse to start and name it.
     Never kills: those ports belong to the user's own dev servers (asked 2026-10-07)."""
     out = subprocess.run(["lsof", "-nP", "-Fpc", "-iTCP:3000-3011", "-sTCP:LISTEN"], capture_output=True, text=True).stdout
-    procs = re.findall(r"^p(\d+)\nc(.*)$", out, flags=re.M)
+    procs = [(p, c) for p, c in re.findall(r"^p(\d+)\nc(.*)$", out, flags=re.M) if c != "wineserver"]   # wineserver = MT5's own
     if procs:
         sys.exit("MT5 tester agent ports 3000-3011 are in use by " + ", ".join(f"{p}:{c}" for p, c in procs) +
                  ". Stop or move that server (e.g. PORT=3100), then rerun; nothing was killed.")
@@ -59,6 +59,8 @@ def run(name, sets, period="H1", mode="single", ranges=None, frm=SC_WIN[0], to=S
         expert=EXPERT, model="1min_ohlc", symbol="XAUUSD"):
     """macd_sweep.run with one retry after killing a hung Wine terminal; singles also return the trade-log rows."""
     for attempt in (1, 2):
+        if not mt5_running():                                       # orphaned agents of an earlier run (our own MT5 processes)
+            subprocess.run(["pkill", "-KILL", "-f", "metatester64.exe"])
         free_agent_ports()
         d = M.run(mode, name, sets=sets, ranges=ranges, model=model, frm=frm, to=to, timeout=timeout,
                   expert=expert, period=period, symbol=symbol)

@@ -28,3 +28,11 @@ def test_agent_ports_pass_when_free(monkeypatch):
     monkeypatch.setattr(E.subprocess, "run", run)
     E.free_agent_ports()
     assert all(c[0] != "kill" for c in calls)
+
+
+def test_agent_ports_ignore_wine_owned_sockets(monkeypatch):
+    # under Wine every Windows socket (MT5's own tester agents) shows up as owned by wineserver
+    calls, run = fake_lsof("p43429\ncwineserver\n")
+    monkeypatch.setattr(E.subprocess, "run", run)
+    E.free_agent_ports()                                            # must not refuse
+    assert all(c[0] != "kill" for c in calls)
