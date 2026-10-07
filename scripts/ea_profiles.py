@@ -18,7 +18,7 @@ _CORE_DEFAULTS = {
 }
 
 PROFILES = {
-    # MACD_Cross_EA v1.42 compiled defaults
+    # MACD_Cross_EA v1.43 compiled defaults (break-even steps 2-3 off = v1.42 behaviour)
     "MACD_Cross_EA": dict(_CORE_DEFAULTS, **{
         "InpMagic": "240817", "InpComment": "MACD_X",
         "InpFastEMA": "16", "InpSlowEMA": "26", "InpSignalSMA": "9", "InpAppliedPrice": "1",
@@ -28,6 +28,7 @@ PROFILES = {
         "InpUseTimeFilter": "false", "InpStartHour": "7", "InpEndHour": "20",
         "InpStopLossPct": "0.5", "InpTakeProfitPct": "3.75", "InpCloseOnOpposite": "false",
         "InpBreakEvenPct": "0.5", "InpBreakEvenLockPct": "0.1",
+        "InpBreakEven2Pct": "0.0", "InpBreakEven2LockPct": "0.0", "InpBreakEven3Pct": "0.0", "InpBreakEven3LockPct": "0.0",
         "InpTrailStartPct": "1.0", "InpTrailDistPct": "1.0", "InpTrailATRMult": "4.0",
     }),
     # MeanRev_EA v1.00 compiled defaults (pre-tuning; Task 8 replaces the strategy values with the winner's)

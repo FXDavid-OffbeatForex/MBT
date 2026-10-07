@@ -120,3 +120,10 @@ def test_blessing_profile_is_complete_and_strings_are_bare():
     assert {"GridSetArray", "TradeComment", "Holidays", "HedgeSymbol"} <= P.STRING_INPUTS
     lines = P.tester_input_lines(p, {})
     assert "GridSetArray=25,50,100" in lines and "MaxTrades=15||15||1||15||N" in lines
+
+
+def test_macd_v143_ladder_defaults_keep_v142_behaviour():
+    p = P.PROFILES["MACD_Cross_EA"]
+    assert (p["InpBreakEvenPct"], p["InpBreakEvenLockPct"], p["InpTrailStartPct"]) == ("0.5", "0.1", "1.0")
+    for k in ("InpBreakEven2Pct", "InpBreakEven2LockPct", "InpBreakEven3Pct", "InpBreakEven3LockPct"):
+        assert p[k] == "0.0", k                                    # extra ladder steps off by default

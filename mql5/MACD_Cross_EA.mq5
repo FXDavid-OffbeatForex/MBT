@@ -3,7 +3,11 @@
 //|  MACD line / signal line crossover Expert Advisor                |
 //|  Designed for XAUUSD, works on any symbol.                       |
 //|                                                                  |
-//|  v1.42                                                           |
+//|  v1.43                                                           |
+//|  Changelog 1.43: optional 2nd and 3rd break-even steps (each its |
+//|  own trigger and lock-in; the highest lock reached wins). Steps  |
+//|  2-3 off by default, so the defaults trade exactly like v1.42.   |
+//|                                                                  |
 //|  Changelog 1.42 (safety only, signal/exit logic unchanged):      |
 //|  - spread guard 150 pts, blocked signal retried within its bar   |
 //|  - daily loss stop: close own positions, no entries until next   |
@@ -33,7 +37,7 @@
 //|  - OnTester custom criterion for optimization ("Custom max")     |
 //+------------------------------------------------------------------+
 #property copyright "2026"
-#property version   "1.42"
+#property version   "1.43"
 #property strict
 #property description "MACD crossover EA with trend/strength filters, % SL/TP, trailing and risk-based lots"
 
@@ -78,6 +82,10 @@ input double              InpTakeProfitPct   = 3.75;        // Take profit (% of
 input bool                InpCloseOnOpposite = false;       // Close open position on opposite signal
 input double              InpBreakEvenPct    = 0.5;         // Move SL to BE after profit of % (0 = off)
 input double              InpBreakEvenLockPct= 0.1;         // BE lock-in (% of open price)
+input double              InpBreakEven2Pct   = 0.0;         // 2nd BE step: move SL after profit of % (0 = off)
+input double              InpBreakEven2LockPct = 0.0;       // 2nd BE step lock-in (% of open price)
+input double              InpBreakEven3Pct   = 0.0;         // 3rd BE step: move SL after profit of % (0 = off)
+input double              InpBreakEven3LockPct = 0.0;       // 3rd BE step lock-in (% of open price)
 input double              InpTrailStartPct   = 1.0;         // Start trailing after profit of % (0 = off)
 input double              InpTrailDistPct    = 1.0;         // Trailing distance (% of price) if ATR mult = 0
 input double              InpTrailATRMult    = 4.0;         // Trailing distance in ATR multiples (0 = use %)
@@ -156,6 +164,9 @@ int OnInit()
      }
    if((InpTrailStartPct > 0.0 && InpTrailDistPct <= 0.0 && InpTrailATRMult <= 0.0) ||
       InpBreakEvenPct < 0.0 || InpBreakEvenLockPct < 0.0 || InpTrailATRMult < 0.0 ||
+      InpBreakEven2Pct < 0.0 || InpBreakEven2LockPct < 0.0 || InpBreakEven3Pct < 0.0 || InpBreakEven3LockPct < 0.0 ||
+      (InpBreakEven2Pct > 0.0 && InpBreakEven2LockPct >= InpBreakEven2Pct) ||
+      (InpBreakEven3Pct > 0.0 && InpBreakEven3LockPct >= InpBreakEven3Pct) ||
       (InpTrailATRMult > 0.0 && InpATRPeriod <= 0))
      {
       Print("Invalid trailing / break-even settings");
@@ -210,7 +221,7 @@ int OnInit()
    g_trade.SetAsyncMode(false);
    g_trade.LogLevel(LOG_LEVEL_ERRORS);
 
-   g_manageStops = (InpBreakEvenPct > 0.0 || InpTrailStartPct > 0.0);
+   g_manageStops = (InpBreakEvenPct > 0.0 || InpBreakEven2Pct > 0.0 || InpBreakEven3Pct > 0.0 || InpTrailStartPct > 0.0);
 
 //--- restart persistence: key unique per symbol / timeframe / magic
    g_gvLastBar = StringFormat("MACDX_%s_%s_%I64u", _Symbol, EnumToString(InpTimeframe), InpMagic);
@@ -224,9 +235,10 @@ int OnInit()
                InpFastEMA, InpSlowEMA, InpSignalSMA, InpZeroLineFilter ? "on" : "off",
                InpUseTrendFilter ? "on" : "off", EnumToString(InpTrendTF), InpTrendPeriod,
                InpMinGapATR, InpUseTimeFilter ? "on" : "off", InpStartHour, InpEndHour);
-   PrintFormat("Inputs: SL=%.2f%% TP=%.2f%% closeOpp=%s BE=%.2f%%(+%.2f%%) trail start=%.2f%% dist=%s | risk %s %.2f",
+   PrintFormat("Inputs: SL=%.2f%% TP=%.2f%% closeOpp=%s BE=%.2f%%(+%.2f%%) %.2f%%(+%.2f%%) %.2f%%(+%.2f%%) trail start=%.2f%% dist=%s | risk %s %.2f",
                InpStopLossPct, InpTakeProfitPct, InpCloseOnOpposite ? "on" : "off",
-               InpBreakEvenPct, InpBreakEvenLockPct, InpTrailStartPct,
+               InpBreakEvenPct, InpBreakEvenLockPct, InpBreakEven2Pct, InpBreakEven2LockPct, InpBreakEven3Pct, InpBreakEven3LockPct,
+               InpTrailStartPct,
                InpTrailATRMult > 0.0 ? StringFormat("%.1fxATR(%d)", InpTrailATRMult, InpATRPeriod)
                                      : StringFormat("%.2f%%", InpTrailDistPct),
                InpRiskMode == RISK_PERCENT ? "percent" : "money", InpRiskValue);
@@ -531,10 +543,14 @@ void ManageOpenPositions()
 
       double newSL = 0.0;
 
-      //--- break-even
-      if(InpBreakEvenPct > 0.0 && profit >= open * InpBreakEvenPct / 100.0)
+      //--- break-even ladder: the highest lock-in among the steps reached
+      double lockPct = -1.0;
+      if(InpBreakEvenPct  > 0.0 && profit >= open * InpBreakEvenPct  / 100.0) lockPct = MathMax(lockPct, InpBreakEvenLockPct);
+      if(InpBreakEven2Pct > 0.0 && profit >= open * InpBreakEven2Pct / 100.0) lockPct = MathMax(lockPct, InpBreakEven2LockPct);
+      if(InpBreakEven3Pct > 0.0 && profit >= open * InpBreakEven3Pct / 100.0) lockPct = MathMax(lockPct, InpBreakEven3LockPct);
+      if(lockPct >= 0.0)
         {
-         double lock = open * InpBreakEvenLockPct / 100.0;
+         double lock = open * lockPct / 100.0;
          newSL = isBuy ? open + lock : open - lock;
         }
 
