@@ -2,8 +2,8 @@
 """EuroRiddle_EA checks and the pre-registered Stage A (docs/superpowers/specs/2026-10-06-euroriddle-prereg.md).
 System python; tester runs go through vwap_rsi_eval.run, one agent at a time. Quit the MT5 GUI first.
 
-  MBT_FREE_PORTS=1 python3 scripts/eurid_eval.py selfcheck   # 5 real-tick runs, Jan-Apr 2024
-  MBT_FREE_PORTS=1 python3 scripts/eurid_eval.py stage-a     # 3 versions x 3 filters x {2015-18, 2019-22}, 1-min OHLC
+  python3 scripts/eurid_eval.py selfcheck   # 5 real-tick runs, Jan-Apr 2024
+  python3 scripts/eurid_eval.py stage-a     # 3 versions x 3 filters x {2015-18, 2019-22}, 1-min OHLC
 """
 import argparse
 import datetime as dt

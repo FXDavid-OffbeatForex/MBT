@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """VWAP_RSI_EA tester checks and two-regime selection (system python; MT5 runs go through macd_sweep.run).
-Quit the MT5 GUI first (MT5 is single-instance). MBT_FREE_PORTS=1 lets the runs terminate whatever listens on
-TCP 3000-3011 (MT5's local tester agent ports) first; a dev server there breaks every single run.
+Quit the MT5 GUI first (MT5 is single-instance). MT5's local tester agents need TCP 3000-3011 (fixed by MT5); a run
+refuses to start, without killing anything, while another process listens there.
 
   python3 scripts/vwap_rsi_eval.py selfcheck                      # SL/TP geometry + sizing, H1 2025-01..07, guards off
   python3 scripts/vwap_rsi_eval.py stage-b --tf H1 --anchor 0     # 32-pass grid on 2019-21 and 2022-24, joint plateau pick
@@ -45,20 +45,14 @@ def mt5_running():
 
 
 def free_agent_ports():
-    """MT5 pins its local tester agents to 127.0.0.1:3000-3011; a dev server on 3000 makes every single run fail
-    with 'tester agent authorization error'. Opt-in (MBT_FREE_PORTS=1): terminate, then kill, whatever listens there."""
-    if os.environ.get("MBT_FREE_PORTS") != "1":
-        return
+    """MT5 pins its local tester agents to 127.0.0.1:3000-3011 and the ports cannot be changed. If anything else
+    listens there the run would fail ('tester agent authorization error'), so refuse to start and name it.
+    Never kills: those ports belong to the user's own dev servers (asked 2026-10-07)."""
     out = subprocess.run(["lsof", "-nP", "-Fpc", "-iTCP:3000-3011", "-sTCP:LISTEN"], capture_output=True, text=True).stdout
     procs = re.findall(r"^p(\d+)\nc(.*)$", out, flags=re.M)
-    if not procs:
-        return
-    pids = [p for p, _ in procs]
-    M.log("freeing MT5 agent ports: " + ", ".join(f"{p}:{c}" for p, c in procs))
-    subprocess.run(["kill", "-TERM", *pids], stderr=subprocess.DEVNULL)
-    subprocess.run(["sleep", "2"])
-    subprocess.run(["kill", "-9", *pids], stderr=subprocess.DEVNULL)
-    subprocess.run(["sleep", "1"])
+    if procs:
+        sys.exit("MT5 tester agent ports 3000-3011 are in use by " + ", ".join(f"{p}:{c}" for p, c in procs) +
+                 ". Stop or move that server (e.g. PORT=3100), then rerun; nothing was killed.")
 
 
 def run(name, sets, period="H1", mode="single", ranges=None, frm=SC_WIN[0], to=SC_WIN[1], timeout=900,

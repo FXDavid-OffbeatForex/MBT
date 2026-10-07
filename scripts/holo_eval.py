@@ -2,11 +2,11 @@
 """HoLo_EA tester checks and the Stage A timeframe matrix (system python; runs go through vwap_rsi_eval.run).
 Quit the MT5 GUI first. Real ticks throughout: entries are exact touches of a price level.
 
-  MBT_FREE_PORTS=1 python3 scripts/holo_eval.py selfcheck     # H1 levels, M15 trigger, 2025-01..04, guards off
-  MBT_FREE_PORTS=1 python3 scripts/holo_eval.py stage-a       # levels H1/H4/D1 x trigger M30/M15/M5, 2019-01..2026-10
-  MBT_FREE_PORTS=1 python3 scripts/holo_eval.py stage-b H1_M30 H4_M15 D1_M5   # RR x break-even grid, 2019-21 and 2022-24
-  MBT_FREE_PORTS=1 python3 scripts/holo_eval.py excursions H1_M30 H4_M15 D1_M5  # one run each, exit rules replayed offline
-  MBT_FREE_PORTS=1 python3 scripts/holo_eval.py screen        # pre-registered improvement screen (docs/superpowers/specs/
+  python3 scripts/holo_eval.py selfcheck     # H1 levels, M15 trigger, 2025-01..04, guards off
+  python3 scripts/holo_eval.py stage-a       # levels H1/H4/D1 x trigger M30/M15/M5, 2019-01..2026-10
+  python3 scripts/holo_eval.py stage-b H1_M30 H4_M15 D1_M5   # RR x break-even grid, 2019-21 and 2022-24
+  python3 scripts/holo_eval.py excursions H1_M30 H4_M15 D1_M5  # one run each, exit rules replayed offline
+  python3 scripts/holo_eval.py screen        # pre-registered improvement screen (docs/superpowers/specs/
                                                               # 2026-10-06-holo-improvements-prereg.md): 6 runs, 486 cells
   python3 scripts/vwap_rsi_eval.py report reports/ho_a_*_trades.csv
 """
