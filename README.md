@@ -8,7 +8,12 @@ An **MCP server for researching MetaTrader 5 strategies with an AI assistant**.
 MBT connects your assistant to MT5 price data and tester results, then turns
 recorded evidence into reports you can inspect.
 
-**Python 3.10+** · **MetaTrader 5** · **MCP-compatible AI client** · [MIT license](LICENSE)
+<p align="center">
+  <img alt="Python 3.10 or newer" src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&amp;logo=python&amp;logoColor=white">
+  <img alt="MetaTrader 5" src="https://img.shields.io/badge/MetaTrader-5-64748B?style=flat-square">
+  <img alt="MCP server" src="https://img.shields.io/badge/MCP-server-19A797?style=flat-square">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/License-MIT-16A34A?style=flat-square"></a>
+</p>
 
 [Get started](#install) · [Choose a workflow](#how-it-works) · [Explore the reports](#what-the-report-contains) · [Browse MCP tools](#tools-mcp) · [Compare with MT5](#mt5-directly-versus-mbt--an-ai-assistant)
 
