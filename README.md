@@ -1,34 +1,25 @@
-# MBT — MT5 Backtest Toolkit (MCP Server)
+# MBT — MT5 Backtest Toolkit
 
-```
-  ███╗   ███╗██████╗ ████████╗
-  ████╗ ████║██╔══██╗╚══██╔══╝
-  ██╔████╔██║██████╔╝   ██║
-  ██║╚██╔╝██║██╔══██╗   ██║
-  ██║ ╚═╝ ██║██████╔╝   ██║
-  ╚═╝     ╚═╝╚═════╝    ╚═╝
-   MT5 Backtest Toolkit · replay real signals on real bars
-   ╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴
-```
+<p align="center">
+  <img src="docs/assets/mbt-overview.svg" alt="MBT: indicator-signal replay and native MT5 Expert Advisor testing, with evidence reports" width="100%">
+</p>
 
-**Backtest, build, optimize and inspect MetaTrader 5 strategies through an AI assistant — real indicator signals and native MT5 EA tests, with readable evidence reports.**
+An **MCP server for researching MetaTrader 5 strategies with an AI assistant**.
+MBT connects your assistant to MT5 price data and tester results, then turns
+recorded evidence into reports you can inspect.
 
-**Requirements:** Python 3.10+ · MetaTrader 5 · an MCP-compatible AI client (the examples use Claude Code)
+**Python 3.10+** · **MetaTrader 5** · **MCP-compatible AI client** · [MIT license](LICENSE)
 
-For indicators, add the logging include below. For native EA testing, use an installed Expert Advisor. Through the AI client you can:
+[Get started](#install) · [Choose a workflow](#how-it-works) · [Explore the reports](#what-the-report-contains) · [Browse MCP tools](#tools-mcp) · [Compare with MT5](#mt5-directly-versus-mbt--an-ai-assistant)
 
-- **Backtest your indicator's real signals** — replayed on real broker bars, with an HTML report.
-- **Run your indicator headlessly** — MT5 executes it over a selected date range and logs its signals, subject to available price history.
-- **Build, test & verify an Expert Advisor** — compile it, run MT5's native Strategy Tester, and compare logged signals for strategy drift.
-- **Inspect and fine-tune EA inputs** — compare exposed methods, periods and other settings using MT5's complete or genetic optimizer.
-- **Check frozen candidates on later dates** — retain the in-sample winner and compare detailed in-sample/out-of-sample reports.
-- **Inspect saved EA trades on an MT5 chart** — ask your assistant to open the recorded deals, or use a button in the report.
-- **Explore trade-order and sample risk** — run limited Monte Carlo diagnostics from verified closed trades, with balance, drawdown and profit charts.
+| Indicator signals | Expert Advisors |
+| --- | --- |
+| Run an instrumented indicator in MT5, then replay **its logged signals** against broker price bars. | Compile and single-test an EA in MT5, inspect inputs, and run bounded complete or genetic optimization. |
+| Inspect entries, exits and ambiguous bars in an HTML report. | Freeze candidates, check later dates, inspect trades on a chart, and optionally resample verified closed trades. |
 
-The core principle: **MBT never recalculates your indicator in Python.** Your
-indicator logs the signals *it* generated; MBT reads those real signals and
-replays real broker price bars forward to see whether each trade hit its stop
-or its target. The replay uses your indicator's logged signals rather than a Python reimplementation.
+These are different test paths: indicator replay does **not** optimize indicator
+inputs or execute an EA. EA optimization uses MT5's native tester; MBT does not
+replace it. Neither path proves future profitability.
 
 ---
 
@@ -48,29 +39,15 @@ the configured rule for bars that touch both stop and target.
 
 ## How it works
 
-```
-  Your MT5 indicator                MBT (this toolkit)
-  ┌──────────────────┐              ┌────────────────────────────┐
-  │ #include          │   writes     │ reads signals.csv          │
-  │  <SignalLogger>   ├─ signals.csv ┤                            │
-  │ LogSignal(...)    │              │ replays real MT5 bars      │
-  └──────────────────┘              │ forward → WIN / LOSS / OPEN │
-                                     │                            │
-                                     │ tools for AI assistants:   │
-                                     │  get_ohlcv                 │
-                                     │  get_signals               │
-                                     │  run_indicator (headless)  │
-                                     │  backtest  (+ HTML report) │
-                                     │  validate_signals          │
-                                     └────────────────────────────┘
-```
+**For indicator signals:** add `SignalLogger.mqh`, let the indicator write
+`signals.csv`, then ask MBT to replay those entries against MT5 bars. MBT reports
+whether the logged stop or target was reached under the chosen bar rules.
 
-That's the indicator-backtest loop above. MBT also drives MT5's own toolchain to
-**build, test and verify an Expert Advisor** (`compile_ea`, `run_strategy_tester`,
-`signal_parity`) and orchestrates native optimization. These are distinct paths:
-indicator replay does not optimize indicator inputs or execute an EA. EA optimization
-executes the real EA in MT5; Monte Carlo resamples its saved trade history without
-executing the EA again. See [Use it](#use-it) for each workflow.
+**For Expert Advisors:** MBT asks MT5 to compile or test the actual EA. It can
+orchestrate native input optimization, freeze an in-sample selection, and run
+separate later-period checks. Limited Monte Carlo uses verified saved trades;
+it does not rerun the EA or model its future signals. See [Use it](#use-it)
+for the individual workflows.
 
 ---
 

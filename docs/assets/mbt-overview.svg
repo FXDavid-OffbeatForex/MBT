@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+  <title id="title">MBT — MT5 Backtest Toolkit</title>
+  <desc id="desc">Indicator signals flow to price-bar replay; Expert Advisor inputs flow to the native MT5 tester. Both workflows produce evidence reports.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1"><stop stop-color="#0B1324"/><stop offset="1" stop-color="#132843"/></linearGradient>
+    <linearGradient id="accent" x2="1" y2="0"><stop stop-color="#48D8C1"/><stop offset="1" stop-color="#72A6FF"/></linearGradient>
+  </defs>
+  <rect width="1200" height="320" rx="24" fill="url(#background)"/>
+  <path d="M0 264H1200M0 184H1200M0 104H1200M80 0V320M160 0V320M240 0V320M320 0V320M400 0V320M480 0V320M560 0V320M640 0V320M720 0V320M800 0V320M880 0V320M960 0V320M1040 0V320M1120 0V320" stroke="#D5E6FF" stroke-opacity=".055"/>
+  <rect x="42" y="38" width="72" height="72" rx="17" fill="#203955" stroke="#4D789B"/>
+  <path d="M57 86V61L78 83L99 61V86" fill="none" stroke="url(#accent)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="133" y="91" fill="#F5FAFF" font-family="Segoe UI, Arial, sans-serif" font-size="59" font-weight="750" letter-spacing="-2">MBT</text>
+  <text x="44" y="159" fill="#A7C3DC" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="600" letter-spacing="2.5">MT5 BACKTEST TOOLKIT</text>
+  <text x="44" y="207" fill="#F4F8FF" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="600">From a trading idea to inspectable evidence.</text>
+  <text x="44" y="248" fill="#A7C3DC" font-family="Segoe UI, Arial, sans-serif" font-size="17">Local-first research through an AI assistant.</text>
+  <rect x="615" y="35" width="545" height="250" rx="19" fill="#102239" stroke="#41617F"/>
+  <text x="642" y="73" fill="#91ABC5" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="2">TWO TEST PATHS</text>
+  <rect x="640" y="93" width="493" height="65" rx="12" fill="#16364A"/>
+  <rect x="640" y="174" width="493" height="65" rx="12" fill="#20304C"/>
+  <circle cx="663" cy="125" r="6" fill="#48D8C1"/><circle cx="663" cy="206" r="6" fill="#72A6FF"/>
+  <text x="680" y="130" fill="#ECFAF8" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">Indicator signals</text>
+  <text x="831" y="130" fill="#7FB5AD" font-family="Segoe UI, Arial, sans-serif" font-size="16">→</text>
+  <text x="855" y="130" fill="#ECFAF8" font-family="Segoe UI, Arial, sans-serif" font-size="16">Bar replay</text>
+  <text x="680" y="211" fill="#EEF4FF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">EA inputs</text>
+  <text x="831" y="211" fill="#91A9D9" font-family="Segoe UI, Arial, sans-serif" font-size="16">→</text>
+  <text x="855" y="211" fill="#EEF4FF" font-family="Segoe UI, Arial, sans-serif" font-size="16">MT5 tester</text>
+  <rect x="1031" y="104" width="87" height="43" rx="9" fill="#254C57" stroke="#4D827D"/>
+  <rect x="1031" y="185" width="87" height="43" rx="9" fill="#334669" stroke="#6176A7"/>
+  <text x="1045" y="131" fill="#C9F9EB" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700">REPORT</text>
+  <text x="1045" y="212" fill="#DBE7FF" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700">REPORT</text>
+  <text x="643" y="266" fill="#8CA9C4" font-family="Segoe UI, Arial, sans-serif" font-size="13">Real inputs · saved results · explicit limits</text>
+</svg>
