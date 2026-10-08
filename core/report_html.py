@@ -6,6 +6,7 @@ user can open in any browser or screenshot for content.
 """
 
 import html as _html
+import json
 import os
 from datetime import datetime
 
@@ -77,6 +78,15 @@ def render(rep: BacktestReport, filename: str = None) -> str:
 
     equity = rep.equity_curve
     labels = list(range(1, len(equity) + 1))
+    closed = sorted((trade for trade in rep.trades if trade.outcome in ('WIN', 'LOSS')),
+                    key=lambda trade: trade.time)
+    hover_metadata = []
+    if len(closed) == len(equity):
+        hover_metadata = [[f'Signal: {trade.time:%Y-%m-%d %H:%M:%S}',
+                           f'Exit: {trade.exit_time:%Y-%m-%d %H:%M:%S}' if trade.exit_time else 'Exit time unavailable',
+                           f'{trade.direction} / {trade.outcome} / trade return: {trade.r:+.2f} R']
+                          for trade in closed]
+    hover_json = json.dumps(hover_metadata).replace('<', '\\u003c')
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -124,6 +134,7 @@ def render(rep: BacktestReport, filename: str = None) -> str:
 
 <script>
 const ctx = document.getElementById('equity');
+const hoverMetadata = {hover_json};
 new Chart(ctx, {{
   type: 'line',
   data: {{
@@ -137,7 +148,11 @@ new Chart(ctx, {{
     }}]
   }},
   options: {{
-    plugins: {{ legend: {{ display:false }} }},
+    interaction: {{ mode: 'index', intersect: false }},
+    plugins: {{ legend: {{ display:false }}, tooltip: {{ enabled: true,
+      callbacks: {{ title: items => ['Trade ' + (items[0].dataIndex + 1), ...(hoverMetadata[items[0].dataIndex] || [])],
+        label: context => 'Cumulative R: ' + Number(context.parsed.y).toFixed(2) + ' R' }}
+    }} }},
     scales: {{
       x: {{ grid:{{color:'#21262d'}}, ticks:{{color:'#6e7681'}} }},
       y: {{ grid:{{color:'#21262d'}}, ticks:{{color:'#9aa0a6'}} }}

@@ -1,8 +1,12 @@
 # user-specific config (each user sets their own paths)
 config.yaml
+.local/
 
 # generated reports
 reports/*.html
+reports/optimization/
+reports/optimization_batches/
+reports/trade_charts/
 
 # python
 __pycache__/

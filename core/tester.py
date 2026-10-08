@@ -28,6 +28,7 @@ import sys
 from datetime import datetime
 
 from .connection import load_config, _toolkit_root, reports_dir
+from .terminal_lock import terminal_lock
 
 # ENUM_TIMEFRAMES strings MT5 accepts in the .ini Period field
 _PERIOD_MAP = {
@@ -153,12 +154,22 @@ def _fmt_date(d) -> str:
     return s
 
 
+def _validate_execution_delay(value):
+    if type(value) is not int or not -1 <= value <= 600000:
+        raise ValueError('execution_delay_ms must be -1 (random), 0 (none), or 1..600000 (fixed milliseconds)')
+    return value
+
+
 def build_tester_ini(expert, symbol, period="H1", from_date=None, to_date=None,
                      model="open_prices", deposit=10000, leverage=100,
-                     report_path="", set_file="", optimization=0) -> str:
+                     report_path="", set_file="", optimization=0,
+                     execution_delay_ms=0) -> str:
     """Return the text of a [Tester] config .ini."""
     period = _PERIOD_MAP.get(str(period).lower(), str(period).upper())
     model_code = _MODEL_MAP.get(str(model).lower(), 2)
+    _validate_execution_delay(execution_delay_ms)
+    if model_code == 3 and execution_delay_ms != 0:
+        raise ValueError('Execution delays are not applicable to math calculations')
 
     lines = [
         "[Tester]",
@@ -170,7 +181,11 @@ def build_tester_ini(expert, symbol, period="H1", from_date=None, to_date=None,
         f"Deposit={deposit}",
         f"Leverage={leverage}",
         "Currency=USD",
-        "ExecutionMode=0",
+        f"ExecutionMode={execution_delay_ms}",
+        "ForwardMode=0",
+        "UseLocal=1",
+        "UseRemote=0",
+        "UseCloud=0",
         "Visual=0",
         "ShutdownTerminal=1",
         "ReplaceReport=1",
@@ -293,6 +308,8 @@ _REPORT_FIELDS = {
     "Total Trades": "total_trades",
     "Balance Drawdown Maximal": "balance_dd_max",
     "Equity Drawdown Maximal": "equity_dd_max",
+    "Balance Drawdown Relative": "balance_dd_relative_pct",
+    "Equity Drawdown Relative": "equity_dd_relative_pct",
 }
 
 
@@ -312,12 +329,7 @@ def _num(s: str):
 def parse_tester_report(path: str) -> dict:
     """Parse the key metrics out of an MT5 tester .htm report. Defensive: strips
     tags to text and label-matches, so it tolerates layout differences."""
-    with open(path, encoding="utf-16", errors="ignore") as f:
-        raw = f.read()
-    if "<" not in raw[:200] and "Net Profit" not in raw:
-        # some builds write utf-8/cp1252
-        with open(path, encoding="cp1252", errors="ignore") as f:
-            raw = f.read()
+    raw = _read_text_any(path)
     text = re.sub(r"<[^>]+>", " ", raw)
     text = text.replace("\xa0", " ")                 # NBSP thousands sep -> space
     text = re.sub(r"[ \t]+", " ", text)
@@ -334,9 +346,9 @@ def parse_tester_report(path: str) -> dict:
     return out
 
 
-def run_strategy_tester(expert, symbol, timeframe="h1", from_date=None, to_date=None,
-                        model=None, deposit=None, leverage=None,
-                        set_file="", timeout_sec=None) -> dict:
+def _run_strategy_tester_unlocked(expert, symbol, timeframe="h1", from_date=None, to_date=None,
+                                  model=None, deposit=None, leverage=None,
+                                  set_file="", timeout_sec=None, execution_delay_ms=0) -> dict:
     """Run one backtest in MT5's Strategy Tester and return parsed metrics.
 
     expert     : EA name relative to MQL5/Experts (e.g. 'RegimePlusPro_Gold_EA'),
@@ -362,7 +374,7 @@ def run_strategy_tester(expert, symbol, timeframe="h1", from_date=None, to_date=
     # sees Windows paths.)
     ini_txt = build_tester_ini(expert_name, symbol, timeframe, from_date, to_date,
                                model, deposit, leverage, report_path=rname,
-                               set_file=set_file)
+                               set_file=set_file, execution_delay_ms=execution_delay_ms)
 
     ini_path = os.path.join(reports_dir(), rname + ".ini")
     with open(ini_path, "w", encoding="utf-8") as f:
@@ -417,6 +429,9 @@ def run_strategy_tester(expert, symbol, timeframe="h1", from_date=None, to_date=
         "expert": expert, "symbol": symbol, "timeframe": timeframe,
         "from": _fmt_date(from_date), "to": _fmt_date(to_date),
         "model": model, "deposit": deposit,
+        "execution_delay_ms": execution_delay_ms,
+        "execution_delay_mode": ('random' if execution_delay_ms == -1 else
+                                 'none' if execution_delay_ms == 0 else 'fixed'),
         "ran_seconds": elapsed, "timed_out": timed_out,
         "command": " ".join(cmd),
         "ini": ini_path,
@@ -436,3 +451,28 @@ def run_strategy_tester(expert, symbol, timeframe="h1", from_date=None, to_date=
                                "compiled into MQL5/Experts, the symbol exists, and "
                                "history is available for the date range.")
     return result
+
+
+def run_strategy_tester(expert, symbol, timeframe="h1", from_date=None, to_date=None,
+                        model=None, deposit=None, leverage=None,
+                        set_file="", timeout_sec=None, html_report=True,
+                        execution_delay_ms=0) -> dict:
+    """Serialize this terminal's tester runs with other MBT tester operations."""
+    _validate_execution_delay(execution_delay_ms)
+    with terminal_lock(_terminal_path(), _data_dir()):
+        if sys.platform == "win32":
+            from .optimization import _terminal_busy
+            if _terminal_busy():
+                raise RuntimeError("An MT5 terminal is already running; close it before MBT tester launch")
+        result = _run_strategy_tester_unlocked(
+            expert, symbol, timeframe, from_date, to_date, model, deposit,
+            leverage, set_file, timeout_sec, execution_delay_ms,
+        )
+        result['native_report_html'] = result.get('report_html')
+        if html_report and result.get('report_html') and not result.get('error') and not result.get('timed_out'):
+            try:
+                from .report_single_html import render_single_backtest_report
+                result['report_html'] = render_single_backtest_report(result)
+            except Exception as exc:
+                result['report_error'] = str(exc)
+        return result

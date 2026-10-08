@@ -6,6 +6,7 @@ config.yaml, never the code.
 """
 
 import os
+from pathlib import Path
 import yaml
 import MetaTrader5 as mt5
 
@@ -45,10 +46,14 @@ def connect() -> bool:
     cfg  = load_config()
     path = (cfg.get("mt5_path") or "").strip()
 
-    if path:
-        ok = mt5.initialize(path=path)
-    else:
-        ok = mt5.initialize()
+    # initialize() may launch MT5. Serialize that launch with tester operations;
+    # a running data-session remains visible to their busy-terminal check.
+    from .tester import _terminal_path, _data_dir
+    from .terminal_lock import terminal_lock
+    if path and Path(path).resolve() != Path(_terminal_path()).resolve():
+        raise RuntimeError("mt5_path and tester.terminal_path must match for a shared MT5 session")
+    with terminal_lock(_terminal_path(), _data_dir()):
+        ok = mt5.initialize(path=str(Path(_terminal_path()).resolve()))
 
     if not ok:
         raise RuntimeError(f"MT5 initialize failed: {mt5.last_error()}")

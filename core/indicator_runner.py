@@ -20,10 +20,13 @@ in the tester's per-agent sandbox and won't be found here.
 import os
 import time
 import subprocess
+import sys
 
 from .connection import reports_dir
 from .tester import (_tester_cfg, _data_dir, _common_files_dir, _launch_cmd,
+                     _terminal_path,
                      build_tester_ini, _fmt_date)
+from .terminal_lock import terminal_lock
 
 HOST_EA = "MBT_IndicatorHost"
 
@@ -74,9 +77,9 @@ def _signal_span(path: str):
     return n, first, last
 
 
-def run_indicator(indicator, symbol, timeframe="h1", from_date=None, to_date=None,
-                  signal_file="signals.csv", model=None, deposit=None,
-                  leverage=None, timeout_sec=None, host_ea=HOST_EA) -> dict:
+def _run_indicator_unlocked(indicator, symbol, timeframe="h1", from_date=None, to_date=None,
+                            signal_file="signals.csv", model=None, deposit=None,
+                            leverage=None, timeout_sec=None, host_ea=HOST_EA) -> dict:
     """Run an indicator headlessly through the tester so it logs its own signals.
 
     indicator   : name under MQL5/Indicators (e.g. 'RegimePlusePro'), .ex5 optional.
@@ -200,3 +203,18 @@ def run_indicator(indicator, symbol, timeframe="h1", from_date=None, to_date=Non
                                "symbol/timeframe has history for the date range; and "
                                "the strategy actually fires in that range.")
     return result
+
+
+def run_indicator(indicator, symbol, timeframe="h1", from_date=None, to_date=None,
+                  signal_file="signals.csv", model=None, deposit=None,
+                  leverage=None, timeout_sec=None, host_ea=HOST_EA) -> dict:
+    """Serialize this terminal's tester runs with other MBT tester operations."""
+    with terminal_lock(_terminal_path(), _data_dir()):
+        if sys.platform == "win32":
+            from .optimization import _terminal_busy
+            if _terminal_busy():
+                raise RuntimeError("An MT5 terminal is already running; close it before MBT indicator launch")
+        return _run_indicator_unlocked(
+            indicator, symbol, timeframe, from_date, to_date, signal_file,
+            model, deposit, leverage, timeout_sec, host_ea,
+        )
